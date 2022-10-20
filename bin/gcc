@@ -1,0 +1,9 @@
+#!/system/bin/sh
+
+
+ export PATH=/data/local/python39/gcc_9.3.0/arm-linux-androideabi/bin:/data/local/python39/gcc_9.3.0/bin
+
+ /data/local/python39/gcc_9.3.0/arm-linux-androideabi/bin/gcc "$@"
+
+
+

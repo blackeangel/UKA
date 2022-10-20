@@ -1,0 +1,45 @@
+#!/system/bin/sh
+
+#loop=$(busybox mount | grep "$file" | cut -d" " -f1)
+
+loop=$(busybox mount | cut -d" " -f1,3 | grep "$file$" | cut -d" " -f1)
+loop_d=$(busybox mount | cut -d" " -f3 | grep "$file$")
+echo
+echo ".....Размонтирование $file..."
+echo
+if [ ! -z "$loop_d" ]; then
+
+
+ pid_term="$(cat /proc/$$/status | busybox awk '/^PPid:/ { print $2 }')"
+ fuser -vm "$loop_d" &> /data/local/binary/fuser.txt
+ 
+ check_pid="$(busybox cat /data/local/binary/fuser.txt | busybox grep -o "$pid_term")"
+ if [ -z "$check_pid" ]; then
+
+ fuser -skm "$loop_d"
+ busybox umount "$loop_d"
+if [ "$?" -eq 0 ]; then
+losetup -d "$loop" 2> /dev/null
+busybox rm -rf "$loop_d"
+
+echo ".....Успешно размонтировано: $loop_d"
+echo
+else
+echo
+echo ".....Ошибка размонтирования!"
+fi
+else
+echo
+echo ".....Ошибка размонтирования!"
+echo
+#echo ".....Сначала выйдите в терминале из папки: $loop_d"
+echo ".....Завершите работу UKA(пункт 14), введите: cd, нажмите \"enter\", запустите UKA и размонтируйте заново."
+echo
+fi
+else
+echo
+echo ".....Папка не смонтирована!"
+echo
+fi
+
+ busybox rm -f /data/local/binary/fuser.txt

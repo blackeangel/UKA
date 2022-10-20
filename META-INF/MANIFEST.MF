@@ -1,0 +1,42 @@
+Manifest-Version: 1.0
+Created-By: 1.0 (Android SignApk)
+
+Name: META-INF/com/google/android/updater-script
+SHA1-Digest: Lzl1y1cC6TvXytLj6okU81/P8AA=
+
+Name: python3.4.2.tar.xz
+SHA1-Digest: WnMLTwPCefsUDcQOvsT4RhRiCqc=
+
+Name: uninstall.sh
+SHA1-Digest: +GsMao3Rq2Tqzjpbs05Fs6q0m6g=
+
+Name: install.sh
+SHA1-Digest: jP7CjX4N54Ek4RZ3MA/tCVAN/ic=
+
+Name: META-INF/com/android/otacert
+SHA1-Digest: 71Q6Rn2DDZl1zPDVaaeEHItd+Yg=
+
+Name: META-INF/com/google/android/update-binary
+SHA1-Digest: /Yryw1q/0BO5ZwG+RgKhQPQt9Vw=
+
+Name: lib.tar.xz
+SHA1-Digest: OSxm6PPm7Ho4s8zjA1BWKbVQvvk=
+
+Name: aik.tar.xz
+SHA1-Digest: bVc/WJjVdlhOH7cK8GkMjf0gJqw=
+
+Name: README.md
+SHA1-Digest: 4xPi82L5rdJ7ahLBVc+mVpT0vUQ=
+
+Name: python3.6.tar.xz
+SHA1-Digest: g/Fk+ZaAbc7u1B0imLL9hD7+f9w=
+
+Name: module.prop
+SHA1-Digest: FJcHYingonJYDjLAGXooeQn3uiE=
+
+Name: binary.tar.xz
+SHA1-Digest: 1FnTv4xw8yBHF7QJQNLNMmE+rNQ=
+
+Name: bin.tar.xz
+SHA1-Digest: Nb+0pU5Ug+e0JJ7fB2m2YxlcbUs=
+

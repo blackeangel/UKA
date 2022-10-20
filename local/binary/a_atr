@@ -1,0 +1,460 @@
+#!/system/bin/sh
+
+cd /data/local/UnpackerSystem
+
+my_d()
+{
+echo
+echo ".....Введите путь к папке с добавленными файлами, например: system/app"
+read cc && xxx=$(echo "$cc" | busybox sed 's!/data/local/UnpackerSystem!!; s!^/!!')
+if [ $(echo $?) -eq 0 ]; then
+vv=$(echo $xxx | busybox awk -F"/" '{ print $1}')
+
+ check_sar()
+{
+ if [ -f "$vv/system/build.prop" ]; then
+ sar=true
+ return 0
+ else
+ sar=false
+ return 1
+ fi
+}
+ check_sar
+ 
+
+ if [ -d "$xxx" ]; then
+ xx=$(echo $xxx | busybox awk -F"/" '{ print $1 }')
+ 
+ config="config/$xx"
+
+echo
+else
+echo
+echo ".....error: В $PWD нет папки: $xxx!"
+echo
+echo ".....Введите существующую папку!"
+echo
+my_d
+return
+fi
+fi
+return
+}
+
+
+ replace_perm()
+{
+cat "$config"/"$xx"_ffff.txt | while read a b c d; do
+ busybox grep "$a " "$config"/"$xx"_ffff.txt | while read real_con; do
+ if [ ! -z "$real_con" ]; then
+ busybox sed -i "s!$real_con!$a $b $c $d!" "$config"/"$xx"_ffff.txt
+else
+ echo "$a" "$b" "$c" "$d" >> "$config"/"$xx"_ffff.txt
+ fi
+ done
+ done
+ return
+}
+
+ttt()
+{
+echo
+if busybox test -s "$config"/"$xx"_ffff.txt; then
+select img in "Продолжить" "Не удалять временный файл и выйти в главное меню" "Удалить временный файл и выйти в главное меню"; do
+case $REPLY in 
+         1 ) clear
+               s_atr
+               break ;;
+         2 ) clear
+               main_menu
+               break ;;
+         3 ) clear
+             rm -f "$config"/"$xx"_ffff.txt
+               main_menu
+               break ;;
+         * ) clear
+             echo
+             echo "      Вводите цифры, соответствующие этому меню."
+             echo
+             ttt
+              break ;;
+    esac
+done
+else
+select img in "Продолжить" "Выйти в главное меню"; do
+case $REPLY in 
+         1 ) clear
+               s_atr
+               break ;;
+         2 ) clear
+               main_menu
+               break ;;
+         * ) clear
+             echo
+             echo "      Вводите цифры, соответствующие этому меню."
+             echo
+             ttt
+              break ;;
+    esac
+done
+return
+fi
+return
+}
+
+ff_dirs()
+{
+ clear
+ echo
+ echo "...Атрибуты для папок в \"$xxx\" при распаковке:"
+echo
+h="$xxx"
+ if [ "$h" == "$vv" -a "$sar" = "true" ]; then
+ cat "$config"/"$xx"_gg_d.txt | busybox grep -v "$vv/system" | busybox grep "$h"
+ elif [ "$h" != "$vv" -a "$sar" = "true" ]; then
+ cat "$config"/"$xx"_gg_d.txt | busybox grep "$h" | busybox awk -F"/" '!($1 $2 $3 in a) {a[$1 $2 $3];print}'
+ else
+ cat "$config"/"$xx"_gg_d.txt | busybox grep "$h" | busybox awk -F"/" '!($1 $2 in a) {a[$1 $2];print}'
+ fi
+echo
+echo "..Введите атрибуты для папок,добавленных в \""$xxx"\", которые надо записать в fs_config, через пробел(владелец группа права, например:0 0 755):"
+echo
+read ab && aa=$(python39 /data/local/binary/atrib.py "$ab")
+if [ ! -z "$(echo "$aa" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
+clear
+echo
+echo "...Сохранить во временный файл атрибуты для
+   добавленных в \"$xxx\" папок: $aa?"
+echo
+select img in "Да" "Нет, ввести другие значения" "Вернуться к вводу папок" "Выход в главное меню"; do
+case $REPLY in 
+         1 ) clear
+ if [ "$sar" == "true" -a "$xxx" == "$vv" ]; then
+ cat "$config"/"$xx"_d_fff.txt | busybox grep -v "$vv/system" | busybox grep '_d$' | busybox sed "s/_d$/ $aa/" >> "$config"/"$xx"_ffff.txt
+
+   replace_perm
+ else
+
+ cat "$config"/"$xx"_d_fff.txt | busybox grep '_d$' | busybox sed "s/_d$/ $aa/" >> "$config"/"$xx"_ffff.txt
+
+   replace_perm
+ fi
+ 
+ if [ ! -z "$(cat "$config"/"$xx"_f_fff.txt | busybox grep -E '_f$|_l$')" ]; then
+               clear
+               attr
+               ff_files
+               clear && clear
+               return
+               else
+               read_fs
+               return
+               fi
+               return
+               break ;;
+         2 ) clear
+               ff_dirs
+               break ;;
+         3 ) clear
+               s_atr
+               break ;;
+         4 ) clear
+               rm -f "$config"/"$xx"_ffff.txt
+               main_menu
+               break ;;
+         * ) clear
+             echo
+             echo "      Вводите цифры, соответствующие этому меню."
+              ff_dirs
+              break ;;
+    esac
+done
+else
+echo
+echo "..Ошибка, неверный формат ввода! Вводите только цифры, например: 0 0 755"
+echo
+ff_dirs
+return
+fi
+return
+}
+
+attr()
+{
+ clear
+ echo
+ echo "...Атрибуты для файлов в \"$xxx\" при распаковке:"
+ echo
+k="$xxx"
+if [ "$k" == "$vv" -a "$sar" = "true" ]; then
+
+ cat "$config"/"$xx"_gg_f.txt | busybox grep -v "$k/system"
+
+ elif [ "$k" != "$vv" -a "$sar" = "true" ]; then
+ cat "$config"/"$xx"_gg_f.txt | busybox grep "$k" | busybox awk -F"/" '!($1 $2 $3 in a) {a[$1 $2 $3];print}'
+ else
+ cat "$config"/"$xx"_gg_f.txt | busybox grep "$k" | busybox awk -F"/" '!($1 $2 in a) {a[$1 $2];print}'
+ #return
+fi
+ return
+}
+
+ff_files()
+{
+echo
+echo "..Введите атрибуты для файлов,добавленных в \""$xxx"\", которые надо записать в fs_config, через пробел(владелец группа права, например:0 0 644):"
+echo
+read ac && bb=$(python39 /data/local/binary/atrib.py "$ac")
+if [ ! -z "$(echo "$bb" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
+clear
+echo
+echo "...Сохранить во временный файл атрибуты для
+   добавленных в \"$xxx\" файлов: $bb?"
+echo
+select img in "Да" "Нет, ввести другие значения" "Вернуться к вводу папок" "Удалить временный файл и выйти в главное меню"; do
+case $REPLY in 
+         1 ) clear
+ 
+ if [ "$vv" == "$xxx" -a "$sar" = "true" ]; then
+ cat "$config"/"$xx"_f_fff.txt | busybox grep -v "$vv/system" | busybox grep -E '_f$|_l$' | busybox sed "s/_f$/ $bb/; s/_l$/ $bb/" >> "$config"/"$xx"_ffff.txt
+
+   replace_perm
+ else
+ cat "$config"/"$xx"_f_fff.txt | busybox grep -E '_f$|_l$' | busybox sed "s/_f$/ $bb/; s/_l$/ $bb/" >> "$config"/"$xx"_ffff.txt
+
+   replace_perm
+ fi
+   
+               read_fs
+               clear
+                return
+               break ;;
+         2 ) clear
+               ff_files
+               return
+               break ;;
+         3 ) clear
+               s_atr
+               return
+               break ;;
+         4 ) clear
+               rm -f "$config"/"$xx"_ffff.txt
+               main_menu
+               return
+               break ;;
+         * ) clear
+             echo
+             echo "      Вводите цифры, соответствующие этому меню."
+              ff_files
+               return
+              break ;;
+    esac
+done
+else
+echo
+echo "..Ошибка, неверный формат ввода! Вводите только цифры, например: 0 0 644"
+echo
+ff_files
+return
+fi
+return
+}
+
+read_fs()
+{
+clear
+busybox sort -u "$config"/"$xx"_ffff.txt > "$config"/"$xx"_ffff.tmp && rm -f "$config"/"$xx"_ffff.txt
+busybox grep -E '( [0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$' "$config"/"$xx"_ffff.tmp > "$config"/"$xx"_ffff.txt && rm -f "$config"/"$xx"_ffff.tmp
+clear
+echo
+echo
+echo "...Получены такие строки для записи, проверьте правильность:"
+echo
+cat "$config"/"$xx"_ffff.txt
+
+my_read()
+{
+echo
+echo ".....Записать в "$xx"_fs_config?"
+echo
+select img in "Записать и продолжить" "Записать, удалить временный файл и выйти в главное меню" "Не записывать и продолжить" "Не записывать, удалить временный файл и выйти в главное меню"; do
+case $REPLY in 
+         1 ) clear
+
+  cat "$config"/"$xx"_ffff.txt >> "$config"/"$xx"_fs_config
+ 
+ cat "$config"/"$xx"_ffff.txt | while read a b c d; do
+ busybox grep "$a " "$config"/"$xx"_fs_config | while read real_fs; do
+ if [ ! -z "$real_fs" ]; then
+ busybox sed -i "s!$real_fs!$a $b $c $d!" "$config"/"$xx"_fs_config
+ fi
+ done
+ done
+
+  busybox awk '!($0 in a) {a[$0];print}' "$config"/"$xx"_fs_config > "$config"/"$xx"_conf.tmp && busybox mv -f "$config"/"$xx"_conf.tmp "$config"/"$xx"_fs_config
+   
+   busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
+               echo
+               echo ".....Записано в "$config"/"$xx"_fs_config."
+               echo
+               ttt
+               break ;;
+         2 ) clear
+             
+ cat "$config"/"$xx"_ffff.txt >> "$config"/"$xx"_fs_config
+ 
+ cat "$config"/"$xx"_ffff.txt | while read a b c d; do
+ busybox grep "$a " "$config"/"$xx"_fs_config | while read real_fs; do
+ if [ ! -z "$real_fs" ]; then
+ busybox sed -i "s!$real_fs!$a $b $c $d!" "$config"/"$xx"_fs_config
+ fi
+ done
+ done
+
+ busybox awk '!($0 in a) {a[$0];print}' "$config"/"$xx"_fs_config > "$config"/"$xx"_conf.tmp && busybox mv -f "$config"/"$xx"_conf.tmp "$config"/"$xx"_fs_config
+
+      busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
+      rm -f "$config"/"$xx"_ffff.txt
+               echo
+               echo ".....Записано в "$config"/"$xx"_fs_config."
+               echo
+               main_menu
+               break ;;
+         3 ) clear
+               ttt
+               break ;;
+         4 ) clear
+             rm -f "$config"/"$xx"_ffff.txt
+             main_menu
+             break ;;
+         *) clear
+            echo
+            echo "      Вводите цифры, соответствующие этому меню."
+              my_read
+              break ;;
+    esac
+done
+return
+}
+my_read
+}
+
+
+s_atr()
+{
+my_d
+ t=`echo $xxx | busybox sed 's!^/!!'`
+
+ find "$t" -type d | busybox sed 's!$!_d!' > "$config"/"$xx"_ff.txt
+ find "$t" -type f | busybox sed 's!$!_f!' >> "$config"/"$xx"_ff.txt
+ find "$t" -type l | busybox sed 's!$!_l!' >> "$config"/"$xx"_ff.txt
+
+if busybox test -s "$config"/"$xx"_ff.txt -a -s "$config"/"$xx"_f.txt; then
+    clear
+ busybox diff -s "$config"/"$xx"_f.txt "$config"/"$xx"_ff.txt | busybox grep -E "\+$t" | busybox sed 's!+!!' | busybox grep '_d$' > "$config"/"$xx"_d_fff.txt
+ busybox diff -s "$config"/"$xx"_f.txt "$config"/"$xx"_ff.txt | busybox grep -E "\+$t" | busybox sed 's!+!!' | busybox grep -E '_f$|_l$' > "$config"/"$xx"_f_fff.txt
+
+if busybox test -s "$config"/"$xx"_d_fff.txt -o -s "$config"/"$xx"_f_fff.txt; then
+clear
+echo  
+echo ".....Добавленное в $xxx:"
+echo "                -------             "
+ if [ "$sar" == "true" -a "$xxx" == "$vv" ]; then
+ cat "$config"/"$xx"_d_fff.txt | grep -v "$vv/system"
+ cat "$config"/"$xx"_f_fff.txt | grep -v "$vv/system"
+ else
+  cat "$config"/"$xx"_d_fff.txt
+  cat "$config"/"$xx"_f_fff.txt
+ fi
+
+my_enter()
+{
+echo
+select img in "Ввод атрибутов" "Вернутся к вводу папок" "Выйти в главное меню"; do
+case $REPLY in 
+         1 ) clear
+
+
+ if [ "$sar" == "true" -a "$xxx" == "$vv" ]; then
+ if [ ! -z "$(cat "$config"/"$xx"_d_fff.txt | busybox grep -v "$vv/system" | busybox grep '_d$')" ]; then
+ ff_dirs
+ return
+ else
+ attr
+ ff_files
+ return
+ fi
+ else
+ if [ ! -z "$(cat "$config"/"$xx"_d_fff.txt | busybox grep '_d$')" ]; then
+ ff_dirs
+ return
+ else
+ attr
+ ff_files
+ return
+ fi
+ return
+ fi
+ return
+
+
+ 
+               break ;;            
+         2 ) clear
+               s_atr
+               return
+               break ;;
+         3 ) clear
+               main_menu
+               return
+               break ;;
+         * ) clear
+             echo
+             echo "      Вводите цифры, соответствующие этому меню."
+              echo
+              my_enter
+              break ;;
+    esac
+done
+echo
+return
+}
+my_enter
+else
+echo
+echo ".....Добавлений в \"$xxx\" не обнаружено."
+  ttt
+return
+fi
+else
+echo
+echo ".....Возникла ошибка!"
+echo
+main_menu
+return
+fi
+return
+}
+
+
+check_d()
+{
+ #cd /data/local/UnpackerSystem
+ for a in $(busybox find -maxdepth 1 ! -name "." -type d | sed 's!./!!'); do
+ if [ -f "config/"$a"/"$a"_file_contexts" ]; then
+ return 0
+ fi
+ done
+ return
+}
+ 
+
+ if [ check_d -eq "0" ]; then
+ s_atr
+ else
+ echo
+ echo ".....Нет папок для сборки!"
+ echo
+ fi
+ 
