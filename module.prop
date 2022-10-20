@@ -4,3 +4,4 @@ version=V5.14
 versionCode=514
 author=kory-vadim
 description=Kitchen for unpacking, assembling and converting ROM files
+updateJson=https:https://raw.githubusercontent.com/blackeangel/UKA/main/update.json
