@@ -216,9 +216,10 @@ set_permissions() {
   # set_perm_recursive  $MODPATH/system/lib       0     0       0755      0644
   # set_perm  $MODPATH/system/bin/app_process32   0     2000    0755      u:object_r:zygote_exec:s0
   # set_perm  $MODPATH/system/bin/dex2oat         0     2000    0755      u:object_r:dex2oat_exec:s0
-  # set_perm  $MODPATH/system/lib/libart.so       0     0       0644  set_perm $MODPATH/system/$bin/systemize 0 0 0777
-  set_perm_recursive $MODPATH/system/bin 0 0 0755 0755
+  # set_perm  $MODPATH/system/lib/libart.so       0     0       0644  
+  #set_perm $MODPATH/system/$bin/systemize 0 0 0777
   #set_perm $MODPATH/system/lib/libcap.so.2 0 0 0644
+  set_perm_recursive $MODPATH/system/bin 0 0 0755 0755
 }
 
 # You can add more functions to assist your custom script code
