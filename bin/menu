@@ -1,5 +1,5 @@
 #!/system/bin/sh
-
+program_version="5.14"
 clear
 local_dir="/data/local"
 binary_dir="$local_dir/binary"
@@ -64,10 +64,10 @@ error_select_menu() {
   if [ "$1" -eq "1" ]; then
     clear
     echo
-    echo "      Вводите цифру, соответствующие меню."
+    echo "      $menu_enter"
     echo
   else
-    echo "Вводите цифру, соответствующие меню."
+    echo "$menu_enter"
   fi
 }
 
@@ -707,27 +707,29 @@ pack_dat_new() {
 
 main_menu() {
   echo -en "\E[32;1m"
-  MENU=("Меню: Извлечение file_contexts"
-    "Меню: AIK-mobile Перепаковка boot(recovery).img"
-    "Меню: Распаковка .img"
-    "Меню: Монтирование raw-образов *.img"
-    "Меню: Распаковка .dat"
-    "Меню: Распаковка .br"
-    "Меню: Сборка .img"
-    "Меню: Сборка и конвертация в .dat"
-    "Меню: Сборка и конвертация в .br"
-    "Меню: Конвертация sparse > raw; raw > sparse"
-    "Меню: Прочие инструменты"
-    "Меню: Очистка рабочих папок"
-    "Меню: Удаление \"Unpacker Kitchen for Android\""
-    "Завершение работы"
+  MENU=(
+    "$menu_01"
+    "$menu_02"
+    "$menu_03"
+    "$menu_04"
+    "$menu_05"
+    "$menu_06"
+    "$menu_07"
+    "$menu_08"
+    "$menu_09"
+    "$menu_10"
+    "$menu_11"
+    "$menu_12"
+    "$menu_13"
+    "$menu_14"
+    "$menu_close_program"
   )
   echo
-  echo "               Главное МЕНЮ:"
-  echo "               версия 5.14"
+  echo "               $menu_menu"
+  echo "               $menu_version" "$program_version"
   echo "              --------------"
   echo
-  echo "   Введите цифру, соответствующую нужному действию:"
+  echo "$menu_enter"
   echo
   echo -en "\E[37;1m"
 
