@@ -111,5 +111,3 @@ set_permissions() {
   set_perm_recursive $MODPATH 0 0 0755 0644
   set_perm_recursive $MODPATH/system/bin 0 0 0755 0755
 }
-
-# You can add more functions to assist your custom script code
