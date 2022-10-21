@@ -1,3 +1,2 @@
 #!/system/bin/sh
-
 python39 /data/local/python39/usr/bin/ubireader_extract_images "$@"

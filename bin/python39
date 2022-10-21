@@ -1,25 +1,10 @@
 #!/system/bin/sh
-
- export HOME=/data/local/python39
- 
- export LD_LIBRARY_PATH=/data/local/python39/usr/lib
-
- export SSL_CERT_FILE=/data/local/python39/usr/etc/ssl/cert.pem
- 
- export TERMINFO=/data/local/python39/usr/share/terminfo
- 
- export SHELL=/data/local/python39/usr/bin/sh
-
- export CONFIG_SHELL=/data/local/python39/usr/bin/sh
-
- export TMPDIR="$HOME"
-
- export PATH=/data/local/python39/usr/bin
-
- LDSHARED="gcc -shared" CC=gcc /data/local/python39/usr/bin/python3.9 "$@"
-
-
-
-
-
- 
+export HOME=/data/local/python39
+export LD_LIBRARY_PATH=$HOME/usr/lib
+export SSL_CERT_FILE=$HOME/usr/etc/ssl/cert.pem
+export TERMINFO=$HOME/usr/share/terminfo
+export SHELL=$HOME/usr/bin/sh
+export CONFIG_SHELL=$HOME/usr/bin/sh
+export TMPDIR="$HOME"
+export PATH=$HOME/usr/bin
+LDSHARED="gcc -shared" CC=gcc $HOME/usr/bin/python3.9 "$@"
