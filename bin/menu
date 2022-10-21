@@ -59,6 +59,18 @@ select_lang() {
     return
   fi
 }
+
+error_select_menu() {
+  if [ "$1" -eq "1" ]; then
+    clear
+    echo
+    echo "      Вводите цифру, соответствующие меню."
+    echo
+  else
+    echo "Вводите цифру, соответствующие меню."
+  fi
+}
+
 ############################
 
 $binary_dir/lib/busybox find $local_dir/UnpackerSystem/gen_keys -maxdepth 1 -empty -exec busybox rm -rf {} \; 2>/dev/null
@@ -392,9 +404,7 @@ fff_add() {
       break
       ;;
     *)
-      clear
-      echo
-      echo "      Вводите цифры, соответствующие этому меню."
+      error_select_menu 1
       fff_add
       return
       break
@@ -462,9 +472,7 @@ fff() {
       break
       ;;
     *)
-      clear
-      echo
-      echo "      Вводите цифры, соответствующие этому меню."
+      error_select_menu 1
       fff
       return
       break
@@ -513,9 +521,7 @@ pack_dat() {
           return
           break
         else
-          clear
-          echo
-          echo " Вводите цифры, соответствующие меню."
+          error_select_menu 1
           pack_dat
           return
           break
@@ -523,9 +529,7 @@ pack_dat() {
         break
         ;;
       *)
-        clear
-        echo
-        echo " Вводите цифры, соответствующие меню."
+        error_select_menu 1
         pack_dat
         return
         break
@@ -592,9 +596,7 @@ pack_dat_my() {
           return
           break
         else
-          clear
-          echo
-          echo " Вводите цифры, соответствующие меню."
+          error_select_menu 1
           pack_dat_my
           return
           break
@@ -602,9 +604,7 @@ pack_dat_my() {
         break
         ;;
       *)
-        clear
-        echo
-        echo " Вводите цифры, соответствующие меню."
+        error_select_menu 1
         pack_dat_my
         return
         break
@@ -681,9 +681,7 @@ pack_dat_new
           return
           break
         else
-          clear
-          echo
-          echo " Вводите цифры, соответствующие меню."
+          error_select_menu 1
           pack_dat_new
           return
           break
@@ -691,9 +689,7 @@ pack_dat_new
         break
         ;;
       *)
-        clear
-        echo
-        echo " Вводите цифры, соответствующие меню."
+        error_select_menu 1
         pack_dat_new
         return
         break
@@ -794,7 +790,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам Меню: Извлечение file_contexts." ;;
+          *) error_select_menu 2 ;;
           esac
         done
       }
@@ -879,9 +875,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         my_sel_boot
                         return
                         break
@@ -889,9 +883,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my_sel_boot
                       return
                       break
@@ -1055,9 +1047,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         clear_dm
                         return
                         break
@@ -1065,9 +1055,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       clear_dm
                       return
                       break
@@ -1135,9 +1123,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         ker_path
                         return
                         break
@@ -1145,9 +1131,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       ker_path
                       return
                       break
@@ -1213,9 +1197,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие этому меню."
+                    error_select_menu 1
                     del_aik
                     break
                     ;;
@@ -1236,8 +1218,7 @@ main_menu
               break
               ;;
             *)
-              echo
-              echo "     Вводите цифру, соответствующую пунктам Меню: AIK-mobile"
+              error_select_menu 1
               ;;
             esac
           done
@@ -1296,9 +1277,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo "      Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 my_system
                 return
                 break
@@ -1306,9 +1285,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo "      Вводите цифры, соответствующие меню."
+              error_select_menu 1
               my_system
               return
               break
@@ -1457,9 +1434,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo "      Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 my_super
                 return
                 break
@@ -1467,9 +1442,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo "      Вводите цифры, соответствующие меню."
+              error_select_menu 1
               my_super
               return
               break
@@ -1566,9 +1539,7 @@ main_menu
                   return
                   break
                 else
-                  clear
-                  echo
-                  echo "      Вводите цифры, соответствующие меню."
+                  error_select_menu 1
                   my_d
                   return
                   break
@@ -1576,9 +1547,7 @@ main_menu
                 break
                 ;;
               *)
-                clear
-                echo
-                echo "      Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 my_d
                 return
                 break
@@ -1684,9 +1653,7 @@ main_menu
             break
             ;;
           *)
-            clear
-            echo
-            echo "      Вводите цифры, соответствующие меню."
+            error_select_menu 1
             my_new
             break
             ;;
@@ -1810,9 +1777,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo "      Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 my_mount
                 return
                 break
@@ -1820,9 +1785,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo "      Вводите цифры, соответствующие меню."
+              error_select_menu 1
               my_mount
               return
               break
@@ -1985,7 +1948,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам Меню: Монтирование образов" ;;
+          *) error_select_menu 2 ;;
           esac
         done
         return
@@ -2052,9 +2015,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         my3
                         return
                         break
@@ -2062,9 +2023,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my3
                       return
                       break
@@ -2136,9 +2095,7 @@ main_menu
                       return
                       break
                     else
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my3
                       return
                       break
@@ -2146,9 +2103,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    error_select_menu 1
                     my3
                     return
                     break
@@ -2190,9 +2145,7 @@ main_menu
             break
             ;;
           *)
-            clear
-            echo
-            echo ".....Вводите цифру, соответствующую этому меню."
+            error_select_menu 1
             my3
             break
             ;;
@@ -2262,9 +2215,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         my_br
                         return
                         break
@@ -2272,9 +2223,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my_br
                       return
                       break
@@ -2347,9 +2296,7 @@ main_menu
                       return
                       break
                     else
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my_br
                       return
                       break
@@ -2357,9 +2304,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    error_select_menu 1
                     my_br
                     return
                     break
@@ -2400,9 +2345,7 @@ main_menu
             break
             ;;
           *)
-            clear
-            echo
-            echo ".....Вводите цифру, соответствующую этому меню."
+            error_select_menu 1
             my_br
             break
             ;;
@@ -2477,9 +2420,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo " Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 pack_img_my
                 return
                 break
@@ -2487,9 +2428,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo " Вводите цифры, соответствующие меню."
+              error_select_menu 1
               pack_img_my
               return
               break
@@ -2544,9 +2483,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo " Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 pack_img_orig
                 return
                 break
@@ -2554,9 +2491,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo " Вводите цифры, соответствующие меню."
+              error_select_menu 1
               pack_img_orig
               return
               break
@@ -2611,9 +2546,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo " Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 pack_img_raw_orig
                 return
                 break
@@ -2621,9 +2554,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo " Вводите цифры, соответствующие меню."
+              error_select_menu 1
               pack_img_raw_orig
               return
               break
@@ -2691,9 +2622,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo " Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 pack_img_raw_my
                 return
                 break
@@ -2701,9 +2630,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo " Вводите цифры, соответствующие меню."
+              error_select_menu 1
               pack_img_raw_my
               return
               break
@@ -2778,9 +2705,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo " Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 pack_img_raw_new
                 return
                 break
@@ -2788,9 +2713,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo " Вводите цифры, соответствующие меню."
+              error_select_menu 1
               pack_img_raw_new
               return
               break
@@ -2865,9 +2788,7 @@ main_menu
                 return
                 break
               else
-                clear
-                echo
-                echo " Вводите цифры, соответствующие меню."
+                error_select_menu 1
                 pack_img_new
                 return
                 break
@@ -2875,9 +2796,7 @@ main_menu
               break
               ;;
             *)
-              clear
-              echo
-              echo " Вводите цифры, соответствующие меню."
+              error_select_menu 1
               pack_img_new
               return
               break
@@ -2961,10 +2880,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
-                    echo
+                    error_select_menu 1
                     sparse_s
                     break
                     ;;
@@ -3033,9 +2949,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    error_select_menu 1
                     raw_s
                     break
                     ;;
@@ -3076,7 +2990,7 @@ main_menu
                   clear
                   break
                   ;;
-                *) echo "Вводите цифру, соответствующую пунктам этого меню." ;;
+                *) error_select_menu 2 ;;
                 esac
               done
               break
@@ -3098,7 +3012,7 @@ main_menu
                   main_menu
                   break
                   ;;
-                *) echo "Вводите цифру, соответствующую пунктам этого меню." ;;
+                *) error_select_menu 2 ;;
                 esac
               done
               break
@@ -3171,9 +3085,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         size_papka
                         return
                         break
@@ -3181,9 +3093,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       size_papka
                       return
                       break
@@ -3256,9 +3166,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo " Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         symlink
                         return
                         break
@@ -3266,9 +3174,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo " Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       symlink
                       return
                       break
@@ -3297,7 +3203,7 @@ main_menu
               clear
               break
               ;;
-            *) echo "Вводите цифру, соответствующую пунктам Меню: Сборка sparse.img." ;;
+            *) error_select_menu 2 ;;
             esac
           done
         else
@@ -3389,9 +3295,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         my_k
                         return
                         break
@@ -3399,9 +3303,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my_k
                       return
                       break
@@ -3439,7 +3341,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам Меню: Сборка и конвертация в .dat." ;;
+          *) error_select_menu 2 ;;
           esac
         done
         return
@@ -3523,9 +3425,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         my_imgbr
                         return
                         break
@@ -3533,9 +3433,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my_imgbr
                       return
                       break
@@ -3601,9 +3499,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         my_kbr
                         return
                         break
@@ -3611,9 +3507,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       my_kbr
                       return
                       break
@@ -3651,7 +3545,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам Меню: Конвертация new.dat в .br" ;;
+          *) error_select_menu 2 ;;
           esac
         done
         return
@@ -3718,9 +3612,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         konv_img
                         return
                         break
@@ -3728,9 +3620,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       konv_img
                       return
                       break
@@ -3804,9 +3694,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         konv_img
                         return
                         break
@@ -3814,9 +3702,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       konv_img
                       return
                       break
@@ -3854,7 +3740,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам Меню: Конвертация sparse > raw; raw > sparse" ;;
+          *) error_select_menu 2 ;;
           esac
         done
         return
@@ -3969,9 +3855,7 @@ main_menu
                               return
                               break
                             else
-                              clear
-                              echo
-                              echo "      Вводите цифры, соответствующие меню."
+                              error_select_menu 1
                               vbmeta
                               return
                               break
@@ -3979,9 +3863,7 @@ main_menu
                             break
                             ;;
                           *)
-                            clear
-                            echo
-                            echo "      Вводите цифры, соответствующие меню."
+                            error_select_menu 1
                             vbmeta
                             return
                             break
@@ -4075,9 +3957,7 @@ main_menu
                               return
                               break
                             else
-                              clear
-                              echo
-                              echo "      Вводите цифры, соответствующие меню."
+                              error_select_menu 1
                               vbmeta_info
                               return
                               break
@@ -4085,9 +3965,7 @@ main_menu
                             break
                             ;;
                           *)
-                            clear
-                            echo
-                            echo "      Вводите цифры, соответствующие меню."
+                            error_select_menu 1
                             vbmeta_info
                             return
                             break
@@ -4161,9 +4039,7 @@ main_menu
                               return
                               break
                             else
-                              clear
-                              echo
-                              echo "      Вводите цифры, соответствующие меню."
+                              error_select_menu 1
                               extract_key
                               return
                               break
@@ -4171,9 +4047,7 @@ main_menu
                             break
                             ;;
                           *)
-                            clear
-                            echo
-                            echo "      Вводите цифры, соответствующие меню."
+                            error_select_menu 1
                             extract_key
                             return
                             break
@@ -4251,9 +4125,7 @@ main_menu
                           return
                           break
                         else
-                          clear
-                          echo
-                          echo "      Вводите цифры, соответствующие меню."
+                          error_select_menu 1
                           gen_key
                           return
                           break
@@ -4261,9 +4133,7 @@ main_menu
                         break
                         ;;
                       *)
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         gen_key
                         return
                         break
@@ -4291,9 +4161,7 @@ main_menu
                   ;;
 
                 *)
-                  clear
-                  echo
-                  echo "      Вводите цифры, соответствующие этому меню."
+                  error_select_menu 1
                   read_avb
                   return
                   break
@@ -4368,9 +4236,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         sin_img
                         return
                         break
@@ -4378,9 +4244,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       sin_img
                       return
                       break
@@ -4472,9 +4336,7 @@ main_menu
                             return
                             break
                           else
-                            clear
-                            echo
-                            echo "      Вводите цифры, соответствующие меню."
+                            error_select_menu 1
                             decomp_lz4
                             return
                             break
@@ -4482,9 +4344,7 @@ main_menu
                           break
                           ;;
                         *)
-                          clear
-                          echo
-                          echo "      Вводите цифры, соответствующие меню."
+                          error_select_menu 1
                           decomp_lz4
                           return
                           break
@@ -4600,9 +4460,7 @@ main_menu
                             return
                             break
                           else
-                            clear
-                            echo
-                            echo "      Вводите цифры, соответствующие меню."
+                            error_select_menu 1
                             comp_lz4
                             return
                             break
@@ -4610,9 +4468,7 @@ main_menu
                           break
                           ;;
                         *)
-                          clear
-                          echo
-                          echo "      Вводите цифры, соответствующие меню."
+                          error_select_menu 1
                           comp_lz4
                           return
                           break
@@ -4778,9 +4634,7 @@ main_menu
                   break
                   ;;
                 *)
-                  clear
-                  echo
-                  echo "      Вводите цифры, соответствующие этому меню."
+                  error_select_menu 1
                   qfil_img
                   break
                   ;;
@@ -4847,9 +4701,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         payload
                         return
                         break
@@ -4857,9 +4709,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       payload
                       return
                       break
@@ -4963,9 +4813,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         update_app
                         return
                         break
@@ -4973,9 +4821,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       update_app
                       return
                       break
@@ -5061,9 +4907,7 @@ main_menu
                           return
                           break
                         else
-                          clear
-                          echo
-                          echo "      Вводите цифры, соответствующие меню."
+                          error_select_menu 1
                           ss_ozip
                           return
                           break
@@ -5071,9 +4915,7 @@ main_menu
                         break
                         ;;
                       *)
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         ss_ozip
                         return
                         break
@@ -5154,9 +4996,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         comp_md5
                         return
                         break
@@ -5164,9 +5004,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       comp_md5
                       return
                       break
@@ -5352,9 +5190,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         rokchip_extract
                         return
                         break
@@ -5362,9 +5198,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       rokchip_extract
                       return
                       break
@@ -5488,9 +5322,7 @@ main_menu
                       return
                       break
                     else
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       rokchip_pack
                       return
                       break
@@ -5498,9 +5330,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    error_select_menu 1
                     rokchip_pack
                     return
                     break
@@ -5539,9 +5369,7 @@ main_menu
                     break
                     ;;
                   *)
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    error_select_menu 1
                     echo
                     menu_rok
                     break
@@ -5615,9 +5443,7 @@ main_menu
                     return
                     break
                   else
-                    clear
-                    echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    error_select_menu 1
                     aa
                     return
                     break
@@ -5625,9 +5451,7 @@ main_menu
                   break
                   ;;
                 *)
-                  clear
-                  echo
-                  echo "      Вводите цифры, соответствующие меню."
+                  error_select_menu 1
                   aa
                   return
                   break
@@ -5759,9 +5583,7 @@ main_menu
                         return
                         break
                       else
-                        clear
-                        echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        error_select_menu 1
                         ofp_extract
                         return
                         break
@@ -5769,9 +5591,7 @@ main_menu
                       break
                       ;;
                     *)
-                      clear
-                      echo
-                      echo "      Вводите цифры, соответствующие меню."
+                      error_select_menu 1
                       ofp_extract
                       return
                       break
@@ -5822,9 +5642,7 @@ main_menu
                   break
                   ;;
                 *)
-                  clear
-                  echo
-                  echo "      Вводите цифры, соответствующие меню."
+                  error_select_menu 1
                   echo
                   menu_ofp
                   break
@@ -5847,7 +5665,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам Меню: Прочие инструменты" ;;
+          *) error_select_menu 2 ;;
           esac
         done
         return
@@ -5950,7 +5768,7 @@ main_menu
             clear
             break
             ;;
-          *) echo "Вводите цифру, соответствующую пунктам меню: Очистка рабочих папок" ;;
+          *) error_select_menu 2 ;;
           esac
         done
         return
@@ -6019,9 +5837,7 @@ main_menu
             break
             ;;
           *)
-            clear
-            echo
-            echo "      Вводите цифры, соответствующие этому меню."
+            error_select_menu 1
             del_unpack
             break
             ;;
@@ -6041,7 +5857,7 @@ main_menu
       clear
       break
       ;;
-    *) echo "Вводите цифру, соответствующую пунктам меню." ;;
+    *) error_select_menu 2 ;;
     esac
   done
   return
