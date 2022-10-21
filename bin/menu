@@ -309,8 +309,7 @@ check_size_img() {
   return
 }
 
-ext_check
-{
+ext_check() {
   file_ext="$1"
   if [ ! -z "$(busybox hexdump -C -n 20000 "$file_ext" | busybox grep -Eo '3a ff 26 ed|30 50 4c 41|4d 4f 54 4f|e2 e1 f5 e0' 2>/dev/null)" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox grep -o "[.]cms" 2>/dev/null)" ]; then
     return 0
@@ -622,8 +621,7 @@ pack_dat_my() {
   return
 }
 
-pack_dat_new
-{
+pack_dat_new() {
   free_place
   cd $local_dir/UnpackerSystem
   dir=$binary_dir
@@ -707,8 +705,7 @@ pack_dat_new
   return
 }
 
-main_menu
-{
+main_menu() {
   echo -en "\E[32;1m"
   MENU=("Меню: Извлечение file_contexts"
     "Меню: AIK-mobile Перепаковка boot(recovery).img"
