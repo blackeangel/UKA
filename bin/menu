@@ -8,57 +8,56 @@ export PATH=$binary_dir:$PATH
 #############################
 cd "$local_dir/Unpacker_lang"
 if [ -z $(cat ./selection.txt) ]; then
-    v=$(find . -maxdepth 1 -iname '*.lang' -type f 2>/dev/null | busybox sed 's!./!!;s!.lang!!' | sort)
-    set -- $v
-    if [ ! -z "$v" ]; then
-        echo
-        echo "Please select a language:"
-        echo
-        select menu in $v; do
-            case $REPLY in
-            [1-9] | [1-9][0-9])
-                i="$#"
-                let i=i+1
-                sel_lang=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
-                echo $sel_lang >$local_dir/Unpacker_lang/selection.txt
-                eval "$(cat "$local_dir/Unpacker_lang/$sel_lang.lang")"
-                clear
-                break
-                ;;
-            esac
-        done
-    else
-        return
-    fi
+  v=$(find . -maxdepth 1 -iname '*.lang' -type f 2>/dev/null | busybox sed 's!./!!;s!.lang!!' | sort)
+  set -- $v
+  if [ ! -z "$v" ]; then
+    echo
+    echo "Please select a language:"
+    echo
+    select menu in $v; do
+      case $REPLY in
+      [1-9] | [1-9][0-9])
+        i="$#"
+        let i=i+1
+        sel_lang=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+        echo $sel_lang >$local_dir/Unpacker_lang/selection.txt
+        eval "$(cat "$local_dir/Unpacker_lang/$sel_lang.lang")"
+        clear
+        break
+        ;;
+      esac
+    done
+  else
+    return
+  fi
 else
-    eval "$(cat "$local_dir/Unpacker_lang/$(cat ./selection.txt).lang")"
+  eval "$(cat "$local_dir/Unpacker_lang/$(cat ./selection.txt).lang")"
 fi
-select_lang()
-{
-    cd "$local_dir/Unpacker_lang"
-    v=$(find . -maxdepth 1 -iname '*.lang' -type f 2>/dev/null | busybox sed 's!./!!;s!.lang!!' | sort)
-    set -- $v
-    if [ ! -z "$v" ]; then
-        echo
-        echo "Please select a language:"
-        echo
-        select menu in $v; do
-            case $REPLY in
-            [1-9] | [1-9][0-9])
-                i="$#"
-                let i=i+1
-                sel_lang=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
-                echo $sel_lang >$local_dir/Unpacker_lang/selection.txt
-                eval "$(cat "$local_dir/Unpacker_lang/$sel_lang.lang")"
-                clear
-                main_menu
-                break
-                ;;
-            esac
-        done
-    else
-        return
-    fi
+select_lang() {
+  cd "$local_dir/Unpacker_lang"
+  v=$(find . -maxdepth 1 -iname '*.lang' -type f 2>/dev/null | busybox sed 's!./!!;s!.lang!!' | sort)
+  set -- $v
+  if [ ! -z "$v" ]; then
+    echo
+    echo "Please select a language:"
+    echo
+    select menu in $v; do
+      case $REPLY in
+      [1-9] | [1-9][0-9])
+        i="$#"
+        let i=i+1
+        sel_lang=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+        echo $sel_lang >$local_dir/Unpacker_lang/selection.txt
+        eval "$(cat "$local_dir/Unpacker_lang/$sel_lang.lang")"
+        clear
+        main_menu
+        break
+        ;;
+      esac
+    done
+  else
+    return
+  fi
 }
 ############################
 
@@ -67,8 +66,7 @@ $binary_dir/lib/busybox find $local_dir/UnpackerSystem/extract_keys -maxdepth 1 
 
 config="config/$pack_d"
 
-free_place()
-{
+free_place() {
   unset get_size
   unset get_size_print
   echo
@@ -98,8 +96,7 @@ free_place()
   return
 }
 
-nn1()
-{
+nn1() {
   echo
   echo "     Выбор папки сохранения образа    "
   echo "     -----------------------------    "
@@ -142,15 +139,13 @@ nn1()
   return
 }
 
-inf_space_menu()
-{
+inf_space_menu() {
   free_space="$(busybox df -h "$outdir" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
   echo "    В папке свободно: "$free_space""
   return
 }
 
-nn()
-{
+nn() {
   echo
   echo "     Выбор папки сохранения образа    "
   echo "     -----------------------------    "
@@ -210,8 +205,7 @@ nn()
   return
 }
 
-nnnnn()
-{
+nnnnn() {
   echo
   echo "     Выбор папки сохранения образа    "
   echo "     -----------------------------    "
@@ -263,8 +257,7 @@ nnnnn()
   return
 }
 
-check_status()
-{
+check_status() {
   make_ext4fs -s -J -T -1 -l "$i" -a /"$pack_d" tmp.img "$pack_d" &>/dev/null
   if [ $(echo $?) -eq 0 ]; then
     gg=1
@@ -276,8 +269,7 @@ check_status()
   return
 }
 
-check_size_img()
-{
+check_size_img() {
   echo
   echo ".....Определение размера для сборки..."
   echo
@@ -316,8 +308,7 @@ ext_check
   return
 }
 
-ext_checkkk()
-{
+ext_checkkk() {
   file_ext="$1"
   if [ ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox grep '3a ff 26 ed')" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 20000 "$file_ext" | busybox grep -o "30 50 4c 41")" -o ! -z "$(busybox hexdump -C -n 20000 "$file_ext" | busybox grep -o "4d 4f 54 4f" 2>/dev/null)" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox grep -o "[.]cms" 2>/dev/null)" ]; then
     return 0
@@ -327,8 +318,7 @@ ext_checkkk()
   return
 }
 
-ext_check_super()
-{
+ext_check_super() {
   file_ext="$1"
   if [ ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox grep '3a ff 26 ed')" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" ]; then
     return 0
@@ -338,13 +328,11 @@ ext_check_super()
   return
 }
 
-check_mount()
-{
+check_mount() {
   [ -z "$(busybox mount | busybox grep "$local_dir" | busybox grep -vi "AIK")" ] && return 0 || return 1
 }
 
-my_size_add()
-{
+my_size_add() {
   clear
   real_size_orig="$(cat "$config"/"$pack_d"_size.txt)"
   real_size_orig_mb=$(busybox expr "$real_size_orig" / 1024 / 1024)
@@ -372,8 +360,7 @@ my_size_add()
   return
 }
 
-fff_add()
-{
+fff_add() {
   clear
   if [ "$r_size" != 0 ]; then
     echo
@@ -417,8 +404,7 @@ fff_add()
   return
 }
 
-my_size()
-{
+my_size() {
   clear
   echo
   echo ".....Введите размер в байтах:"
@@ -441,8 +427,7 @@ my_size()
   return
 }
 
-fff()
-{
+fff() {
   clear
   if [ "$a" = "$r_size" ]; then
     echo
@@ -489,8 +474,7 @@ fff()
   return
 }
 
-pack_dat()
-{
+pack_dat() {
   cd $local_dir/UnpackerSystem
   dir=$binary_dir
   d=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | sed 's!./!!'); do
@@ -559,8 +543,7 @@ pack_dat()
   return
 }
 
-pack_dat_my()
-{
+pack_dat_my() {
   cd $local_dir/UnpackerSystem
   dir=$binary_dir
   d=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
@@ -640,7 +623,7 @@ pack_dat_my()
 }
 
 pack_dat_new
- {
+{
   free_place
   cd $local_dir/UnpackerSystem
   dir=$binary_dir
@@ -729,7 +712,7 @@ pack_dat_new
 }
 
 main_menu
- {
+{
   echo -en "\E[32;1m"
   MENU=("Меню: Извлечение file_contexts"
     "Меню: AIK-mobile Перепаковка boot(recovery).img"
@@ -759,8 +742,7 @@ main_menu
     case $REPLY in
     1)
       clear
-      my1()
-      {
+      my1() {
         echo
         echo "      Меню: Извлечение file_contexts"
         echo
@@ -821,8 +803,7 @@ main_menu
       ;;
     2)
       clear
-      my_aik()
-      {
+      my_aik() {
         if [ -d $local_dir/AIK-mobile ]; then
           cd $local_dir/AIK-mobile
           echo
@@ -834,10 +815,8 @@ main_menu
             case $REPLY in
             1)
               clear
-              my_sel_boot()
-              {
-                aik_avb()
-                {
+              my_sel_boot() {
+                aik_avb() {
                   avb_file="$1"
                   avb_dir=$local_dir/AIK-mobile/split_img
                   if [ -d "$avb_dir" ]; then
@@ -935,8 +914,7 @@ main_menu
               ;;
             2)
               clear
-              aik_pack()
-              {
+              aik_pack() {
                 pack_file="$1"
                 avb_dir=$local_dir/AIK-mobile/split_img
                 if busybox test -s "$avb_dir"/avb.img; then
@@ -1003,8 +981,7 @@ main_menu
 
             3)
               clear
-              rr()
-              {
+              rr() {
                 file="$1"
                 busybox rm -rf path
                 mkdir path && cd path
@@ -1041,8 +1018,7 @@ main_menu
                 fi
               }
 
-              clear_dm()
-              {
+              clear_dm() {
 
                 cd $local_dir/AIK-mobile
                 b=$(busybox find . -maxdepth 1 -name '*.img' -o -name '*.sin' -o -name '*.elf' -o -name '*.bin' -o -name '*.lz4' -type f)
@@ -1115,8 +1091,7 @@ main_menu
               ;;
             4)
               clear
-              ker_path()
-              {
+              ker_path() {
                 cd $local_dir/AIK-mobile
                 b=$(busybox find . -maxdepth 1 -name '*.img' -type f)
 
@@ -1201,8 +1176,7 @@ main_menu
               ;;
             6)
               clear
-              del_aik()
-              {
+              del_aik() {
                 echo
                 echo -en "\E[31;47;1m"
                 echo "     Удалить AIK-mobile с телефона?     "
@@ -1283,8 +1257,7 @@ main_menu
     3)
       clear
 
-      my_system()
-      {
+      my_system() {
         cd $local_dir/UnpackerSystem
 
         dir_dat=$binary_dir
@@ -1352,8 +1325,7 @@ main_menu
         return
       }
 
-      my_sin()
-      {
+      my_sin() {
         if [ ! -z "$(echo "$file" | busybox grep ".sin$")" ]; then
 
           name_sin="$(busybox basename ${file%.*})"
@@ -1390,8 +1362,7 @@ main_menu
         return
       }
 
-      qqq()
-      {
+      qqq() {
         free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
         free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
         echo "\033[33;1m...В /${nd} свободно: $free_space \033[0m"
@@ -1401,8 +1372,7 @@ main_menu
         return
       }
 
-      my_super()
-      {
+      my_super() {
         dir_dat=$binary_dir
         if [ "$nd" == "data/local/UnpackerSystem" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
@@ -1515,8 +1485,7 @@ main_menu
         fi
         return
       }
-      my_d()
-      {
+      my_d() {
         cd
         echo
         echo "...Перейдите в папку где находятся файлы: \".img\", например: cd /sdcard"
@@ -1635,8 +1604,7 @@ main_menu
         fi
         return
       }
-      my_new()
-      {
+      my_new() {
         echo
         echo "      Меню: Распаковка .img"
         echo
@@ -1731,8 +1699,7 @@ main_menu
       ;;
     4)
       clear
-      my_mount()
-      {
+      my_mount() {
         cd $home_dir
         my_dir="$binary_dir"
         >$my_dir/mm
@@ -1873,8 +1840,7 @@ main_menu
         return
       }
 
-      my_d()
-      {
+      my_d() {
         cd
         echo
         echo "...Перейдите в папку где находятся файлы: \".img\", например: cd /sdcard"
@@ -1898,8 +1864,7 @@ main_menu
         fi
         return
       }
-      my10()
-      {
+      my10() {
         echo
         echo "      Меню: Монтирование raw-образов *.img"
         echo "     --------------------------------------"
@@ -1920,8 +1885,7 @@ main_menu
             ;;
           3)
             clear
-            sel_umount()
-            {
+            sel_umount() {
               if [ -z "$file" ]; then
                 clear
                 main_menu
@@ -1939,8 +1903,7 @@ main_menu
               return
             }
 
-            my_umount()
-            {
+            my_umount() {
               if busybox test -s $binary_dir/papka.txt; then
                 p="$(busybox cat $binary_dir/papka.txt 2>/dev/null | busybox sed -e 's!|$!!; s!\+!\\+!')"
 
@@ -2032,8 +1995,7 @@ main_menu
       ;;
     5)
       clear
-      my3()
-      {
+      my3() {
         echo
         echo "      Меню: Распаковка .dat"
         echo
@@ -2044,8 +2006,7 @@ main_menu
             cd
             echo
             echo "..Перейдите в папку где находятся файлы: \".dat\" и \".transfer.list\", например: cd /sdcard"
-            my_d()
-            {
+            my_d() {
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -2134,8 +2095,7 @@ main_menu
             ;;
           2)
             clear
-            my_last_dat()
-            {
+            my_last_dat() {
               v=$(busybox find . -maxdepth 1 -name '*.new.dat' 2>/dev/null | busybox sed 's!./!!')
 
               set -- $v
@@ -2245,8 +2205,7 @@ main_menu
       ;;
     6)
       clear
-      my_br()
-      {
+      my_br() {
         echo
         echo "      Меню: Распаковка .br"
         echo
@@ -2257,8 +2216,7 @@ main_menu
             cd
             echo
             echo "...Перейдите в папку где находятся файлы: \".br\" и \".transfer.list\", например: cd /sdcard"
-            my_b()
-            {
+            my_b() {
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -2347,8 +2305,7 @@ main_menu
             ;;
           2)
             clear
-            my_last_br()
-            {
+            my_last_br() {
 
               v=$(busybox find . -maxdepth 1 -name '*.new.dat.br' -type f 2>/dev/null | busybox sed 's!./!!')
 
@@ -2461,8 +2418,7 @@ main_menu
       dir=$binary_dir
       cd $local_dir/UnpackerSystem
 
-      check_d()
-      {
+      check_d() {
         for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
             return 0
@@ -2471,8 +2427,7 @@ main_menu
         return
       }
 
-      pack_img_my()
-      {
+      pack_img_my() {
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
             echo "$a"
@@ -2552,8 +2507,7 @@ main_menu
         return
       }
 
-      pack_img_orig()
-      {
+      pack_img_orig() {
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
             echo "$a"
@@ -2620,8 +2574,7 @@ main_menu
         return
       }
 
-      pack_img_raw_orig()
-      {
+      pack_img_raw_orig() {
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
             echo "$a"
@@ -2688,8 +2641,7 @@ main_menu
         return
       }
 
-      pack_img_raw_my()
-      {
+      pack_img_raw_my() {
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
             echo "$a"
@@ -2769,8 +2721,7 @@ main_menu
         return
       }
 
-      pack_img_raw_new()
-      {
+      pack_img_raw_new() {
         free_place
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
@@ -2857,8 +2808,7 @@ main_menu
         return
       }
 
-      pack_img_new()
-      {
+      pack_img_new() {
         free_place
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
@@ -2944,8 +2894,7 @@ main_menu
         fi
         return
       }
-      my5()
-      {
+      my5() {
         clear
         check_d
         if [ $(echo $?) -eq 0 ]; then
@@ -2957,8 +2906,7 @@ main_menu
             1)
               clear
 
-              sparse_s()
-              {
+              sparse_s() {
                 echo
                 select img in "Собрать .img(sparse) с оригинальным размером" "Собрать .img(sparse) с вводом размера образа" "Собрать .img(sparse) с размером папки для сборки" "Собрать .img(sparse)(erofs в ext4)" "Выход в главное меню" "Завершение работы"; do
                   case $REPLY in
@@ -3029,8 +2977,7 @@ main_menu
               ;;
             2)
               clear
-              raw_s()
-              {
+              raw_s() {
                 echo
                 select img in "Собрать .img(raw) с оригинальным размером" "Собрать .img(raw) с вводом размера образа" "Собрать .img(raw) с размером папки для сборки" "Собрать .img(raw)(erofs в ext4)" "Выход в главное меню" "Завершение работы"; do
                   case $REPLY in
@@ -3159,8 +3106,7 @@ main_menu
             5)
               clear
               cd $local_dir/UnpackerSystem
-              size_papka()
-              {
+              size_papka() {
                 b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
                   if [ -f "config/"$a"/"$a"_file_contexts" ]; then
                     echo "$a"
@@ -3260,8 +3206,7 @@ main_menu
             6)
               clear
               cd $local_dir/UnpackerSystem
-              symlink()
-              {
+              symlink() {
                 b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
                   if [ -f "config/"$a"/"$a"_file_contexts" ]; then
                     echo "$a"
@@ -3371,8 +3316,7 @@ main_menu
 
     8)
       clear
-      my6()
-      {
+      my6() {
         file_size=${dir}/pack_img_dat
         check_dat="222"
         echo
@@ -3406,8 +3350,7 @@ main_menu
             ;;
           4)
             clear
-            my_k()
-            {
+            my_k() {
               echo
               echo "..Перейдите в папку где находится файл \".img\", например: cd /sdcard"
               read b && $b
@@ -3506,8 +3449,7 @@ main_menu
       ;;
     9)
       clear
-      my7()
-      {
+      my7() {
         file_size=${dir}/pack_img_br
         check_dat="222"
         echo
@@ -3542,8 +3484,7 @@ main_menu
             ;;
           4)
             clear
-            my_imgbr()
-            {
+            my_imgbr() {
               echo
               echo "..Перейдите в папку где находится файл \".img\", например: cd /sdcard"
               read b && $b
@@ -3626,8 +3567,7 @@ main_menu
 
           5)
             clear
-            my_kbr()
-            {
+            my_kbr() {
               echo
               echo "..Перейдите в папку где находится файл \".dat\", например: cd /sdcard"
               read b && $b
@@ -3721,8 +3661,7 @@ main_menu
       ;;
     10)
       clear
-      my8()
-      {
+      my8() {
         echo
         echo "      Меню: Конвертация sparse > raw; raw > sparse"
         echo
@@ -3730,8 +3669,7 @@ main_menu
           case $REPLY in
           1)
             clear
-            konv_img()
-            {
+            konv_img() {
               echo
               echo "..Перейдите в папку где находится файл \".img(raw)\", например: cd /sdcard"
               read b && $b
@@ -3823,8 +3761,7 @@ main_menu
             ;;
           2)
             clear
-            konv_img()
-            {
+            konv_img() {
               echo
               echo "..Перейдите в папку где находится файл \".img(sparse)\", например: cd /sdcard:"
               read b && $b
@@ -3927,8 +3864,7 @@ main_menu
       ;;
     11)
       clear
-      my2()
-      {
+      my2() {
         echo
         echo "      Меню: Прочие инструменты"
         echo
@@ -3937,15 +3873,13 @@ main_menu
           case $REPLY in
           1)
             clear
-            read_avb()
-            {
+            read_avb() {
               echo
               select img in "Патч vbmeta" "Просмотр структуры AVB файла" "Извлечение публичного ключа подписи AVB" "Создание своего ключа подписи AVB" "Подпись boot(recovery).img с выбором ключа" "Выход в главное меню" "Завершение работы"; do
                 case $REPLY in
                 1)
                   clear
-                  vbmeta()
-                  {
+                  vbmeta() {
                     echo
                     echo "..Перейдите в папку где находится файл \"vbmeta.img\", например: cd /sdcard"
                     read b && $b
@@ -3977,8 +3911,7 @@ main_menu
                               echo
                               echo ".....Ищем значения для патча..."
 
-                              true_vb()
-                              {
+                              true_vb() {
                                 tru="$(avbtool info_image --image "$file" | busybox awk '/Flags:/ NR == 1 {if($2 == 3) { print $2 }}')"
                                 rolbak="$(avbtool info_image --image "$file" | busybox awk '/Rollback Index:/ NR == 1 {if($3 == 0) { print $3 }}')"
                                 return
@@ -4079,8 +4012,7 @@ main_menu
                   ;;
                 2)
                   clear
-                  vbmeta_info()
-                  {
+                  vbmeta_info() {
                     echo
                     echo "..Перейдите в папку где находится файл \"*.img\", например: cd /sdcard"
                     read b && $b
@@ -4184,10 +4116,9 @@ main_menu
                   vbmeta_info
                   break
                   ;;
-                  3)
+                3)
                   clear
-                  extract_key()
-                  {
+                  extract_key() {
                     echo
                     echo "..Перейдите в папку где находится файл \"*.img\", например: cd /sdcard"
                     read b && $b
@@ -4273,8 +4204,7 @@ main_menu
                   ;;
                 4)
                   clear
-                  gen_key()
-                  {
+                  gen_key() {
                     v=$(echo "RSA2048" "RSA4096" "RSA8192")
 
                     set -- $v
@@ -4379,8 +4309,7 @@ main_menu
           2)
             clear
 
-            sin_img() 
-            {
+            sin_img() {
               echo
               echo "..Перейдите в папку где находится файл \".sin\", например: cd /sdcard"
               read b && $b
@@ -4390,8 +4319,7 @@ main_menu
                 nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
                 v=$(busybox find . -maxdepth 1 -name '*.sin' 2>/dev/null | busybox sed 's!./!!')
 
-                konv()
-                {
+                konv() {
                   echo
                   echo ".....Конвертация..."
                   echo
@@ -4491,8 +4419,7 @@ main_menu
               case $REPLY in
               1)
                 clear
-                decomp_lz4()
-                {
+                decomp_lz4() {
                   echo
                   echo "..Перейдите в папку где находится файл \".lz4\", например: cd /sdcard"
                   read b && $b
@@ -4589,8 +4516,7 @@ main_menu
               2)
                 clear
 
-                comp_lz4()
-                {
+                comp_lz4() {
                   echo
                   echo "..Перейдите в папку где находится файл \".img\", например: cd /sdcard"
                   read b && $b
@@ -4731,8 +4657,7 @@ main_menu
           4)
             clear
 
-            resize_img()
-            {
+            resize_img() {
               blockcount=$(tune2fs -l ./$obraz | busybox awk '/Block count/ { print $3 }')
               size=$(stat -c %s ./$obraz)
               size_obraz=$(busybox expr $blockcount \* 4096)
@@ -4749,8 +4674,7 @@ main_menu
               fi
             }
 
-            qfil_img()
-            {
+            qfil_img() {
               free_space="$(busybox df -h $local_dir/UnpackerQfil | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
               echo
               echo "     Положите в папку: $local_dir/UnpackerQfil все файлы \"super_xx|system_xx|vendor_xx|userdata_xx\" и все файлы \".xml\", начинающиеся на \"rawprogram*\", либо файлы  \"super|system|vendor.img_sparsechunk.*\"."
@@ -4869,8 +4793,7 @@ main_menu
             ;;
           5)
             clear
-            payload()
-            {
+            payload() {
               echo
               echo "         Извлечение из payload.bin     "
               echo
@@ -4968,8 +4891,7 @@ main_menu
 
           6)
             clear
-            update_app()
-            {
+            update_app() {
               echo
               echo "         Извлечение из UPDATE.APP     "
               echo
@@ -5092,8 +5014,7 @@ main_menu
             ;;
           8)
             clear
-            my_ozip()
-            {
+            my_ozip() {
               cd
               echo
               echo "...Перейдите в папку где находятся файлы: \".ozip\", например: cd /sdcard"
@@ -5186,8 +5107,7 @@ main_menu
           9)
             clear
 
-            comp_md5()
-            {
+            comp_md5() {
               echo
               echo "         Создание tar.md5     "
               echo
@@ -5278,8 +5198,7 @@ main_menu
           10)
             clear
 
-            rokchip_extract()
-            {
+            rokchip_extract() {
               echo
               echo "         Распаковка прошивок .img     "
 
@@ -5473,8 +5392,7 @@ main_menu
               return
             }
 
-            rokchip_pack()
-            {
+            rokchip_pack() {
 
               rok_dir="$local_dir/UnpackerSystem"
               cd "$rok_dir"
@@ -5599,8 +5517,7 @@ main_menu
               return
             }
 
-            menu_rok()
-            {
+            menu_rok() {
               if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
                 echo
                 echo "         Распаковка прошивок .img     "
@@ -5648,8 +5565,7 @@ main_menu
           11)
             clear
 
-            aa()
-            {
+            aa() {
               cd $local_dir/UnpackerSystem
               if busybox test -s "$m_name"/super_map.csv; then
                 v="$(busybox cat "$m_name"/super_map.csv | busybox awk -F"," '! /nv_text/ { print $1"-"$2 }')"
@@ -5721,8 +5637,7 @@ main_menu
               return
             }
 
-            ofp()
-            {
+            ofp() {
 
               m_name="$(busybox basename "$file" | busybox sed 's!.ofp$!!')"
 
@@ -5791,8 +5706,7 @@ main_menu
               return
             }
 
-            ofp_extract()
-            {
+            ofp_extract() {
               echo
               echo "         Распаковка прошивок .ofp     "
 
@@ -5885,8 +5799,7 @@ main_menu
               return
             }
 
-            menu_ofp()
-            {
+            menu_ofp() {
               echo
               echo "         Распаковка прошивок .ofp     "
               echo
@@ -5944,8 +5857,7 @@ main_menu
       ;;
     12)
       clear
-      del_papka()
-      {
+      del_papka() {
         rm -rf $del
         mkdir $del
         chmod 755 $del
@@ -5955,8 +5867,7 @@ main_menu
         echo
         return
       }
-      my9()
-      {
+      my9() {
         echo
         echo "      Меню: Очистка рабочих папок"
         echo
@@ -6049,8 +5960,7 @@ main_menu
       ;;
     13)
       clear
-      del_unpack() 
-      {
+      del_unpack() {
         echo
         echo -en "\E[31;47;1m"
         echo "     Удалить \"Unpacker Kitchen for Android\" с телефона?     "
@@ -6122,8 +6032,12 @@ main_menu
       del_unpack
       break
       ;;
-
     14)
+      clear
+      select_lang
+      break
+      ;;
+    15)
       clear
       break
       ;;
