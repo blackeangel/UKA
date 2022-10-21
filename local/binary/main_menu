@@ -379,7 +379,7 @@ fff_add() {
     echo "...Собрать образ с размером ~ ${real_size} mb?"
     echo
   fi
-  select img in "Да" "Нет, ввести другой размер" "Выход в главное меню"; do
+  select img in "Да" "Нет, ввести другой размер" $exit_main_menu; do
     case $REPLY in
     1)
       set -- "$r_size"
@@ -447,7 +447,7 @@ fff() {
     echo "...Введённый размер не кратен \"4096\", собрать образ с размером: $r_size байт?"
     echo
   fi
-  select img in "Да" "Нет, ввести другой размер" "Выход в главное меню"; do
+  select img in "Да" "Нет, ввести другой размер" $exit_main_menu; do
     case $REPLY in
     1)
       set -- "$r_size"
@@ -496,7 +496,7 @@ pack_dat() {
     echo
     echo ".....Выберите папку для сборки:"
     echo
-    select menu in $d "Выход в главное меню"; do
+    select menu in $d $exit_main_menu; do
       case $REPLY in
       [1-9]*)
         i="$#"
@@ -559,7 +559,7 @@ pack_dat_my() {
     echo
     echo ".....Выберите папку для сборки:"
     echo
-    select menu in $d "Выход в главное меню"; do
+    select menu in $d $exit_main_menu; do
       case $REPLY in
       [1-9]*)
         i="$#"
@@ -637,7 +637,7 @@ pack_dat_new() {
     echo
     echo ".....Выберите папку для сборки:"
     echo
-    select menu in $d "Выход в главное меню"; do
+    select menu in $d $exit_main_menu; do
       case $REPLY in
       [1-9]*)
         i="$#"
@@ -739,11 +739,11 @@ main_menu() {
       clear
       my1() {
         echo
-        echo "      Меню: Извлечение file_contexts"
+        echo "      $menu_01_title file_contexts"
         echo
-        echo "     Положите boot.img в папку: $local_dir/UnpackerContexts"
+        echo "     $put boot.img $in_folder2: $local_dir/UnpackerContexts"
         echo
-        select img in "Извлечь file_contexts" "Конвертация file_contexts(txt) -> file_contexts(bin)(версия:8.38)" "Установка конфигурации" "Выход в главное меню" "Завершение работы"; do
+        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)(версия:8.38)" $menu_01_03 $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -758,16 +758,16 @@ main_menu() {
               $dir/sefcontext_compile -o ./file_contexts_new.bin ./file_contexts
               if [ $(echo $?) -eq 0 ]; then
                 echo
-                echo ".....Успешно создан file_contexts_new.bin!"
+                echo ".....$successfully_created file_contexts_new.bin!"
                 echo
               else
                 echo
-                echo ".....error: Ошибка при конвертации!"
+                echo ".....$convert_error!"
                 echo
               fi
             else
               echo
-              echo ".....В папке нет файла: file_contexts!"
+              echo ".....$file_not_found: file_contexts!"
               echo
             fi
             cd
@@ -802,11 +802,11 @@ main_menu() {
         if [ -d $local_dir/AIK-mobile ]; then
           cd $local_dir/AIK-mobile
           echo
-          echo "         Меню: AIK-mobile"
+          echo "         $menun: AIK-mobile"
           echo
-          echo "    Положите boot.img в папку: $local_dir/AIK-mobile"
+          echo "    $put boot.img $in_folder2: $local_dir/AIK-mobile"
           echo
-          select img in "Распаковать boot(recovery)" "Упаковать boot(recovery)" "Удалить AVB/dm-verity" "Патч boot.img(32bit, SAR) для magisk" "Очистка рабочей папки: $local_dir/AIK-mobile" "Полное удаление AIK-mobile с телефона" "Выход в главное меню" "Завершение работы"; do
+          select img in "$unpack boot(recovery)" "$pack boot(recovery)" "$del AVB/dm-verity" "$patch boot.img(32bit, SAR) $for magisk" "$menu_02_03: $local_dir/AIK-mobile" "$complete_removal AIK-mobile $from_phone" $exit_main_menu $close_program; do
             case $REPLY in
             1)
               clear
@@ -822,7 +822,7 @@ main_menu() {
                       echo "$avb_full" >"$avb_dir"/avb.img
                       echo "$avb_full" | busybox awk '/Image size:/ { print $3 }' | busybox head -1 >"$avb_dir"/avb_size.txt
                       echo
-                      echo ".....Обнаружена структура AVB!"
+                      echo ".....$find_struct"
                     fi
                   fi
                   return
@@ -834,9 +834,9 @@ main_menu() {
 
                 if [ ! -z "$b" ]; then
                   echo
-                  echo ".....Выберите файл для распаковки:"
+                  echo ".....$sel_file_extract:"
                   echo
-                  select menu in $b "Выход в Меню: AIK-mobile"; do
+                  select menu in $b "$menu_02_exit_in_menu: AIK-mobile"; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -891,7 +891,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке нет файлов для распаковки."
+                  echo ....."$in_folder_no_files_unpuck"
                   echo
                   my_aik
                   return
@@ -934,10 +934,10 @@ main_menu() {
                   chmod 755 "$avb_dir"/avb.sh && "$avb_dir"/avb.sh && busybox rm -f "$avb_dir"/avb.sh
                   if [ $(echo $?) -eq 0 ]; then
                     echo
-                    echo ".....Создана минимальная структура AVB!"
+                    echo ".....$created_min_structure AVB!"
                   else
                     echo
-                    echo ".....Ошибка при создании структуры AVB!"
+                    echo ".....$error_creating_structure AVB!"
                   fi
                 else
                   size_img="$(busybox cat "$avb_dir"/*-origsize 2>/dev/null)"
@@ -988,13 +988,13 @@ main_menu() {
                     echo >>../path_dtb.txt
                     bootpatch repack ../$file 2>>../path_dtb.txt && busybox cp new-boot.img ../boot_noavb.img && busybox rm -rf ../path
                     echo
-                    echo "...Успешно завершено, получен файл: \"boot_noavb.img\"!"
+                    echo "...$menu_02_patch_sucs: \"boot_noavb.img\"!"
                     echo
                     main_menu
                     return
                   else
                     echo
-                    echo "...Нет значений для патча!"
+                    echo "...$patch_no_value!"
                     echo
                     busybox rm -rf ../path
                     main_menu
@@ -1002,7 +1002,7 @@ main_menu() {
                   fi
                 else
                   echo
-                  echo "...Ошибка при распаковке!"
+                  echo "...$unpacking_error!"
                   busybox rm -rf ../path
                   main_menu
                   return
@@ -1018,9 +1018,9 @@ main_menu() {
 
                 if [ ! -z "$b" ]; then
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
-                  select menu in $b "Выход в Меню: AIK-mobile"; do
+                  select menu in $b "$exit_in_menu: AIK-mobile"; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -1063,7 +1063,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке нет файлов для патчинга."
+                  echo ".....$no_files_to_patch"
                   echo
                   my_aik
                   return
@@ -1086,9 +1086,9 @@ main_menu() {
 
                 if [ ! -z "$b" ]; then
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
-                  select menu in $b "Выход в Меню: AIK-mobile"; do
+                  select menu in $b "$exit_in_menu: AIK-mobile"; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -1104,7 +1104,7 @@ main_menu() {
                         python39 $binary_dir/bin_system/main.py "$file1" 2>ker.txt
                         if [ $(echo $?) -eq 0 ]; then
                           echo
-                          echo ".....Успешно пропатчен $file -> $file1"
+                          echo ".....$successfully_patched $file -> $file1"
                           echo
                         else
                           echo
@@ -1139,7 +1139,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке нет файлов для патчинга."
+                  echo ".....$no_files_to_patch"
                   echo
                   my_aik
                   return
@@ -1162,11 +1162,11 @@ main_menu() {
               del_aik() {
                 echo
                 echo -en "\E[31;47;1m"
-                echo "     Удалить AIK-mobile с телефона?     "
+                echo "     $del AIK-mobile $from_phone?     "
                 echo
                 echo -en "\E[37;0m"
                 echo -en "\E[37;1m"
-                select img in "Да" "Нет" "Выход в главное меню"; do
+                select img in $yes $no $exit_main_menu; do
                   case $REPLY in
                   1)
                     clear
@@ -1179,7 +1179,7 @@ main_menu() {
 
                     if [ $(echo $?) -eq 0 ]; then
                       echo
-                      echo "     AIK-mobile успешно удалён!"
+                      echo "     AIK-mobile $successfully_deleted!"
                       echo
                     fi
                     main_menu
@@ -1223,7 +1223,7 @@ main_menu() {
           done
         else
           echo
-          echo ".....AIK-mobile не установлен!"
+          echo ".....AIK-mobile $not_installed!"
           echo
 
           main_menu
@@ -1254,10 +1254,10 @@ main_menu() {
 
         if [ ! -z "$v" ]; then
           echo
-          echo ".....Находимся в папке: /$nd"
-          echo ".....Выберите файл для распаковки:"
+          echo ".....$curent_folder: /$nd"
+          echo ".....$sel_file_extract:"
           echo
-          select menu in $v "Выход в главное меню"; do
+          select menu in $v $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -1293,7 +1293,7 @@ main_menu() {
           done
         else
           echo
-          echo ".....В папке: /$nd нет образов \".img\" для распаковки."
+          echo ".....$in_folder1: /$nd $no_images \".img\" $for_unpacking"
           echo
           main_menu
           return
@@ -1318,10 +1318,10 @@ main_menu() {
               . ${dir_dat}/unpack_img
             else
               echo
-              echo ".....Успешно завершена конвертация!"
-              echo ".....Получен файл $file"
+              echo ".....$conversion_completed_successfully!"
+              echo ".....$file_received $file"
               echo
-              echo "...Файл имеет нулевой размер или неподдерживаемый формат, дальнейшая распаковка невозможна!"
+              echo "...$file_zero_or_unsuport_format!"
               echo
             fi
           fi
@@ -1331,7 +1331,7 @@ main_menu() {
             . ${dir_dat}/unpack_img
           else
             echo
-            echo "...Файл имеет нулевой размер или неподдерживаемый формат, дальнейшая распаковка невозможна!"
+            echo "...$file_zero_or_unsuport_format!"
             echo
           fi
         fi
@@ -1363,7 +1363,7 @@ main_menu() {
         fi
 
         echo
-        echo ".....Поиск образов..."
+        echo ".....$image_search..."
         v=$(busybox find . -maxdepth 1 -name '*.img' -o -name '*.PARTITION' -type f -o -name '*.sin' -type f | busybox sed 's!./!!' | while read a; do
 
           ext_check $a
@@ -1389,7 +1389,7 @@ main_menu() {
           echo
           echo ".....Выберите файл для распаковки:"
           echo
-          select menu in $v "Распаковать все образы" "Выход в главное меню" "Завершение работы"; do
+          select menu in $v "Распаковать все образы" $exit_main_menu $close_program; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -1493,7 +1493,7 @@ main_menu() {
             echo
             echo ".....Выберите файл для распаковки:"
             echo
-            select menu in $v "Распаковать все образы" "Выход в главное меню" "Завершение работы"; do
+            select menu in $v "Распаковать все образы" $exit_main_menu $close_program; do
               case $REPLY in
               [1-9]*)
                 i="$#"
@@ -1576,7 +1576,7 @@ main_menu() {
         echo
         echo "      Меню: Распаковка .img"
         echo
-        select menu in "Распаковка .img из папки: $local_dir/UnpackerSystem" "Распаковка .img из папки: $local_dir/UnpackerSuper" "Распаковка .img из папки: $local_dir/UnpackerPayload" "Распаковка .img из папки: $local_dir/UnpackerSystem/uka_backup" "Распаковка .img из последней использованной папки" "Ввести путь к папке с образом .img" "Выход в главное меню" "Завершение работы"; do
+        select menu in "Распаковка .img из папки: $local_dir/UnpackerSystem" "Распаковка .img из папки: $local_dir/UnpackerSuper" "Распаковка .img из папки: $local_dir/UnpackerPayload" "Распаковка .img из папки: $local_dir/UnpackerSystem/uka_backup" "Распаковка .img из последней использованной папки" "Ввести путь к папке с образом .img" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -1734,7 +1734,7 @@ main_menu() {
           echo "   Доступные raw-образы для монтирования. Выберите файл:"
           echo " --------------------------------------------------------"
           echo
-          select menu in $obraz "Выход в главное меню"; do
+          select menu in $obraz $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -1831,7 +1831,7 @@ main_menu() {
         echo "      Меню: Монтирование raw-образов *.img"
         echo "     --------------------------------------"
         echo
-        select img in "Монтировать образ из папки: $local_dir/UnpackerSystem" "Ввести путь к папке с образом .img для монтирования" "Размонтировать образ" "Выход в главное меню" "Завершение работы"; do
+        select img in "Монтировать образ из папки: $local_dir/UnpackerSystem" "Ввести путь к папке с образом .img для монтирования" "Размонтировать образ" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -1880,7 +1880,7 @@ main_menu() {
                 echo
                 echo "     Выберите папку для размонтирования:"
                 echo
-                select menu in $b "Выход в Главное меню"; do
+                select menu in $b $exit_main_menu; do
                   case $REPLY in
                   1)
                     file="$1"
@@ -1961,7 +1961,7 @@ main_menu() {
         echo
         echo "      Меню: Распаковка .dat"
         echo
-        select img in "Распаковка.dat" "Распаковка .dat из последней использованной папки" "Выход в главное меню" "Завершение работы"; do
+        select img in "Распаковка.dat" "Распаковка .dat из последней использованной папки" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -1990,7 +1990,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл для распаковки:"
                   echo
-                  select menu in $v "Выход в главное меню" "Завершение работы"; do
+                  select menu in $v $exit_main_menu $close_program; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -2070,7 +2070,7 @@ main_menu() {
                 echo
                 echo ".....Выберите файл для распаковки:"
                 echo
-                select menu in $v "Выход в главное меню" "Завершение работы"; do
+                select menu in $v $exit_main_menu $close_program; do
                   case $REPLY in
                   [1-9]*)
                     i="$#"
@@ -2161,7 +2161,7 @@ main_menu() {
         echo
         echo "      Меню: Распаковка .br"
         echo
-        select img in "Распаковать .br" "Распаковка .br из последней использованной папки" "Выход в главное меню" "Завершение работы"; do
+        select img in "Распаковать .br" "Распаковка .br из последней использованной папки" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -2190,7 +2190,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл для распаковки:"
                   echo
-                  select menu in $v "Выход в главное меню" "Завершение работы"; do
+                  select menu in $v $exit_main_menu $close_program; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -2271,7 +2271,7 @@ main_menu() {
                 echo
                 echo ".....Выберите файл для распаковки:"
                 echo
-                select menu in $v "Выход в главное меню" "Завершение работы"; do
+                select menu in $v $exit_main_menu $close_program; do
                   case $REPLY in
                   [1-9]*)
                     i="$#"
@@ -2382,7 +2382,7 @@ main_menu() {
           echo
           echo ".....Выберите папку для сборки:"
           echo
-          select menu in $b "Выход в главное меню"; do
+          select menu in $b $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -2458,7 +2458,7 @@ main_menu() {
           echo
           echo ".....Выберите папку для сборки:"
           echo
-          select menu in $b "Выход в главное меню"; do
+          select menu in $b $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -2521,7 +2521,7 @@ main_menu() {
           echo
           echo ".....Выберите папку для сборки:"
           echo
-          select menu in $b "Выход в главное меню"; do
+          select menu in $b $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -2584,7 +2584,7 @@ main_menu() {
           echo
           echo ".....Выберите папку для сборки:"
           echo
-          select menu in $b "Выход в главное меню"; do
+          select menu in $b $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -2661,7 +2661,7 @@ main_menu() {
           echo
           echo ".....Выберите папку для сборки:"
           echo
-          select menu in $b "Выход в главное меню"; do
+          select menu in $b $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -2744,7 +2744,7 @@ main_menu() {
           echo
           echo ".....Выберите папку для сборки:"
           echo
-          select menu in $b "Выход в главное меню"; do
+          select menu in $b $exit_main_menu; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -2819,14 +2819,14 @@ main_menu() {
           echo
           echo "      Меню: Сборка .img"
           echo
-          select img in "Собрать .img(sparse)" "Собрать .img(raw)" "Сборка super.img" "Запись в fs_config" "Информация о размере папки для сборки" "Восстановление симлинков" "Выход в главное меню" "Завершение работы"; do
+          select img in "Собрать .img(sparse)" "Собрать .img(raw)" "Сборка super.img" "Запись в fs_config" "Информация о размере папки для сборки" "Восстановление симлинков" $exit_main_menu $close_program; do
             case $REPLY in
             1)
               clear
 
               sparse_s() {
                 echo
-                select img in "Собрать .img(sparse) с оригинальным размером" "Собрать .img(sparse) с вводом размера образа" "Собрать .img(sparse) с размером папки для сборки" "Собрать .img(sparse)(erofs в ext4)" "Выход в главное меню" "Завершение работы"; do
+                select img in "Собрать .img(sparse) с оригинальным размером" "Собрать .img(sparse) с вводом размера образа" "Собрать .img(sparse) с размером папки для сборки" "Собрать .img(sparse)(erofs в ext4)" $exit_main_menu $close_program; do
                   case $REPLY in
                   1)
                     clear
@@ -2894,7 +2894,7 @@ main_menu() {
               clear
               raw_s() {
                 echo
-                select img in "Собрать .img(raw) с оригинальным размером" "Собрать .img(raw) с вводом размера образа" "Собрать .img(raw) с размером папки для сборки" "Собрать .img(raw)(erofs в ext4)" "Выход в главное меню" "Завершение работы"; do
+                select img in "Собрать .img(raw) с оригинальным размером" "Собрать .img(raw) с вводом размера образа" "Собрать .img(raw) с размером папки для сборки" "Собрать .img(raw)(erofs в ext4)" $exit_main_menu $close_program; do
                   case $REPLY in
                   1)
                     clear
@@ -2964,7 +2964,7 @@ main_menu() {
               echo
               echo ".....Проверьте наличие нужных образов в папке $local_dir/UnpackerSuper"
               echo
-              select img in "Собрать super.img(sparse)" "Собрать super.img(raw)" "Выход в главное меню" "Завершение работы"; do
+              select img in "Собрать super.img(sparse)" "Собрать super.img(raw)" $exit_main_menu $close_program; do
                 case $REPLY in
                 1)
                   clear
@@ -2999,7 +2999,7 @@ main_menu() {
               echo
               echo ".....Добавьте папки или файлы в распакованный образ..."
               echo
-              select img in "Запись" "Выход в главное меню"; do
+              select img in "Запись" $exit_main_menu; do
                 case $REPLY in
                 1)
                   clear
@@ -3032,7 +3032,7 @@ main_menu() {
                   echo
                   echo ".....Выберите папку:"
                   echo
-                  select menu in $b "Выход в главное меню" "Завершение работы"; do
+                  select menu in $b $exit_main_menu $close_program; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3128,7 +3128,7 @@ main_menu() {
                   echo
                   echo ".....Выберите папку для восстановления:"
                   echo
-                  select menu in $b "Выход в главное меню"; do
+                  select menu in $b $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3227,7 +3227,7 @@ main_menu() {
         echo
         echo "      Меню: Сборка и конвертация в .dat"
         echo
-        select img in "Собрать .img -> .dat" "Собрать .img с вводом размера -> .dat" "Собрать .img с размером папки для сборки -> .dat" "Конвертировать \".img\" в \".dat\"" "Выход в главное меню" "Завершение работы"; do
+        select img in "Собрать .img -> .dat" "Собрать .img с вводом размера -> .dat" "Собрать .img с размером папки для сборки -> .dat" "Конвертировать \".img\" в \".dat\"" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -3275,7 +3275,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл для конвертации в \".dat\":"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3356,7 +3356,7 @@ main_menu() {
         echo
         echo "      Меню: Сборка и конвертация в .br"
         echo
-        select img in "Собрать .img -> .br" "Собрать .img с вводом размера -> .br" "Собрать .img с размером папки для сборки -> .br" "Конвертировать .img в .br" "Конвертировать .dat в .br" "Выход в главное меню" "Завершение работы"; do
+        select img in "Собрать .img -> .br" "Собрать .img с вводом размера -> .br" "Собрать .img с размером папки для сборки -> .br" "Конвертировать .img в .br" "Конвертировать .dat в .br" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -3405,7 +3405,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл для конвертации:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3480,7 +3480,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл для конвертации:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3558,7 +3558,7 @@ main_menu() {
         echo
         echo "      Меню: Конвертация sparse > raw; raw > sparse"
         echo
-        select img in "Конвертировать .img(raw) в .img (sparse)" "Конвертировать .img(sparse) в .img(raw)" "Выход в главное меню" "Завершение работы"; do
+        select img in "Конвертировать .img(raw) в .img (sparse)" "Конвертировать .img(sparse) в .img(raw)" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -3593,7 +3593,7 @@ main_menu() {
 
                   echo ".....Выберите файл для конвертации в \"sparse\":"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3675,7 +3675,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл для конвертации в \"raw\":"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -3754,13 +3754,13 @@ main_menu() {
         echo "      Меню: Прочие инструменты"
         echo
 
-        select img in "Действия со структурой AVB" "Конвертация .sin -> .img" "Конвертировать .lz4" "Склеить образ из прошивки под Qfil" "Извлечение образов из payload.bin" "Извлечение образов из UPDATE.APP" "Создание образа из блока памяти текущей прошивки" "Распаковка(конвертация) .ozip" "Создание tar.md5" "Распаковка прошивок .img" "Распаковка прошивок .ofp" "Выход в главное меню" "Завершение работы"; do
+        select img in "Действия со структурой AVB" "Конвертация .sin -> .img" "Конвертировать .lz4" "Склеить образ из прошивки под Qfil" "Извлечение образов из payload.bin" "Извлечение образов из UPDATE.APP" "Создание образа из блока памяти текущей прошивки" "Распаковка(конвертация) .ozip" "Создание tar.md5" "Распаковка прошивок .img" "Распаковка прошивок .ofp" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
             read_avb() {
               echo
-              select img in "Патч vbmeta" "Просмотр структуры AVB файла" "Извлечение публичного ключа подписи AVB" "Создание своего ключа подписи AVB" "Подпись boot(recovery).img с выбором ключа" "Выход в главное меню" "Завершение работы"; do
+              select img in "Патч vbmeta" "Просмотр структуры AVB файла" "Извлечение публичного ключа подписи AVB" "Создание своего ключа подписи AVB" "Подпись boot(recovery).img с выбором ключа" $exit_main_menu $close_program; do
                 case $REPLY in
                 1)
                   clear
@@ -3785,7 +3785,7 @@ main_menu() {
                         echo
                         echo ".....Выберите файл для патча:"
                         echo
-                        select menu in $v "Выход в главное меню"; do
+                        select menu in $v $exit_main_menu; do
                           case $REPLY in
                           [1-9]*)
                             i="$#"
@@ -3917,7 +3917,7 @@ main_menu() {
                         echo
                         echo ".....Выберите файл:"
                         echo
-                        select menu in $v "Выход в главное меню"; do
+                        select menu in $v $exit_main_menu; do
                           case $REPLY in
                           [1-9]*)
                             i="$#"
@@ -4019,7 +4019,7 @@ main_menu() {
                         echo
                         echo ".....Выберите файл:"
                         echo
-                        select menu in $v "Выход в главное меню"; do
+                        select menu in $v $exit_main_menu; do
                           case $REPLY in
                           [1-9]*)
                             i="$#"
@@ -4084,7 +4084,7 @@ main_menu() {
                     echo
                     echo ".....Выберите алгоритм для создания ключа:"
                     echo
-                    select menu in $v "Выход в главное меню"; do
+                    select menu in $v $exit_main_menu; do
                       case $REPLY in
                       [1-9]*)
                         i="$#"
@@ -4217,7 +4217,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -4278,7 +4278,7 @@ main_menu() {
             echo
             echo "      Меню: Конвертация .lz4"
             echo
-            select img in "Извлечение из .lz4" "Сжатие в .lz4" "Выход в главное меню" "Завершение работы"; do
+            select img in "Извлечение из .lz4" "Сжатие в .lz4" $exit_main_menu $close_program; do
               case $REPLY in
               1)
                 clear
@@ -4317,7 +4317,7 @@ main_menu() {
                       echo
                       echo ".....Выберите файл для конвертации:"
                       echo
-                      select menu in $v "Выход в главное меню"; do
+                      select menu in $v $exit_main_menu; do
                         case $REPLY in
                         [1-9]*)
                           i="$#"
@@ -4441,7 +4441,7 @@ main_menu() {
                       echo
                       echo ".....Выберите файл для конвертации:"
                       echo
-                      select menu in $v "Выход в главное меню"; do
+                      select menu in $v $exit_main_menu; do
                         case $REPLY in
                         [1-9]*)
                           i="$#"
@@ -4536,7 +4536,7 @@ main_menu() {
               echo
               echo "...В $local_dir/UnpackerQfil свободно: $free_space"
               echo
-              select img in "Склеить" "Выход в главное меню" "Завершение работы"; do
+              select img in "Склеить" $exit_main_menu $close_program; do
                 case $REPLY in
                 1)
                   clear
@@ -4669,7 +4669,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -4762,7 +4762,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -4878,7 +4878,7 @@ main_menu() {
                     echo
                     echo ".....Выберите файл:"
                     echo
-                    select menu in $v "Выход в главное меню"; do
+                    select menu in $v $exit_main_menu; do
                       case $REPLY in
                       [1-9]*)
                         i="$#"
@@ -4966,7 +4966,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -5064,7 +5064,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -5241,7 +5241,7 @@ main_menu() {
                 echo
                 echo ".....Выберите папку для сборки:"
                 echo
-                select menu in $b "Выход в главное меню" "Завершение работы"; do
+                select menu in $b $exit_main_menu $close_program; do
                   case $REPLY in
                   [1-9]*)
                     i="$#"
@@ -5351,7 +5351,7 @@ main_menu() {
                 echo
                 echo "         Распаковка прошивок .img     "
                 echo
-                select img in "Распаковать прошивку .img" "Выход в главное меню" "Завершение работы"; do
+                select img in "Распаковать прошивку .img" $exit_main_menu $close_program; do
                   case $REPLY in
                   1)
                     clear
@@ -5403,7 +5403,7 @@ main_menu() {
               echo
               echo ".....Выберите регион для склейки super.raw.img:"
               echo
-              select menu in $v "Выход в главное меню"; do
+              select menu in $v $exit_main_menu; do
                 case $REPLY in
                 [1-9]*)
                   i="$#"
@@ -5555,7 +5555,7 @@ main_menu() {
                   echo
                   echo ".....Выберите файл:"
                   echo
-                  select menu in $v "Выход в главное меню"; do
+                  select menu in $v $exit_main_menu; do
                     case $REPLY in
                     [1-9]*)
                       i="$#"
@@ -5622,7 +5622,7 @@ main_menu() {
               echo
               echo "         Распаковка прошивок .ofp     "
               echo
-              select img in "Распаковать прошивку .ofp" "Выход в главное меню" "Завершение работы"; do
+              select img in "Распаковать прошивку .ofp" $exit_main_menu $close_program; do
                 case $REPLY in
                 1)
                   clear
@@ -5693,7 +5693,7 @@ main_menu() {
         echo -en "\E[37;0m"
         echo -en "\E[37;1m"
         echo
-        select img in "Очистить папку: $local_dir/UnpackerSystem" "Очистить папку: $local_dir/UnpackerQfil" "Очистить папку: $local_dir/UnpackerContexts" "Очистить папку: $local_dir/UnpackerPayload" "Очистить папку: $local_dir/UnpackerSuper" "Очистить папку: $local_dir/UnpackerUpdateApp" "Очистить папку: $local_dir/UnpackerPreloader" "Очистить сразу все папки" "Выход в главное меню" "Завершение работы"; do
+        select img in "Очистить папку: $local_dir/UnpackerSystem" "Очистить папку: $local_dir/UnpackerQfil" "Очистить папку: $local_dir/UnpackerContexts" "Очистить папку: $local_dir/UnpackerPayload" "Очистить папку: $local_dir/UnpackerSuper" "Очистить папку: $local_dir/UnpackerUpdateApp" "Очистить папку: $local_dir/UnpackerPreloader" "Очистить сразу все папки" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
