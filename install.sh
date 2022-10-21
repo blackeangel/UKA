@@ -198,6 +198,12 @@ unzip -o "$ZIPFILE" "uninstall.sh" -d $MODPATH >/dev/null
 unzip -p "$ZIPFILE" "binary.tar.xz" |tar xJ -C /data >/dev/null
 unzip -p "$ZIPFILE" "python39.tar.xz" |tar xJ -C /data/local >/dev/null
 unzip -p "$ZIPFILE" "aik.tar.xz" |tar xJ -C /data/local >/dev/null
+#Create work folders
+ui_print "- Creating working folders"
+folder_list = "UnpackerContexts UnpackerPayload UnpackerPreloader UnpackerQfil UnpackerSuper UnpackerSystem UnpackerUpdateApp"
+for folder in $folder_list; do
+   [ ! -d /data/local/$folder ] && mkdir -m 755 -p /data/local/$folder
+done;
 ui_print "- Unmounting /system, /data, and rootfs"
 mount -o ro,remount "/" 2>/dev/null
 mount -o ro,remount "$sys_mount" 2>/dev/null
