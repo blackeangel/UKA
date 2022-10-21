@@ -1,365 +1,367 @@
 #!/system/bin/sh
 
- clear
+clear
 
+part_num() {
+    clear
+    v=$(echo "boot" "recovery")
 
-part_num()
-{
- clear
-v=$(echo "boot" "recovery")
+    set -- $v
+    echo
+    echo ".....Выберите partition name:"
+    echo
+    select menu in $v "Выход в главное меню"; do
+        case $REPLY in
+        [1-9]*)
+            i="$#"
+            let i=i+1
+            file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+            if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                part_name="$file"
+                return
+                break
+            elif [ "$REPLY" == "$i" ]; then
+                clear
+                #main_menu
+                return
+                break
+            else
+                clear
+                echo
+                echo "      Вводите цифры, соответствующие меню."
+                part_num
+                return
+                break
+            fi
+            break
+            ;;
+        *)
+            clear
+            echo
+            echo "      Вводите цифры, соответствующие меню."
+            part_num
+            return
+            break
+            ;;
+        esac
+    done
+    return
+}
 
-set -- $v
-echo
-echo ".....Выберите partition name:"
-echo
-select menu in $v "Выход в главное меню"; do
-case $REPLY in
-                 [1-9]*) i="$#"
-                      let i=i+1
-                      file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
-         if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
- part_name="$file"
-         return
-         break 
-         elif [ "$REPLY" == "$i" ]; then
-        clear
-        #main_menu
-        return
-        break
+key_algoritm() {
+    clear
+    v=$(echo "RSA2048" "RSA4096" "RSA8192")
+
+    set -- $v
+    echo
+    echo ".....Выберите алгоритм для подписи:"
+    echo
+    select menu in $v "Выход в главное меню"; do
+        case $REPLY in
+        [1-9]*)
+            i="$#"
+            let i=i+1
+            file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+            if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                sign_print="--algorithm $(echo "SHA256_RSA$file" | busybox sed 's!RSA!!')"
+                return
+                break
+            elif [ "$REPLY" == "$i" ]; then
+                clear
+                #main_menu
+                return
+                break
+            else
+                clear
+                echo
+                echo "      Вводите цифры, соответствующие меню."
+                key_algoritm
+                return
+                break
+            fi
+            break
+            ;;
+        *)
+            clear
+            echo
+            echo "      Вводите цифры, соответствующие меню."
+            key_algoritm
+            return
+            break
+            ;;
+        esac
+    done
+    return
+}
+
+aik_pack() {
+    #avb_dir=/data/local/UnpackerSystem
+    if busybox test "$(avbtool info_image --image "$file_real" 2>/dev/null)"; then
+        size_sign="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Image size:/ { print $3 }')"
+        part_name="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Partition Name:/ { print $3 }')"
+        prop_avb="$(busybox cat "$avb_dir"/avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
+
+        check_alg="$(busybox cat "$avb_dir"/avb.img | busybox awk '/^Algorithm:/ { print $2 }')"
+
+        if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+            sign_print="--algorithm $check_alg"
         else
+            key_algoritm
+        fi
+    else
+
+        size_sign="$size_sign"
+        part_num #Функция
+
+    fi
+
+    echo "avbtool add_hash_footer --image "$file_real" --partition_size "$size_sign" "$prop_avb"--partition_name "$part_name" "$sign_print" --key "$pack_file"" >"$avb_dir"/avb.sh
+    clear
+    echo
+    echo ".....Подписываем...."
+    echo
+    chmod 755 "$avb_dir"/avb.sh && "$avb_dir"/avb.sh
+    if [ $(echo $?) -eq 0 ]; then
         clear
         echo
-            echo "      Вводите цифры, соответствующие меню."
-         part_num
-         return
-         break
-         fi
-         break;;
-   *) clear
-        echo
-            echo "      Вводите цифры, соответствующие меню."
-         part_num
-         return
-         break;;
-  esac
- done
-return
-}
+        echo ".....Успешно создана структура AVB"
+        check_alg="$(avbtool info_image --image "$file_real" | busybox awk '/^Algorithm:/ { print $2 }' 2>/dev/null)"
 
-
-key_algoritm()
-{
- clear
-v=$(echo "RSA2048" "RSA4096" "RSA8192")
-
-set -- $v
-echo
-echo ".....Выберите алгоритм для подписи:"
-echo
-select menu in $v "Выход в главное меню"; do
-case $REPLY in
-                 [1-9]*) i="$#"
-                      let i=i+1
-                      file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
-         if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
- sign_print="--algorithm $(echo "SHA256_RSA$file" | busybox sed 's!RSA!!')"
-         return
-         break 
-         elif [ "$REPLY" == "$i" ]; then
-        clear
-        #main_menu
-        return
-        break
+        if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+            echo ".....Успешно подписан $file_real"
+            return
         else
-        clear
+            echo
+            echo ".....Структура AVB создана без подписи $file_real"
+            busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
+            return
+        fi
+    else
         echo
-            echo "      Вводите цифры, соответствующие меню."
-         key_algoritm
-         return
-         break
-         fi
-         break;;
-   *) clear
-        echo
-            echo "      Вводите цифры, соответствующие меню."
-         key_algoritm
-         return
-         break;;
-  esac
- done
-return
-}
-
-
-aik_pack()
- {
- #avb_dir=/data/local/UnpackerSystem
-if busybox test "$(avbtool info_image --image "$file_real" 2> /dev/null)"; then
- size_sign="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Image size:/ { print $3 }')"
- part_name="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Partition Name:/ { print $3 }')"
- prop_avb="$(busybox cat "$avb_dir"/avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
- 
- check_alg="$(busybox cat "$avb_dir"/avb.img | busybox awk '/^Algorithm:/ { print $2 }')"
-
-if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
- sign_print="--algorithm $check_alg"
- else
- key_algoritm
-fi
-else
-
-size_sign="$size_sign"
-part_num        #Функция
-
-
-fi
-
-
- echo "avbtool add_hash_footer --image "$file_real" --partition_size "$size_sign" "$prop_avb"--partition_name "$part_name" "$sign_print" --key "$pack_file"" > "$avb_dir"/avb.sh
- clear
- echo 
- echo ".....Подписываем...."
- echo
- chmod 755 "$avb_dir"/avb.sh && "$avb_dir"/avb.sh
- if [ $(echo $?) -eq 0 ]; then
-clear
- echo
- echo ".....Успешно создана структура AVB"
- check_alg="$(avbtool info_image --image "$file_real" | busybox awk '/^Algorithm:/ { print $2 }' 2> /dev/null)"
-
-if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
- echo ".....Успешно подписан $file_real"
- return
-else
- echo
- echo ".....Структура AVB создана без подписи $file_real"
- busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
- return
- fi
- else
- echo
- echo ".....Ошибка при создании структуры AVB"
- busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
- return
- fi
- return
-}
-
-
-search_key()
-{
-          #clear
-          echo
-          echo ".....Перейдите в папку где находится приватный ключ для подписи, например: cd /sdcard"
-read b && $b
-if [ $(echo $?) -eq 0 ]; then
-clear
-nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
- echo
- echo ".....Поиск ключей..."
-
- v=$(for a in $(busybox find -maxdepth 1 -size -10k -type f -exec busybox grep -rl "PRIVATE KEY" {} \;); do
-     echo "$a"
-     done)
-
-set -- $v
-
-if [ ! -z "$v" ]; then
-clear
- check_alg="$(busybox cat "$avb_dir"/avb.img 2> /dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
-  if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
-  echo
-  echo ".....Алгоритм: $check_alg"
-  fi
-echo
-echo ".....Выберите ключ:"
-echo
-select menu in $v "Выход в главное меню"; do
-case $REPLY in
-                 [1-9]*) i="$#"
-                        j="$#"
-                      let i=i+1
-                      let j=j+2
-                      file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
-         if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
- clear
- name_key="$(echo "$file" | busybox sed 's!^\./!!')"
- pack_file=/"$nd"/"$name_key"
-
-  aik_pack
-         return
-         break 
-         elif [ "$REPLY" == "$i" ]; then
-         clear
-        #main_menu
+        echo ".....Ошибка при создании структуры AVB"
+        busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
         return
-        break
+    fi
+    return
+}
+
+search_key() {
+    #clear
+    echo
+    echo ".....Перейдите в папку где находится приватный ключ для подписи, например: cd /sdcard"
+    read b && $b
+    if [ $(echo $?) -eq 0 ]; then
+        clear
+        nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
+        echo
+        echo ".....Поиск ключей..."
+
+        v=$(for a in $(busybox find -maxdepth 1 -size -10k -type f -exec busybox grep -rl "PRIVATE KEY" {} \;); do
+            echo "$a"
+        done)
+
+        set -- $v
+
+        if [ ! -z "$v" ]; then
+            clear
+            check_alg="$(busybox cat "$avb_dir"/avb.img 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+            if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+                echo
+                echo ".....Алгоритм: $check_alg"
+            fi
+            echo
+            echo ".....Выберите ключ:"
+            echo
+            select menu in $v "Выход в главное меню"; do
+                case $REPLY in
+                [1-9]*)
+                    i="$#"
+                    j="$#"
+                    let i=i+1
+                    let j=j+2
+                    file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+                    if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                        clear
+                        name_key="$(echo "$file" | busybox sed 's!^\./!!')"
+                        pack_file=/"$nd"/"$name_key"
+
+                        aik_pack
+                        return
+                        break
+                    elif [ "$REPLY" == "$i" ]; then
+                        clear
+                        #main_menu
+                        return
+                        break
+                    else
+                        clear
+                        echo
+                        echo "      Вводите цифры, соответствующие меню."
+                        search_key
+                        return
+                        break
+                    fi
+                    break
+                    ;;
+                *)
+                    clear
+                    echo
+                    echo "      Вводите цифры, соответствующие меню."
+                    search_key
+                    return
+                    break
+                    ;;
+                esac
+            done
         else
-        clear
+            clear
+            echo
+            echo ....."В папке \"/$nd\" нет подходящих ключей для подписи."
+            echo
+            return
+        fi
         echo
-            echo "      Вводите цифры, соответствующие меню."
-         search_key
-         return
-         break
-         fi
-         break;;
-   *) clear
+    else
         echo
-            echo "      Вводите цифры, соответствующие меню."
-         search_key
-         return
-         break ;;
-  esac
- done
- else
- clear
- echo
- echo ....."В папке \"/$nd\" нет подходящих ключей для подписи."
- echo
-return
-fi
-echo
-else
-echo
-echo ".....error: Ошибка перехода в директорию!"
-echo
-echo ".....Введите директорию правильно!"
-echo
-search_key
-return
-fi
-return
+        echo ".....error: Ошибка перехода в директорию!"
+        echo
+        echo ".....Введите директорию правильно!"
+        echo
+        search_key
+        return
+    fi
+    return
 }
 
-
-my_size_sign()
-{
- echo
- echo ".....Введите размер стокового образа в mb"
- echo
- read a && set -- "$a"  
- if [ $(echo $?) -eq 0 ]; then
- if busybox test "$(busybox expr "$a" \* 1024 \* 1024 2> /dev/null)"; then
- size_sign="$(busybox expr "$a" \* 1024 \* 1024 2> /dev/null)"
- set -- $size_sign
- return
-else
-clear
-echo
- echo ".....Вводите размер правильно"
-echo
-my_size_sign
-return
-fi
- else
- echo
- echo ".....Ошибка!"
- echo
- my_size_sign
- return
- fi
- return
-}
-
-
-sign_image()
-{     
-              #clear
-              echo
-              echo "         Подпись образов     "
-
-              echo
-              echo "..Перейдите в папку где находится файл \".img\" для подписи, например: cd /sdcard"
-read b && $b
-if [ $(echo $?) -eq 0 ]; then
-clear
-nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
-echo
-echo ".....Поиск файлов..."
-
- v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -type f | busybox sed 's!./!!'); do
- if [ ! -z "$(busybox hexdump -C -n 4500 "$a" 2> /dev/null | busybox grep -o '41 4e 44 52 4f 49 44 21')" ]; then
-     echo "$a"
- fi
-     done)
-
-set -- $v
-
-if [ ! -z "$v" ]; then
-clear
-echo
-echo ".....Выберите файл:"
-echo
-select menu in $v "Выход в главное меню" "Завершение работы"; do
-case $REPLY in
-                 [1-9]*) i="$#"
-                        j="$#"
-                      let i=i+1
-                      let j=j+2
-                      file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
-         if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
- clear
-file=/"$nd"/"$file"
-file_real="$file"
-avb_dir=/data/local/UnpackerSystem
-if busybox test "$(avbtool info_image --image "$file" 2> /dev/null)"; then
- 
- avbtool info_image --image "$file" > "$avb_dir"/avb.img
- else
- my_size_sign
- clear
- key_algoritm
- clear
- fi
-  search_key
-    main_menu
-        return
-         break 
-         elif [ "$REPLY" == "$i" ]; then
-         clear
-        main_menu
-        return
-        break
-        elif [ "$REPLY" == "$j" ]; then
-         clear
-        return
-        break
+my_size_sign() {
+    echo
+    echo ".....Введите размер стокового образа в mb"
+    echo
+    read a && set -- "$a"
+    if [ $(echo $?) -eq 0 ]; then
+        if busybox test "$(busybox expr "$a" \* 1024 \* 1024 2>/dev/null)"; then
+            size_sign="$(busybox expr "$a" \* 1024 \* 1024 2>/dev/null)"
+            set -- $size_sign
+            return
         else
+            clear
+            echo
+            echo ".....Вводите размер правильно"
+            echo
+            my_size_sign
+            return
+        fi
+    else
+        echo
+        echo ".....Ошибка!"
+        echo
+        my_size_sign
+        return
+    fi
+    return
+}
+
+sign_image() {
+    #clear
+    echo
+    echo "         Подпись образов     "
+
+    echo
+    echo "..Перейдите в папку где находится файл \".img\" для подписи, например: cd /sdcard"
+    read b && $b
+    if [ $(echo $?) -eq 0 ]; then
         clear
+        nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
         echo
-            echo "      Вводите цифры, соответствующие меню."
-         sign_image
-         return
-         break
-         fi
-         break;;
-   *) clear
+        echo ".....Поиск файлов..."
+
+        v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -type f | busybox sed 's!./!!'); do
+            if [ ! -z "$(busybox hexdump -C -n 4500 "$a" 2>/dev/null | busybox grep -o '41 4e 44 52 4f 49 44 21')" ]; then
+                echo "$a"
+            fi
+        done)
+
+        set -- $v
+
+        if [ ! -z "$v" ]; then
+            clear
+            echo
+            echo ".....Выберите файл:"
+            echo
+            select menu in $v "Выход в главное меню" "Завершение работы"; do
+                case $REPLY in
+                [1-9]*)
+                    i="$#"
+                    j="$#"
+                    let i=i+1
+                    let j=j+2
+                    file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+                    if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                        clear
+                        file=/"$nd"/"$file"
+                        file_real="$file"
+                        avb_dir=/data/local/UnpackerSystem
+                        if busybox test "$(avbtool info_image --image "$file" 2>/dev/null)"; then
+
+                            avbtool info_image --image "$file" >"$avb_dir"/avb.img
+                        else
+                            my_size_sign
+                            clear
+                            key_algoritm
+                            clear
+                        fi
+                        search_key
+                        main_menu
+                        return
+                        break
+                    elif [ "$REPLY" == "$i" ]; then
+                        clear
+                        main_menu
+                        return
+                        break
+                    elif [ "$REPLY" == "$j" ]; then
+                        clear
+                        return
+                        break
+                    else
+                        clear
+                        echo
+                        echo "      Вводите цифры, соответствующие меню."
+                        sign_image
+                        return
+                        break
+                    fi
+                    break
+                    ;;
+                *)
+                    clear
+                    echo
+                    echo "      Вводите цифры, соответствующие меню."
+                    sign_image
+                    return
+                    break
+                    ;;
+                esac
+            done
+        else
+            clear
+            echo
+            echo ....."В папке \"/$nd\" нет файлов \".img\" для подписи."
+            echo
+            main_menu
+            return
+        fi
         echo
-            echo "      Вводите цифры, соответствующие меню."
-         sign_image
-         return
-         break ;;
-  esac
- done
- else
- clear
- echo
- echo ....."В папке \"/$nd\" нет файлов \".img\" для подписи."
- echo
- main_menu
-return
-fi
-echo
-else
-echo
-echo ".....error: Ошибка перехода в директорию!"
-echo
-echo ".....Введите директорию правильно!"
-echo
-sign_image
-return
-fi
-return
+    else
+        echo
+        echo ".....error: Ошибка перехода в директорию!"
+        echo
+        echo ".....Введите директорию правильно!"
+        echo
+        sign_image
+        return
+    fi
+    return
 }
 sign_image
 

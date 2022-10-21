@@ -1,321 +1,303 @@
 #!/system/bin/sh
 
- nd=$nd
- file="$file"
- mkdir -p erofs/config 2> /dev/null
+nd=$nd
+file="$file"
+mkdir -p erofs/config 2>/dev/null
 
- r="$(busybox basename $file)"
- #r_name=${r%.*}
- r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|[+]|[.]|[{]|[(]" '{ print $1 }')
- config="config/$r_name"
- parts="$(echo "$r" | busybox grep -o "PARTITION")"
- exten=${r##*.}
+r="$(busybox basename $file)"
+#r_name=${r%.*}
+r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|[+]|[.]|[{]|[(]" '{ print $1 }')
+config="config/$r_name"
+parts="$(echo "$r" | busybox grep -o "PARTITION")"
+exten=${r##*.}
 
-
-
-
- super_dir=/data/local/UnpackerSuper
+super_dir=/data/local/UnpackerSuper
 opla=$(busybox hexdump -C -n 20000 "$file" | busybox grep -o "30 50 4c 41")
- erofs="$(busybox hexdump -C -n 2000 "$file" | busybox grep -o 'e2 e1 f5 e0')"
- sparse_super=$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")
+erofs="$(busybox hexdump -C -n 2000 "$file" | busybox grep -o 'e2 e1 f5 e0')"
+sparse_super=$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")
 
- gg()
-{
- cd /data/local/UnpackerSystem/erofs
- busybox find "$r_name" -type f | busybox grep [[:space:]] | while read a; do
- if [ ! -z "$(echo ${a##*/} | busybox grep [[:space:]])" ]; then
- ff="${a%\/*}"/"$(echo ${a##*/} | busybox sed 's! !_!g')"
- busybox mv "$a" "$ff"
- fi
- done
+gg() {
+    cd /data/local/UnpackerSystem/erofs
+    busybox find "$r_name" -type f | busybox grep [[:space:]] | while read a; do
+        if [ ! -z "$(echo ${a##*/} | busybox grep [[:space:]])" ]; then
+            ff="${a%\/*}"/"$(echo ${a##*/} | busybox sed 's! !_!g')"
+            busybox mv "$a" "$ff"
+        fi
+    done
 
- busybox find "$r_name" -type d | busybox grep [[:space:]] | while read a; do
- if [ ! -z "$(echo ${a##*/} | busybox grep [[:space:]])" ]; then
- ff="${a%\/*}"/"$(echo ${a##*/} | busybox sed 's! !_!g')"
- busybox mv "$a" "$ff"
- fi
- done
+    busybox find "$r_name" -type d | busybox grep [[:space:]] | while read a; do
+        if [ ! -z "$(echo ${a##*/} | busybox grep [[:space:]])" ]; then
+            ff="${a%\/*}"/"$(echo ${a##*/} | busybox sed 's! !_!g')"
+            busybox mv "$a" "$ff"
+        fi
+    done
 
-while read b; do
-u=$(busybox grep -o "$b " "$config"/"$r_name"_fs_config)
-n=$(echo "$b" | busybox sed 's! !_!g')
-if [ ! -z "$u" ]; then
-busybox sed -i "s!$u!$n !" "$config"/"$r_name"_fs_config
-fi
-done< "$config"/"$r_name"_space.txt
+    while read b; do
+        u=$(busybox grep -o "$b " "$config"/"$r_name"_fs_config)
+        n=$(echo "$b" | busybox sed 's! !_!g')
+        if [ ! -z "$u" ]; then
+            busybox sed -i "s!$u!$n !" "$config"/"$r_name"_fs_config
+        fi
+    done <"$config"/"$r_name"_space.txt
 
-while read b; do
-u=$(busybox grep -o "$b " "$config"/"$r_name"_file_contexts)
-n=$(echo "$b" | busybox sed 's! !_!g')
-if [ ! -z "$u" ]; then
-busybox sed -i "s!$u!$n !" "$config"/"$r_name"_file_contexts
-fi
-done< "$config"/"$r_name"_space.txt
+    while read b; do
+        u=$(busybox grep -o "$b " "$config"/"$r_name"_file_contexts)
+        n=$(echo "$b" | busybox sed 's! !_!g')
+        if [ ! -z "$u" ]; then
+            busybox sed -i "s!$u!$n !" "$config"/"$r_name"_file_contexts
+        fi
+    done <"$config"/"$r_name"_space.txt
 
-busybox find "$r_name" -type d | busybox sed 's!$!_d!' > "$config"/"$r_name"_f.txt
-busybox find "$r_name" -type f | busybox sed 's!$!_f!' >> "$config"/"$r_name"_f.txt
-busybox find "$r_name" -type l | busybox sed 's!$!_l!' >> "$config"/"$r_name"_f.txt
+    busybox find "$r_name" -type d | busybox sed 's!$!_d!' >"$config"/"$r_name"_f.txt
+    busybox find "$r_name" -type f | busybox sed 's!$!_f!' >>"$config"/"$r_name"_f.txt
+    busybox find "$r_name" -type l | busybox sed 's!$!_l!' >>"$config"/"$r_name"_f.txt
 
-
-busybox find "$r_name" -type l | busybox xargs busybox tar -cf "$config"/"$r_name"_sim.tar
+    busybox find "$r_name" -type l | busybox xargs busybox tar -cf "$config"/"$r_name"_sim.tar
 
 }
 
- cd /data/local/UnpackerSystem/erofs
- echo
- echo ".....Удаление старой папки \""$r_name"\" и файлов конфигурации..."
+cd /data/local/UnpackerSystem/erofs
+echo
+echo ".....Удаление старой папки \""$r_name"\" и файлов конфигурации..."
 
- find -maxdepth 1 -name "$r_name" -type d | xargs rm -rf
- 
- if [ -f "$r_name" ]; then
- echo
- echo ".....Внимание! Имя файла: "$PWD"/"$r_name" уже существует"
- echo ".....Переименовываем "$r_name" в "$r_name".real.img"
- echo
- busybox mv -f "$r_name" "$r_name".real.img
- fi
+find -maxdepth 1 -name "$r_name" -type d | xargs rm -rf
 
- rm -f ./fs_config ./file_contexts
- rm -rf "$config"
- 
+if [ -f "$r_name" ]; then
+    echo
+    echo ".....Внимание! Имя файла: "$PWD"/"$r_name" уже существует"
+    echo ".....Переименовываем "$r_name" в "$r_name".real.img"
+    echo
+    busybox mv -f "$r_name" "$r_name".real.img
+fi
+
+rm -f ./fs_config ./file_contexts
+rm -rf "$config"
+
 if [ -f "$file" ]; then
- echo
- echo ".....Распаковка ${file}..."
- echo
- rm -f config/exception.log
- extract.erofs -x -f -i "$file" &> /dev/null
-if [ $(echo $?) -eq "0" -a ! -s config/exception.log ]; then
- mkdir -p "$config"
- busybox mv -f config/"$r_name"_file_contexts config/"$r_name"/"$r_name"_file_contexts
- busybox mv -f config/"$r_name"_fs_config config/"$r_name"/"$r_name"_fs_config
- 
-  echo "$r_name" > /data/local/UnpackerSystem/erofs/"$config"/"$r_name"_name.txt
-  
-  busybox expr $(busybox du -s "$r_name" | busybox awk '{ print $1 }') \* 1024 > "$config"/"$r_name"_size.txt
-  
-  size_basic="$(busybox cat "$config"/"$r_name"_size.txt)"
-  
-  echo make_ext4fs -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_basic" -a /"$r_name" '$outdir'/"$r_name".new.img $r_name > "$config"/"$r_name"_pack.sh
-  
-  echo make_ext4fs -s -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_basic" -a /"$r_name" '$outdir'/"$r_name".new.img $r_name > "$config"/"$r_name"_pack_sparse.sh
-  
-  
+    echo
+    echo ".....Распаковка ${file}..."
+    echo
+    rm -f config/exception.log
+    extract.erofs -x -f -i "$file" &>/dev/null
+    if [ $(echo $?) -eq "0" -a ! -s config/exception.log ]; then
+        mkdir -p "$config"
+        busybox mv -f config/"$r_name"_file_contexts config/"$r_name"/"$r_name"_file_contexts
+        busybox mv -f config/"$r_name"_fs_config config/"$r_name"/"$r_name"_fs_config
 
- if [ -d ./"$r_name" -a -s "$config"/"$r_name"_fs_config ]; then
-busybox sed -i '/logd / s!0x4000040000040!0x440000040!' "$config"/"$r_name"_fs_config
-busybox find "$r_name" -type d | busybox sed 's!$!_d!' > "$config"/"$r_name"_f.txt
-busybox find "$r_name" -type f | busybox sed 's!$!_f!' >> "$config"/"$r_name"_f.txt
-busybox find "$r_name" -type l | busybox sed 's!$!_l!' >> "$config"/"$r_name"_f.txt
+        echo "$r_name" >/data/local/UnpackerSystem/erofs/"$config"/"$r_name"_name.txt
 
+        busybox expr $(busybox du -s "$r_name" | busybox awk '{ print $1 }') \* 1024 >"$config"/"$r_name"_size.txt
 
-busybox find "$r_name" -type d -exec busybox stat -c '%N %u %g %a' {} \; | busybox sed 's!$! _d!' > "$config"/"$r_name"_avto_f.txt
-busybox find "$r_name" -type f -exec busybox stat -c '%N %u %g %a' {} \; | busybox sed 's!$! _f!' >> "$config"/"$r_name"_avto_f.txt
-busybox find "$r_name" -type l -exec busybox stat -c '%N %u %g %a' {} \; | busybox sed 's!$! _l!' | busybox sed -e s!\'!!g >> "$config"/"$r_name"_avto_f.txt
+        size_basic="$(busybox cat "$config"/"$r_name"_size.txt)"
 
- if [ ! -z "$(busybox find "$r_name" -type l)" ]; then
- busybox find "$r_name" -type l | busybox xargs busybox tar -cf "$config"/"$r_name"_sim.tar
- fi
-else
- echo 
- echo ".....Error! Нет распакованной папки или "$config"/"$r_name"_fs_config."
- fi
+        echo make_ext4fs -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_basic" -a /"$r_name" '$outdir'/"$r_name".new.img $r_name >"$config"/"$r_name"_pack.sh
 
+        echo make_ext4fs -s -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_basic" -a /"$r_name" '$outdir'/"$r_name".new.img $r_name >"$config"/"$r_name"_pack_sparse.sh
 
- h=$(busybox find "$r_name" | busybox grep [[:space:]])
+        if [ -d ./"$r_name" -a -s "$config"/"$r_name"_fs_config ]; then
+            busybox sed -i '/logd / s!0x4000040000040!0x440000040!' "$config"/"$r_name"_fs_config
+            busybox find "$r_name" -type d | busybox sed 's!$!_d!' >"$config"/"$r_name"_f.txt
+            busybox find "$r_name" -type f | busybox sed 's!$!_f!' >>"$config"/"$r_name"_f.txt
+            busybox find "$r_name" -type l | busybox sed 's!$!_l!' >>"$config"/"$r_name"_f.txt
 
- vv="$r_name"
+            busybox find "$r_name" -type d -exec busybox stat -c '%N %u %g %a' {} \; | busybox sed 's!$! _d!' >"$config"/"$r_name"_avto_f.txt
+            busybox find "$r_name" -type f -exec busybox stat -c '%N %u %g %a' {} \; | busybox sed 's!$! _f!' >>"$config"/"$r_name"_avto_f.txt
+            busybox find "$r_name" -type l -exec busybox stat -c '%N %u %g %a' {} \; | busybox sed 's!$! _l!' | busybox sed -e s!\'!!g >>"$config"/"$r_name"_avto_f.txt
 
- check_sar()
-{
- if [ -f "$vv/system/build.prop" ]; then
- #echo "$sar"
- sar=true
- return 0
- else
- sar=false
- return 1
- fi
-}
- check_sar
- 
+            if [ ! -z "$(busybox find "$r_name" -type l)" ]; then
+                busybox find "$r_name" -type l | busybox xargs busybox tar -cf "$config"/"$r_name"_sim.tar
+            fi
+        else
+            echo
+            echo ".....Error! Нет распакованной папки или "$config"/"$r_name"_fs_config."
+        fi
 
- >"$config"/"$r_name"_gg_d.txt
-busybox find "$vv" -maxdepth 1 ! -path 'lost+found' -a ! -path "$vv" -type d | while read a; do
-echo
-busybox find "$a" ! -path 'lost+found' -a ! -path "$vv" -type d | busybox xargs busybox stat -c '%N %u %g %a' 2> /dev/null | busybox awk -F"/" '!($1 $2 $3 in a) {a[$1 $2 $3];print}'
-done >> "$config"/"$r_name"_gg_d.txt
+        h=$(busybox find "$r_name" | busybox grep [[:space:]])
 
+        vv="$r_name"
 
+        check_sar() {
+            if [ -f "$vv/system/build.prop" ]; then
+                #echo "$sar"
+                sar=true
+                return 0
+            else
+                sar=false
+                return 1
+            fi
+        }
+        check_sar
 
- >"$config"/"$r_name"_tmp_f.txt
-busybox find "$vv" -maxdepth 1 ! -path 'lost+found' -type d | while read a; do
-echo
-busybox find "$a" ! -path 'lost+found' -type f | busybox xargs busybox stat -c '%N %u %g %a' 2> /dev/null
-done >> "$config"/"$r_name"_tmp_f.txt
-cat "$config"/"$r_name"_tmp_f.txt | busybox awk '!($0 in a) {a[$0];print}' > "$config"/"$r_name"_gg_f.txt && rm -f "$config"/"$r_name"_tmp_f.txt
+        >"$config"/"$r_name"_gg_d.txt
+        busybox find "$vv" -maxdepth 1 ! -path 'lost+found' -a ! -path "$vv" -type d | while read a; do
+            echo
+            busybox find "$a" ! -path 'lost+found' -a ! -path "$vv" -type d | busybox xargs busybox stat -c '%N %u %g %a' 2>/dev/null | busybox awk -F"/" '!($1 $2 $3 in a) {a[$1 $2 $3];print}'
+        done >>"$config"/"$r_name"_gg_d.txt
 
+        >"$config"/"$r_name"_tmp_f.txt
+        busybox find "$vv" -maxdepth 1 ! -path 'lost+found' -type d | while read a; do
+            echo
+            busybox find "$a" ! -path 'lost+found' -type f | busybox xargs busybox stat -c '%N %u %g %a' 2>/dev/null
+        done >>"$config"/"$r_name"_tmp_f.txt
+        cat "$config"/"$r_name"_tmp_f.txt | busybox awk '!($0 in a) {a[$0];print}' >"$config"/"$r_name"_gg_f.txt && rm -f "$config"/"$r_name"_tmp_f.txt
 
- #new
- contet()
-{
- >"$config"/"$r_name".txt
- busybox find ./"$r_name" -maxdepth 1 -type d | sed 's!\.!!' | while read a; do
-a="$(echo "$a" | busybox sed 's!\.!\\\\\.!g')"
- busybox grep "$a " "$config"/"$r_name"_file_contexts | busybox awk '{ print $2 }' >> "$config"/"$r_name".txt
- done
-rrrr_name="$(echo "$r_name" | busybox sed 's!\.!\\\\\.!g')"
- con_nosar="$(cat "$config"/"$r_name".txt | sort | busybox uniq -c | busybox sort -nk1 | busybox tail -1 | busybox awk '{print $2}')"
- real_name="/${rrrr_name}(/.*)? "
+        #new
+        contet() {
+            >"$config"/"$r_name".txt
+            busybox find ./"$r_name" -maxdepth 1 -type d | sed 's!\.!!' | while read a; do
+                a="$(echo "$a" | busybox sed 's!\.!\\\\\.!g')"
+                busybox grep "$a " "$config"/"$r_name"_file_contexts | busybox awk '{ print $2 }' >>"$config"/"$r_name".txt
+            done
+            rrrr_name="$(echo "$r_name" | busybox sed 's!\.!\\\\\.!g')"
+            con_nosar="$(cat "$config"/"$r_name".txt | sort | busybox uniq -c | busybox sort -nk1 | busybox tail -1 | busybox awk '{print $2}')"
+            real_name="/${rrrr_name}(/.*)? "
 
- if [ ! -z "$(echo "$rrrr_name" | busybox grep "^persist")" ]; then
-real_con="/${rrrr_name}(/.*)? u:object_r:persist_data_file:s0"
- else
- real_con="/${rrrr_name}(/.*)? ${con_nosar}"
- fi
- if [ -z "$(busybox grep "^$real_name" "$config"/"$r_name"_file_contexts)" ]; then
- i=1
- busybox sed -i -e "$i s!^!${real_con}\n!" "$config"/"$r_name"_file_contexts
- if [ $(echo $?) -eq 0 ]; then
- echo ".....Запись в \"${r_name}_file_contexts\"..."
- fi
- fi
- busybox rm -f "$config"/"$r_name".txt
- return
-}
+            if [ ! -z "$(echo "$rrrr_name" | busybox grep "^persist")" ]; then
+                real_con="/${rrrr_name}(/.*)? u:object_r:persist_data_file:s0"
+            else
+                real_con="/${rrrr_name}(/.*)? ${con_nosar}"
+            fi
+            if [ -z "$(busybox grep "^$real_name" "$config"/"$r_name"_file_contexts)" ]; then
+                i=1
+                busybox sed -i -e "$i s!^!${real_con}\n!" "$config"/"$r_name"_file_contexts
+                if [ $(echo $?) -eq 0 ]; then
+                    echo ".....Запись в \"${r_name}_file_contexts\"..."
+                fi
+            fi
+            busybox rm -f "$config"/"$r_name".txt
+            return
+        }
 
- con_sar()
-{
- con_name="$(echo "${r_name}" | busybox sed 's!\.!\\\\\.!g')"
- con1="/${con_name}/"
- con2="/${con_name}(/.*)? "
- con3="/${con_name}/system(/.*)? "
- 
- if [ -z "$(busybox grep "^${con1} " "$config"/"${r_name}"_file_contexts)" ]; then
- con1="/${con_name}/ u:object_r:rootfs:s0"
- i=1
- busybox sed -i -e "$i s!^!${con1}\n!" "$config"/${r_name}_file_contexts
- fi
- if [ -z "$(busybox grep "^${con2}" "$config"/"${r_name}"_file_contexts)" ]; then
- con2="/${con_name}(/.*)? u:object_r:rootfs:s0"
- i=2
- busybox sed -i -e "$i s!^!${con2}\n!" "$config"/${r_name}_file_contexts
- fi
- if [ -z "$(busybox grep "^${con3}" "$config"/"${r_name}"_file_contexts)" ]; then
- con3="/${con_name}/system(/.*)? u:object_r:system_file:s0"
- i=3
- busybox sed -i -e "$i s!^!${con3}\n!" "$config"/${r_name}_file_contexts
- fi
- return 0
-}
+        con_sar() {
+            con_name="$(echo "${r_name}" | busybox sed 's!\.!\\\\\.!g')"
+            con1="/${con_name}/"
+            con2="/${con_name}(/.*)? "
+            con3="/${con_name}/system(/.*)? "
 
-    str_avb()
-{
- base_dir=/data/local/UnpackerSystem/erofs
- img_name=$(cat /data/local/UnpackerSystem/erofs/"$config"/"$r_name"_name.txt)
+            if [ -z "$(busybox grep "^${con1} " "$config"/"${r_name}"_file_contexts)" ]; then
+                con1="/${con_name}/ u:object_r:rootfs:s0"
+                i=1
+                busybox sed -i -e "$i s!^!${con1}\n!" "$config"/${r_name}_file_contexts
+            fi
+            if [ -z "$(busybox grep "^${con2}" "$config"/"${r_name}"_file_contexts)" ]; then
+                con2="/${con_name}(/.*)? u:object_r:rootfs:s0"
+                i=2
+                busybox sed -i -e "$i s!^!${con2}\n!" "$config"/${r_name}_file_contexts
+            fi
+            if [ -z "$(busybox grep "^${con3}" "$config"/"${r_name}"_file_contexts)" ]; then
+                con3="/${con_name}/system(/.*)? u:object_r:system_file:s0"
+                i=3
+                busybox sed -i -e "$i s!^!${con3}\n!" "$config"/${r_name}_file_contexts
+            fi
+            return 0
+        }
 
- busybox awk '!($0 in a) {a[$0];print}' "$base_dir"/"$config"/"$r_name"_file_contexts > "$base_dir"/"$config"/"$r_name"_file_contexts.tmp && busybox mv -f "$base_dir"/"$config"/"$r_name"_file_contexts.tmp "$base_dir"/"$config"/"$r_name"_file_contexts
+        str_avb() {
+            base_dir=/data/local/UnpackerSystem/erofs
+            img_name=$(cat /data/local/UnpackerSystem/erofs/"$config"/"$r_name"_name.txt)
 
- 
- if [ "$sar" == "true" ]; then
- if [ -f "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts ]; then
- busybox cp "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts "$base_dir"/"$config"/${r_name}_file_contexts_orig && sed -i "s!^/!/${r_name}/!" "$base_dir"/"$config"/${r_name}_file_contexts_orig
- fi
+            busybox awk '!($0 in a) {a[$0];print}' "$base_dir"/"$config"/"$r_name"_file_contexts >"$base_dir"/"$config"/"$r_name"_file_contexts.tmp && busybox mv -f "$base_dir"/"$config"/"$r_name"_file_contexts.tmp "$base_dir"/"$config"/"$r_name"_file_contexts
 
- con_sar #функция для SAR
+            if [ "$sar" == "true" ]; then
+                if [ -f "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts ]; then
+                    busybox cp "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts "$base_dir"/"$config"/${r_name}_file_contexts_orig && sed -i "s!^/!/${r_name}/!" "$base_dir"/"$config"/${r_name}_file_contexts_orig
+                fi
 
- echo ".....Detected image \"System as Root\""
- 
+                con_sar #функция для SAR
 
- elif [ "$sar" == "false" ]; then
+                echo ".....Detected image \"System as Root\""
 
- echo ".....Detected image not \"System as Root\""
- contet #функция для не SAR
- fi
+            elif
+                [ "$sar" == "false" ]
+            then
 
-  dir_avb=/data/local/UnpackerSystem/erofs/config
-  
- q="$(busybox basename $file)"
- file_exten_raw="$(echo "$img_name" | busybox grep -o "raw$")"
- file_exten_avb=${q##*.}
- if [ "$file_exten_avb" == "PARTITION" -a -z "$file_exten_raw" ]; then
- file_avb="/$nd"/"$img_name".PARTITION
- else
- file_avb="/$nd"/"$img_name".img
- fi
+                echo ".....Detected image not \"System as Root\""
+                contet #функция для не SAR
+            fi
 
+            dir_avb=/data/local/UnpackerSystem/erofs/config
 
- full_avb="$(avbtool info_image --image "$file_avb" 2> "$dir_avb"/"$r_name"/"$r_name"_avb.log)"
- 
- if [ ! -z "$(echo "$full_avb" | grep -Eo "Image Size:|VBMeta offset:")" ]; then
- 
- echo "$full_avb" | busybox awk '/Partition Name:/ { print $3 }' > "$dir_avb"/"$r_name"/"$r_name"_part_name.txt
- echo "$full_avb" > "$dir_avb"/"$r_name"/"$r_name"_avb.img
- echo
- echo ".....Обнаружена структура AVB!"
+            q="$(busybox basename $file)"
+            file_exten_raw="$(echo "$img_name" | busybox grep -o "raw$")"
+            file_exten_avb=${q##*.}
+            if [ "$file_exten_avb" == "PARTITION" -a -z "$file_exten_raw" ]; then
+                file_avb="/$nd"/"$img_name".PARTITION
+            else
+                file_avb="/$nd"/"$img_name".img
+            fi
 
- if busybox test -s "$dir_avb"/"$r_name"/"$r_name"_avb.img; then
+            full_avb="$(avbtool info_image --image "$file_avb" 2>"$dir_avb"/"$r_name"/"$r_name"_avb.log)"
 
- echo 'make_ext4fs -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_avb" -a /"$pack_d" "$outdir"/"$pack_d".new.img $pack_d' > "$dir_avb"/"$r_name"/"$r_name"_pack_avb.sh
- 
- echo 'make_ext4fs -s -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_avb" -a /"$pack_d" "$outdir"/"$pack_d".new.img $pack_d' > "$dir_avb"/"$r_name"/"$r_name"_pack_avb_sparse.sh
+            if [ ! -z "$(echo "$full_avb" | grep -Eo "Image Size:|VBMeta offset:")" ]; then
 
- else
- echo
- echo ".....Ошибка при создании фвйла конфигурации!"
- echo
- fi
- elif [ ! -z "$(cat "$dir_avb"/"$r_name"/"$r_name"_avb.log | busybox grep -Eo "Given image does")" ]; then
- echo > /dev/null
- else
- echo
- echo ".....Ошибка при обнаружении AVB!"
- echo
- fi
- return
-}
- str_avb
- 
- if busybox test -s "$config"/"$r_name"*_space.txt; then
- echo
- echo ".....В образе "${file}" есть файлы с пробелами... исправлено, сохранено в "$base_dir"/"$config"/"$r_name"_space.txt!"
- echo
- fi
+                echo "$full_avb" | busybox awk '/Partition Name:/ { print $3 }' >"$dir_avb"/"$r_name"/"$r_name"_part_name.txt
+                echo "$full_avb" >"$dir_avb"/"$r_name"/"$r_name"_avb.img
+                echo
+                echo ".....Обнаружена структура AVB!"
 
- if [ ! -z "$h" ]; then
- echo
- echo "\033[33;1m.....Успешно распаковано! \033[0m"
- echo
- echo "...В образе "${file}" есть файлы с пробелами, исправляем..."
- echo "$h" > "$config"/"$r_name"_space.txt
- 
- gg
+                if busybox test -s "$dir_avb"/"$r_name"/"$r_name"_avb.img; then
 
-if [ $(echo $?) -eq 0 ] ; then
+                    echo 'make_ext4fs -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_avb" -a /"$pack_d" "$outdir"/"$pack_d".new.img $pack_d' >"$dir_avb"/"$r_name"/"$r_name"_pack_avb.sh
 
-echo
-echo "...Исправлено, сохранено в "$config"/"$r_name"_space.txt!"
-echo
-else
-echo
-echo "...Ошибка исправления файлов с пробелами!"
-echo
-fi
-else
- echo
- echo "\033[33;1m.....Успешно распаковано! \033[0m"
-echo
-fi
-else
+                    echo 'make_ext4fs -s -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_avb" -a /"$pack_d" "$outdir"/"$pack_d".new.img $pack_d' >"$dir_avb"/"$r_name"/"$r_name"_pack_avb_sparse.sh
 
-echo
-echo "\033[31;47;1m ...error: Ошибка! Некорректное извлечение файлов
+                else
+                    echo
+                    echo ".....Ошибка при создании фвйла конфигурации!"
+                    echo
+                fi
+            elif [ ! -z "$(cat "$dir_avb"/"$r_name"/"$r_name"_avb.log | busybox grep -Eo "Given image does")" ]; then
+                echo >/dev/null
+            else
+                echo
+                echo ".....Ошибка при обнаружении AVB!"
+                echo
+            fi
+            return
+        }
+        str_avb
+
+        if busybox test -s "$config"/"$r_name"*_space.txt; then
+            echo
+            echo ".....В образе "${file}" есть файлы с пробелами... исправлено, сохранено в "$base_dir"/"$config"/"$r_name"_space.txt!"
+            echo
+        fi
+
+        if [ ! -z "$h" ]; then
+            echo
+            echo "\033[33;1m.....Успешно распаковано! \033[0m"
+            echo
+            echo "...В образе "${file}" есть файлы с пробелами, исправляем..."
+            echo "$h" >"$config"/"$r_name"_space.txt
+
+            gg
+
+            if [ $(echo $?) -eq 0 ]; then
+
+                echo
+                echo "...Исправлено, сохранено в "$config"/"$r_name"_space.txt!"
+                echo
+            else
+                echo
+                echo "...Ошибка исправления файлов с пробелами!"
+                echo
+            fi
+        else
+            echo
+            echo "\033[33;1m.....Успешно распаковано! \033[0m"
+            echo
+        fi
+    else
+
+        echo
+        echo "\033[31;47;1m ...error: Ошибка! Некорректное извлечение файлов
  Папка /data/local/UnpackerSystem/erofs/$r_name будет недоступна для сборки в ext4!             \033[0m"
-echo
- busybox rm -rf "$config" config/"$r_name"_fs_config config/"$r_name"_file_contexts
-fi
+        echo
+        busybox rm -rf "$config" config/"$r_name"_fs_config config/"$r_name"_file_contexts
+    fi
 else
-echo
-echo ".....Образа "$file", нет в папке: /data/local/UnpackerSystem."
-echo
- fi
+    echo
+    echo ".....Образа "$file", нет в папке: /data/local/UnpackerSystem."
+    echo
+fi
  

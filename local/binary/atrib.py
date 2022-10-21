@@ -1,5 +1,3 @@
-
-
 import sys
 def rul(st):
     result = []
