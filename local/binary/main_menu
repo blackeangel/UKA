@@ -494,7 +494,7 @@ pack_dat() {
 
   if [ ! -z "$d" ]; then
     echo
-    echo ".....Выберите папку для сборки:"
+    echo ".....$select_build_folder:"
     echo
     select menu in $d $exit_main_menu; do
       case $REPLY in
@@ -538,7 +538,7 @@ pack_dat() {
   else
     clear
     echo
-    echo ....."В \"$PWD\" нет доступных папок для сборки."
+    echo ....."В \"$PWD\" $no_build_folders_available."
     echo
     main_menu
     return
@@ -557,7 +557,7 @@ pack_dat_my() {
   set -- $d
   if [ ! -z "$d" ]; then
     echo
-    echo ".....Выберите папку для сборки:"
+    echo ".....$select_build_folder:"
     echo
     select menu in $d $exit_main_menu; do
       case $REPLY in
@@ -613,7 +613,7 @@ pack_dat_my() {
   else
     clear
     echo
-    echo ....."В \"$PWD\" нет доступных папок для сборки."
+    echo ....."В \"$PWD\" $no_build_folders_available."
     echo
     main_menu
     return
@@ -635,7 +635,7 @@ pack_dat_new() {
 
   if [ ! -z "$d" ]; then
     echo
-    echo ".....Выберите папку для сборки:"
+    echo ".....$select_build_folder:"
     echo
     select menu in $d $exit_main_menu; do
       case $REPLY in
@@ -697,7 +697,7 @@ pack_dat_new() {
   else
     clear
     echo
-    echo ....."В \"$PWD\" нет доступных папок для сборки."
+    echo ....."В \"$PWD\" $no_build_folders_available."
     echo
     main_menu
     return
@@ -727,7 +727,7 @@ main_menu() {
   echo
   echo "               $menu_menu"
   echo "               $menu_version" "$program_version"
-  echo "              --------------"
+  echo "---------------------------------------------------------"
   echo
   echo "$menu_enter"
   echo
@@ -738,12 +738,15 @@ main_menu() {
     1)
       clear
       my1() {
+        echo -en "\E[32;1m"
         echo
-        echo "      $menu_01_title file_contexts"
+        echo "      $menu_01"
+        echo "---------------------------------------------------------"
         echo
+        echo -en "\E[37;1m"
         echo "     $put boot.img $in_folder2: $local_dir/UnpackerContexts"
         echo
-        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)(версия:8.38)" $menu_01_03 $exit_main_menu $close_program; do
+        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)(версия:8.38)" $setting_configuration $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
@@ -801,12 +804,15 @@ main_menu() {
       my_aik() {
         if [ -d $local_dir/AIK-mobile ]; then
           cd $local_dir/AIK-mobile
+          echo -en "\E[32;1m"
           echo
-          echo "         $menun: AIK-mobile"
+          echo "      $menu_02"
+          echo "---------------------------------------------------------"
           echo
+          echo -en "\E[37;1m"
           echo "    $put boot.img $in_folder2: $local_dir/AIK-mobile"
           echo
-          select img in "$unpack boot(recovery)" "$pack boot(recovery)" "$del AVB/dm-verity" "$patch boot.img(32bit, SAR) $for magisk" "$menu_02_03: $local_dir/AIK-mobile" "$complete_removal AIK-mobile $from_phone" $exit_main_menu $close_program; do
+          select img in "$unpack boot(recovery)" "$pack boot(recovery)" "$del AVB/dm-verity" "$patch boot.img(32bit, SAR) $for magisk" "$cleaning_working_folder: $local_dir/AIK-mobile" "$complete_removal AIK-mobile $from_phone" $exit_main_menu $close_program; do
             case $REPLY in
             1)
               clear
@@ -982,13 +988,13 @@ main_menu() {
                   clear
                   for file_path in $(busybox find -maxdepth 1 -name "*dtb"); do
                     [ -f $file_path ] && echo
-                    echo "...Поиск значений для патча в файле: $(echo $file_path | busybox sed "s!./!!")..." && $binary_dir/bootpatch dtb $file_path patch &>>../path_dtb.txt
+                    echo "...$finding_values_patch_in_file: $(echo $file_path | busybox sed "s!./!!")..." && $binary_dir/bootpatch dtb $file_path patch &>>../path_dtb.txt
                   done
                   if [ ! -z "$(busybox cat ../path_dtb.txt | busybox grep ".*,avb")" ]; then
                     echo >>../path_dtb.txt
                     bootpatch repack ../$file 2>>../path_dtb.txt && busybox cp new-boot.img ../boot_noavb.img && busybox rm -rf ../path
                     echo
-                    echo "...$menu_02_patch_sucs: \"boot_noavb.img\"!"
+                    echo "...$complete $file_received: \"boot_noavb.img\"!"
                     echo
                     main_menu
                     return
@@ -1341,22 +1347,22 @@ main_menu() {
       qqq() {
         free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
         free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-        echo "\033[33;1m...В /${nd} свободно: $free_space \033[0m"
+        echo "\033[33;1m...$in /${nd} $free: $free_space \033[0m"
         if [ "$free_space" != "$free_data" ]; then
-          echo "\033[33;1m...В /data свободно: $free_data \033[0m"
+          echo "\033[33;1m...$in /data $free: $free_data \033[0m"
         fi
         return
       }
 
       my_super() {
         dir_dat=$binary_dir
-        if [ "$nd" == "data/local/UnpackerSystem" ]; then
+        if [ "$nd" == "$local_dir/UnpackerSystem" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
-        elif [ "$nd" == "data/local/UnpackerSuper" ]; then
+        elif [ "$nd" == "$local_dir/UnpackerSuper" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
-        elif [ "$nd" == "data/local/UnpackerPayload" ]; then
+        elif [ "$nd" == "$local_dir/UnpackerPayload" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
-        elif [ "$nd" == "data/local/UnpackerSystem/uka_backup" -a -d /"$nd" ]; then
+        elif [ "$nd" == "$local_dir/UnpackerSystem/uka_backup" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
         elif [ "$nd" == "$(busybox cat "$dir_dat"/last.txt 2>/dev/null)" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
@@ -1380,16 +1386,16 @@ main_menu() {
           free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
           free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
           echo
-          echo "...Находимся в папке: /$nd"
-          echo "...В /${nd} свободно: $free_space"
+          echo "...$curent_folder: /$nd"
+          echo "...$in /${nd} $free: $free_space"
           if [ "$free_space" != "$free_data" ]; then
-            echo "...В /data свободно: $free_data"
+            echo "...$in /data $free: $free_data"
           fi
 
           echo
-          echo ".....Выберите файл для распаковки:"
+          echo ".....$sel_file_extract:"
           echo
-          select menu in $v "Распаковать все образы" $exit_main_menu $close_program; do
+          select menu in $v "$unpack_all_images" $exit_main_menu $close_program; do
             case $REPLY in
             [1-9]*)
               i="$#"
@@ -1409,9 +1415,9 @@ main_menu() {
               elif [ "$REPLY" -eq "$i" ]; then
                 clear
                 for bin in "$@"; do
-                  if [ ! -z "$(busybox hexdump -C -n 20000 /"$nd"/"$bin" | busybox grep -o "30 50 4c 41")" -a "$nd" == "data/local/UnpackerSuper" ]; then
+                  if [ ! -z "$(busybox hexdump -C -n 20000 /"$nd"/"$bin" | busybox grep -o "30 50 4c 41")" -a "$nd" == "$local_dir/UnpackerSuper" ]; then
                     echo
-                    echo "\033[33;1m.....Пропущена распаковка "$bin" \033[0m"
+                    echo "\033[33;1m.....$missed_unboxing "$bin" \033[0m"
                     unset file
                     continue
                   else
@@ -1450,7 +1456,7 @@ main_menu() {
           done
         else
           echo
-          echo ".....В папке: /$nd нет поддерживаемых образов \".img\" для распаковки."
+          echo ".....$in_folder1: /$nd $no_supported_images \".img\" $for_unpacking"
           echo
           main_menu
           return
@@ -1460,12 +1466,12 @@ main_menu() {
       my_d() {
         cd
         echo
-        echo "...Перейдите в папку где находятся файлы: \".img\", например: cd /sdcard"
+        echo "...$go_folder_where_files_located: \".img\", $for_example: cd /sdcard"
         read b && $b
         if [ $(echo $?) -eq 0 ]; then
           clear
           echo
-          echo ".....Поиск образов..."
+          echo ".....$image_search..."
 
           dir_dat=$binary_dir
           nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!') && echo "$nd" >$binary_dir/last.txt
@@ -1485,15 +1491,15 @@ main_menu() {
             free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
             free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
             echo
-            echo "...Находимся в папке: /$nd"
-            echo "...В /${nd} свободно: $free_space"
+            echo "...$curent_folder: /$nd"
+            echo "...$in /${nd} $free: $free_space"
             if [ "$free_space" != "$free_data" ]; then
-              echo "...В /data свободно: $free_data"
+              echo "...$in /data $free: $free_data"
             fi
             echo
-            echo ".....Выберите файл для распаковки:"
+            echo ".....$sel_file_extract:"
             echo
-            select menu in $v "Распаковать все образы" $exit_main_menu $close_program; do
+            select menu in $v "$unpack_all_images" $exit_main_menu $close_program; do
               case $REPLY in
               [1-9]*)
                 i="$#"
@@ -1514,9 +1520,9 @@ main_menu() {
                 elif [ "$REPLY" -eq "$i" ]; then
                   clear
                   for bin in "$@"; do
-                    if [ ! -z "$(busybox hexdump -C -n 20000 /"$nd"/"$bin" | busybox grep -o "30 50 4c 41")" -a "$nd" == "data/local/UnpackerSuper" ]; then
+                    if [ ! -z "$(busybox hexdump -C -n 20000 /"$nd"/"$bin" | busybox grep -o "30 50 4c 41")" -a "$nd" == "$local_dir/UnpackerSuper" ]; then
                       echo
-                      echo "\033[33;1m.....Пропущена распаковка "$bin" \033[0m"
+                      echo "\033[33;1m.....$missed_unboxing "$bin" \033[0m"
                       unset file
                       continue
                     else
@@ -1555,7 +1561,7 @@ main_menu() {
             done
           else
             echo
-            echo ".....В папке: /$nd нет поддерживаемых образов \".img\" для распаковки."
+            echo ".....$in_folder1: /$nd $no_supported_images \".img\" $for_unpacking."
             echo
             main_menu
             return
@@ -1563,9 +1569,9 @@ main_menu() {
           echo
         else
           echo
-          echo ".....error: Ошибка перехода в директорию!"
+          echo ".....$error_enter_dir!"
           echo
-          echo "Введите директорию правильно!"
+          echo "$enter_directory_correctly!"
           echo
           my_d
           return
@@ -1573,14 +1579,17 @@ main_menu() {
         return
       }
       my_new() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Распаковка .img"
+        echo "      $menu_03"
+        echo "---------------------------------------------------------"
         echo
-        select menu in "Распаковка .img из папки: $local_dir/UnpackerSystem" "Распаковка .img из папки: $local_dir/UnpackerSuper" "Распаковка .img из папки: $local_dir/UnpackerPayload" "Распаковка .img из папки: $local_dir/UnpackerSystem/uka_backup" "Распаковка .img из последней использованной папки" "Ввести путь к папке с образом .img" $exit_main_menu $close_program; do
+        echo -en "\E[37;1m"
+        select menu in "$unpacking .img $from_folder: $local_dir/UnpackerSystem" "$unpacking .img $from_folder: $local_dir/UnpackerSuper" "$unpacking .img $from_folder: $local_dir/UnpackerPayload" "$unpacking .img $from_folder: $local_dir/UnpackerSystem/uka_backup" "$unpacking .img $from_last_used_folder" "$enter_path_folder_with_image .img" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
-            nd=data/local/UnpackerSystem
+            nd="$local_dir/UnpackerSystem"
             my_super
             return
             main_menu
@@ -1589,7 +1598,7 @@ main_menu() {
             ;;
           2)
             clear
-            nd=data/local/UnpackerSuper
+            nd="$local_dir/UnpackerSuper"
             my_super
             return
             main_menu
@@ -1598,7 +1607,7 @@ main_menu() {
             ;;
           3)
             clear
-            nd=data/local/UnpackerPayload
+            nd="$local_dir/UnpackerPayload"
             my_super
             return
             main_menu
@@ -1607,7 +1616,7 @@ main_menu() {
             ;;
           4)
             clear
-            nd=data/local/UnpackerSystem/uka_backup
+            nd="$local_dir/UnpackerSystem/uka_backup"
             my_super
             return
             main_menu
@@ -1625,7 +1634,7 @@ main_menu() {
               return
             else
               echo
-              echo ".....Последняя папка ещё не была определена!"
+              echo ".....$last_folder_not_defined!"
               echo
               main_menu
               return
@@ -1672,7 +1681,7 @@ main_menu() {
         >$my_dir/mm1
         >$my_dir/spars
         echo
-        echo ".....Поиск образов..."
+        echo ".....$image_search..."
 
         obraz=$(
           a=$(busybox find "$home_dir" -maxdepth 1 -name '*.img' -type f | busybox sed "s!$home_dir!!")
@@ -1689,9 +1698,9 @@ main_menu() {
               zik=$(echo $v)
               zik1=$(echo $v | busybox sed "s!$home_dir!!" | busybox sed 's!.img!!')
               if [ "$home_dir" != $local_dir/UnpackerSystem/ ]; then
-                echo "$zik смонтирован в папку: $local_dir/$zik1" >>$my_dir/mm1
+                echo "$zik $mount_in_folder: $local_dir/$zik1" >>$my_dir/mm1
               else
-                echo "$zik смонтирован в папку: $local_dir/$zik1" >>$my_dir/mm
+                echo "$zik $mount_in_folder: $local_dir/$zik1" >>$my_dir/mm
               fi
             else
               if [ -z "$(busybox hexdump -C -n 20000 "$v" | busybox grep '3a ff 26 ed')" ]; then
@@ -1712,27 +1721,26 @@ main_menu() {
           clear
           echo
           echo
-          echo "   Уже смонтированные образы в папке: \"/$print_dir\""
+          echo "   $already_mount_in_folder: \"/$print_dir\""
           busybox cat $my_dir/mm
           busybox cat $my_dir/mm1
-
         else
           clear
           echo
-          echo "   Отсутствуют смонтированные образы в папке: \"/$print_dir\""
+          echo "   $no_mount_file_in_folder: \"/$print_dir\""
           echo
         fi
 
         if busybox test -s "$my_dir/spars"; then
           echo
-          echo "   Образы sparse в папке /$print_dir:"
+          echo "   $images sparse $in_folder11 /$print_dir:"
           busybox cat $my_dir/spars
         fi
 
         if [ ! -z "$obraz" ]; then
           echo
-          echo "   Доступные raw-образы для монтирования. Выберите файл:"
-          echo " --------------------------------------------------------"
+          echo "   $available raw-$images1 $for_mounting. $select_file:"
+          echo "---------------------------------------------------------"
           echo
           select menu in $obraz $exit_main_menu; do
             case $REPLY in
@@ -1755,7 +1763,7 @@ main_menu() {
                   else
                     echo
                     echo
-                    echo "   $file не является образом ext4."
+                    echo "   $file $is_not_image ext4."
                     main_menu
                     return
                     break
@@ -1763,7 +1771,7 @@ main_menu() {
                 else
                   echo
                   echo
-                  echo "   $file является sparse-образом. Чтобы смонтировать, конвертируйте в raw.img."
+                  echo "   $file $is sparse-$image1. $to_mount_convert_to raw.img."
                   main_menu
                   return
                 fi
@@ -1794,7 +1802,7 @@ main_menu() {
 
         else
           echo
-          echo "   В папке: \"/$print_dir\" нет файлов *.img, доступных для монтирования."
+          echo "   $in_folder1: \"/$print_dir\" $no_files *.img, $available_for_mounting."
           echo
           main_menu
           return
@@ -1805,7 +1813,7 @@ main_menu() {
       my_d() {
         cd
         echo
-        echo "...Перейдите в папку где находятся файлы: \".img\", например: cd /sdcard"
+        echo "...$go_folder_where_files_located: \".img\", $for_example: cd /sdcard"
         read b && $b
         if [ $(echo $?) -eq 0 ]; then
           clear
@@ -1817,9 +1825,9 @@ main_menu() {
           return
         else
           echo
-          echo ".....error: Ошибка перехода в директорию!"
+          echo ".....$error_enter_dir"
           echo
-          echo "Введите директорию правильно!"
+          echo "$enter_directory_correctly!"
           echo
           my_d
           return
@@ -1827,16 +1835,18 @@ main_menu() {
         return
       }
       my10() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Монтирование raw-образов *.img"
-        echo "     --------------------------------------"
+        echo "      $menu_04"
+        echo "---------------------------------------------------------"
         echo
-        select img in "Монтировать образ из папки: $local_dir/UnpackerSystem" "Ввести путь к папке с образом .img для монтирования" "Размонтировать образ" $exit_main_menu $close_program; do
+        echo -en "\E[37;1m"
+        select img in "$mount_image_from_folder: $local_dir/UnpackerSystem" "$enter_path_folder_with_image .img $for_mounting" "$unmount_image" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
             home_dir="$local_dir/UnpackerSystem/"
-            print_dir="data/local/UnpackerSystem"
+            print_dir="$local_dir/UnpackerSystem"
             my_mount
             break
             ;;
@@ -1878,7 +1888,7 @@ main_menu() {
 
               if [ ! -z "$b" ]; then
                 echo
-                echo "     Выберите папку для размонтирования:"
+                echo "     $select_folder_for_unmount:"
                 echo
                 select menu in $b $exit_main_menu; do
                   case $REPLY in
@@ -1927,7 +1937,7 @@ main_menu() {
                 done
               else
                 echo
-                echo "     Нет папок для размонтирования."
+                echo "     $no_folder_for_unmount"
                 main_menu
                 return
               fi
@@ -1958,16 +1968,19 @@ main_menu() {
     5)
       clear
       my3() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Распаковка .dat"
+        echo "      $menu_05"
+        echo "---------------------------------------------------------"
         echo
-        select img in "Распаковка.dat" "Распаковка .dat из последней использованной папки" $exit_main_menu $close_program; do
+        echo -en "\E[37;1m"
+        select img in "$unpack .dat" "$unpack .dat $from_last_used_folder" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
             cd
             echo
-            echo "..Перейдите в папку где находятся файлы: \".dat\" и \".transfer.list\", например: cd /sdcard"
+            echo "..$go_folder_where_files_located: \".dat\" и \".transfer.list\", $for_example: cd /sdcard"
             my_d() {
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
@@ -1982,13 +1995,13 @@ main_menu() {
                   free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                   free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                   echo
-                  echo "...Находимся в папке: /$ndd"
-                  echo "...В /${ndd} свободно: $free_space"
+                  echo "...$curent_folder: /$ndd"
+                  echo "...$in /${ndd} $free: $free_space"
                   if [ "$free_space" != "$free_data" ]; then
-                    echo "...В /data свободно: $free_data"
+                    echo "...$in /data $free: $free_data"
                   fi
                   echo
-                  echo ".....Выберите файл для распаковки:"
+                  echo ".....$sel_file_extract:"
                   echo
                   select menu in $v $exit_main_menu $close_program; do
                     case $REPLY in
@@ -2031,7 +2044,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ".....В папке \"/$ndd\" нет образов \".dat\" для распаковки."
+                  echo ".....$in_folder1 \"/$ndd\" $no_images \".dat\" $for_unpacking"
                   echo
                   main_menu
                   return
@@ -2039,9 +2052,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo ".....error: Ошибка перехода в директорию!"
+                echo ".....$error_enter_dir!"
                 echo
-                echo "Введите директорию правильно!"
+                echo "$enter_directory_correctly!"
                 echo
                 my_d
                 return
@@ -2062,13 +2075,13 @@ main_menu() {
                 free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                 free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                 echo
-                echo "...Находимся в папке: /$ndd"
-                echo "...В /${ndd} свободно: $free_space"
+                echo "...$curent_folder: /$ndd"
+                echo "...$in /${ndd} $free: $free_space"
                 if [ "$free_space" != "$free_data" ]; then
-                  echo "...В /data свободно: $free_data"
+                  echo "...$in /data $free: $free_data"
                 fi
                 echo
-                echo ".....Выберите файл для распаковки:"
+                echo ".....$sel_file_extract:"
                 echo
                 select menu in $v $exit_main_menu $close_program; do
                   case $REPLY in
@@ -2111,7 +2124,7 @@ main_menu() {
                 done
               else
                 echo
-                echo ".....В папке \"/$ndd\" нет образов \".dat\" для распаковки."
+                echo ".....$in_folder1 \"/$ndd\" $no_images \".dat\" $for_unpacking"
                 echo
                 main_menu
                 return
@@ -2128,7 +2141,7 @@ main_menu() {
               return
             else
               echo
-              echo ".....Последняя использованная папка ещё не была определена!"
+              echo ".....$last_folder_not_defined!"
               echo
               main_menu
             fi
@@ -2158,16 +2171,19 @@ main_menu() {
     6)
       clear
       my_br() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Распаковка .br"
+        echo "      $menu_06"
+        echo "---------------------------------------------------------"
         echo
-        select img in "Распаковать .br" "Распаковка .br из последней использованной папки" $exit_main_menu $close_program; do
+        echo -en "\E[37;1m"
+        select img in "$unpack .br" "$$unpack .br $from_last_used_folder" $exit_main_menu $close_program; do
           case $REPLY in
           1)
             clear
             cd
             echo
-            echo "...Перейдите в папку где находятся файлы: \".br\" и \".transfer.list\", например: cd /sdcard"
+            echo "...$go_folder_where_files_located: \".br\" и \".transfer.list\", $for_example: cd /sdcard"
             my_b() {
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
@@ -2182,13 +2198,13 @@ main_menu() {
                   free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                   free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                   echo
-                  echo "...Находимся в папке: /$nb"
-                  echo "...В /${nb} свободно: $free_space"
+                  echo "...$curent_folder: /$nb"
+                  echo "...$in /${nb} $free: $free_space"
                   if [ "$free_space" != "$free_data" ]; then
-                    echo "...В /data свободно: $free_data"
+                    echo "...$in /data $free: $free_data"
                   fi
                   echo
-                  echo ".....Выберите файл для распаковки:"
+                  echo ".....$sel_file_extract:"
                   echo
                   select menu in $v $exit_main_menu $close_program; do
                     case $REPLY in
@@ -2231,7 +2247,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"/$nb\" нет образов \".br\" для распаковки."
+                  echo ....."$in_folder1 \"/$nb\" $no_images \".br\" $for_unpacking"
                   echo
                   main_menu
                   return
@@ -2239,9 +2255,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 my_b
                 return
@@ -2263,13 +2279,13 @@ main_menu() {
                 free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                 free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
                 echo
-                echo "...Находимся в папке: /$nb"
-                echo "...В /${nb} свободно: $free_space"
+                echo "...$curent_folder: /$nb"
+                echo "...$in /${nb} $free: $free_space"
                 if [ "$free_space" != "$free_data" ]; then
-                  echo "...В /data свободно: $free_data"
+                  echo "...$in /data $free: $free_data"
                 fi
                 echo
-                echo ".....Выберите файл для распаковки:"
+                echo ".....$sel_file_extract:"
                 echo
                 select menu in $v $exit_main_menu $close_program; do
                   case $REPLY in
@@ -2312,7 +2328,7 @@ main_menu() {
                 done
               else
                 echo
-                echo ....."В папке \"/$nb\" нет образов \".br\" для распаковки."
+                echo ....."$in_folder1 \"/$nb\" $no_images \".br\" $for_unpacking"
                 echo
                 main_menu
                 return
@@ -2328,7 +2344,7 @@ main_menu() {
               return
             else
               echo
-              echo ".....Последняя использованная папка ещё не была определена!"
+              echo ".....$last_folder_not_defined!"
               echo
               main_menu
             fi
@@ -2380,7 +2396,7 @@ main_menu() {
 
         if [ ! -z "$b" ]; then
           echo
-          echo ".....Выберите папку для сборки:"
+          echo ".....$select_build_folder:"
           echo
           select menu in $b $exit_main_menu; do
             case $REPLY in
@@ -2437,7 +2453,7 @@ main_menu() {
         else
           clear
           echo
-          echo ....."В \"$PWD\" нет доступных папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders_available!"
           echo
           main_menu
           return
@@ -2456,7 +2472,7 @@ main_menu() {
 
         if [ ! -z "$b" ]; then
           echo
-          echo ".....Выберите папку для сборки:"
+          echo ".....$select_build_folder:"
           echo
           select menu in $b $exit_main_menu; do
             case $REPLY in
@@ -2500,7 +2516,7 @@ main_menu() {
         else
           clear
           echo
-          echo ....."В \"$PWD\" нет папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders."
           echo
           main_menu
           return
@@ -2519,7 +2535,7 @@ main_menu() {
 
         if [ ! -z "$b" ]; then
           echo
-          echo ".....Выберите папку для сборки:"
+          echo ".....$select_build_folder:"
           echo
           select menu in $b $exit_main_menu; do
             case $REPLY in
@@ -2563,7 +2579,7 @@ main_menu() {
         else
           clear
           echo
-          echo ....."В \"$PWD\" нет папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders."
           echo
           main_menu
           return
@@ -2582,7 +2598,7 @@ main_menu() {
 
         if [ ! -z "$b" ]; then
           echo
-          echo ".....Выберите папку для сборки:"
+          echo ".....$select_build_folder:"
           echo
           select menu in $b $exit_main_menu; do
             case $REPLY in
@@ -2639,7 +2655,7 @@ main_menu() {
         else
           clear
           echo
-          echo ....."В \"$PWD\" нет доступных папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders_available."
           echo
           main_menu
           return
@@ -2659,7 +2675,7 @@ main_menu() {
 
         if [ ! -z "$b" ]; then
           echo
-          echo ".....Выберите папку для сборки:"
+          echo ".....$select_build_folder:"
           echo
           select menu in $b $exit_main_menu; do
             case $REPLY in
@@ -2722,7 +2738,7 @@ main_menu() {
         else
           clear
           echo
-          echo ....."В \"$PWD\" нет доступных папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders_available."
           echo
           main_menu
           return
@@ -2742,7 +2758,7 @@ main_menu() {
 
         if [ ! -z "$b" ]; then
           echo
-          echo ".....Выберите папку для сборки:"
+          echo ".....$select_build_folder:"
           echo
           select menu in $b $exit_main_menu; do
             case $REPLY in
@@ -2805,7 +2821,7 @@ main_menu() {
         else
           clear
           echo
-          echo ....."В \"$PWD\" нет доступных папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders_available."
           echo
           main_menu
           return
@@ -2816,9 +2832,12 @@ main_menu() {
         clear
         check_d
         if [ $(echo $?) -eq 0 ]; then
-          echo
-          echo "      Меню: Сборка .img"
-          echo
+        echo -en "\E[32;1m"
+        echo
+        echo "      $menu_07"
+        echo "---------------------------------------------------------"
+        echo
+        echo -en "\E[37;1m"
           select img in "Собрать .img(sparse)" "Собрать .img(raw)" "Сборка super.img" "Запись в fs_config" "Информация о размере папки для сборки" "Восстановление симлинков" $exit_main_menu $close_program; do
             case $REPLY in
             1)
@@ -3319,9 +3338,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 my_k
                 return
@@ -3449,9 +3468,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo ".....error: Ошибка перехода в директорию!"
+                echo ".....$error_enter_dir!"
                 echo
-                echo ".....Введите директорию правильно!"
+                echo ".....$enter_directory_correctly!"
                 echo
                 my_imgbr
                 return
@@ -3523,9 +3542,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo ".....error: Ошибка перехода в директорию!"
+                echo ".....$error_enter_dir!"
                 echo
-                echo ".....Введите директорию правильно!"
+                echo ".....$enter_directory_correctly!"
                 echo
                 my_kbr
                 return
@@ -3636,9 +3655,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 konv_img
                 return
@@ -3718,9 +3737,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 konv_img
                 return
@@ -3879,9 +3898,9 @@ main_menu() {
                       echo
                     else
                       echo
-                      echo .....error: Ошибка перехода в директорию!
+                      echo .....$error_enter_dir!
                       echo
-                      echo Введите директорию правильно!
+                      echo $enter_directory_correctly!
                       echo
                       vbmeta
                       return
@@ -3981,9 +4000,9 @@ main_menu() {
                       echo
                     else
                       echo
-                      echo .....error: Ошибка перехода в директорию!
+                      echo .....$error_enter_dir!
                       echo
-                      echo Введите директорию правильно!
+                      echo $enter_directory_correctly!
                       echo
                       vbmeta_info
                       return
@@ -4063,9 +4082,9 @@ main_menu() {
                       echo
                     else
                       echo
-                      echo .....error: Ошибка перехода в директорию!
+                      echo .....$error_enter_dir!
                       echo
-                      echo Введите директорию правильно!
+                      echo $enter_directory_correctly!
                       echo
                       extract_key
                       return
@@ -4260,9 +4279,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 sin_img
                 return
@@ -4360,9 +4379,9 @@ main_menu() {
                     echo
                   else
                     echo
-                    echo .....error: Ошибка перехода в директорию!
+                    echo .....$error_enter_dir!
                     echo
-                    echo Введите директорию правильно!
+                    echo $enter_directory_correctly!
                     echo
                     decomp_lz4
                     return
@@ -4484,9 +4503,9 @@ main_menu() {
                     echo
                   else
                     echo
-                    echo .....error: Ошибка перехода в директорию!
+                    echo .....$error_enter_dir!
                     echo
-                    echo Введите директорию правильно!
+                    echo $enter_directory_correctly!
                     echo
                     comp_lz4
                     return
@@ -4725,9 +4744,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 payload
                 return
@@ -4837,9 +4856,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 update_app
                 return
@@ -4933,9 +4952,9 @@ main_menu() {
                 ss_ozip
               else
                 echo
-                echo ".....error: Ошибка перехода в директорию!"
+                echo ".....$error_enter_dir!"
                 echo
-                echo "Введите директорию правильно!"
+                echo "$enter_directory_correctly!"
                 echo
                 my_ozip
                 return
@@ -5020,9 +5039,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 comp_md5
                 return
@@ -5215,9 +5234,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 rokchip_extract
                 return
@@ -5239,7 +5258,7 @@ main_menu() {
 
               if [ ! -z "$b" ]; then
                 echo
-                echo ".....Выберите папку для сборки:"
+                echo ".....$select_build_folder:"
                 echo
                 select menu in $b $exit_main_menu $close_program; do
                   case $REPLY in
@@ -5608,9 +5627,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....error: Ошибка перехода в директорию!
+                echo .....$error_enter_dir!
                 echo
-                echo Введите директорию правильно!
+                echo $enter_directory_correctly!
                 echo
                 ofp_extract
                 return
