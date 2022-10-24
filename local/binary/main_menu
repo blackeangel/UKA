@@ -722,7 +722,7 @@ main_menu() {
     "$menu_12"
     "$menu_13"
     "$menu_14"
-    ""$close_program""
+    "$close_program"
   )
   echo
   echo "               $menu_menu"
@@ -746,7 +746,7 @@ main_menu() {
         echo -en "\E[37;1m"
         echo "     $put boot.img $in_folder2: $local_dir/UnpackerContexts"
         echo
-        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)(версия:8.38)" $setting_configuration "$exit_main_menu" "$close_program"; do
+        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)(версия:8.38)" "$setting_configuration" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -2177,7 +2177,7 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-        select img in "$unpack .br" "$$unpack .br $from_last_used_folder" "$exit_main_menu" "$close_program"; do
+        select img in "$unpack .br" "$unpack .br $from_last_used_folder" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
