@@ -812,7 +812,7 @@ main_menu() {
           echo -en "\E[37;1m"
           echo "    $put boot.img $in_folder2: $local_dir/AIK-mobile"
           echo
-          select img in "$unpack boot(recovery)" "$pack boot(recovery)" "$del AVB/dm-verity" "$patch boot.img(32bit, SAR) $for magisk" "$cleaning_working_folder: $local_dir/AIK-mobile" "$complete_removal AIK-mobile $from_phone" "$exit_main_menu" "$close_program"; do
+          select img in "$unpack boot(recovery)" "$pack boot(recovery)" "$delete AVB/dm-verity" "$patch boot.img(32bit, SAR) $for magisk" "$cleaning_working_folder: $local_dir/AIK-mobile" "$complete_removal AIK-mobile $from_phone" "$exit_main_menu" "$close_program"; do
             case $REPLY in
             1)
               clear
@@ -1168,7 +1168,7 @@ main_menu() {
               del_aik() {
                 echo
                 echo -en "\E[31;47;1m"
-                echo "     $del AIK-mobile $from_phone?     "
+                echo "     $delete AIK-mobile $from_phone?     "
                 echo
                 echo -en "\E[37;0m"
                 echo -en "\E[37;1m"
