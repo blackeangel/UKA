@@ -2832,12 +2832,12 @@ main_menu() {
         clear
         check_d
         if [ $(echo $?) -eq 0 ]; then
-        echo -en "\E[32;1m"
-        echo
-        echo "      $menu_07"
-        echo "---------------------------------------------------------"
-        echo
-        echo -en "\E[37;1m"
+          echo -en "\E[32;1m"
+          echo
+          echo "      $menu_07"
+          echo "---------------------------------------------------------"
+          echo
+          echo -en "\E[37;1m"
           select img in "$build .img(sparse)" "$build .img(raw)" "$build super.img" "$write $in1 fs_config" "$build_folder_size_info" "$restoring_symlinks" "$exit_main_menu" "$close_program"; do
             case $REPLY in
             1)
@@ -3249,7 +3249,7 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-        select img in "Собрать .img -> .dat" "Собрать .img с вводом размера -> .dat" "Собрать .img с размером папки для сборки -> .dat" "Конвертировать \".img\" в \".dat\"" "$exit_main_menu" "$close_program"; do
+        select img in "$build .img -> .dat" "$build .img $with_image_size_input -> .dat" "$build .img $with_build_folder_size -> .dat" "$convert \".img\" в \".dat\"" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -3279,7 +3279,7 @@ main_menu() {
             clear
             my_k() {
               echo
-              echo "..Перейдите в папку где находится файл \".img\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \".img\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -3295,7 +3295,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл для конвертации в \".dat\":"
+                  echo ".....$select_file_for_convert_in \".dat\":"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -3333,7 +3333,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"$nd\" нет образов \".img\" для конвертации."
+                  echo ....."$in_folder1 \"$nd\" $no_images \".img\" $for_conversion."
                   echo
                   main_menu
                   return
@@ -3375,10 +3375,13 @@ main_menu() {
       my7() {
         file_size=${dir}/pack_img_br
         check_dat="222"
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Сборка и конвертация в .br"
+        echo "      $menu_09"
+        echo "---------------------------------------------------------"
         echo
-        select img in "Собрать .img -> .br" "Собрать .img с вводом размера -> .br" "Собрать .img с размером папки для сборки -> .br" "Конвертировать .img в .br" "Конвертировать .dat в .br" "$exit_main_menu" "$close_program"; do
+        echo -en "\E[37;1m"
+        select img in "$build .img -> .br" "$build .img $with_image_size_input -> .br" "$build .img $with_build_folder_size -> .br" "$convert .img -> .br" "$convert .dat -> .br" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -3409,7 +3412,7 @@ main_menu() {
             clear
             my_imgbr() {
               echo
-              echo "..Перейдите в папку где находится файл \".img\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \".img\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -3425,7 +3428,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл для конвертации:"
+                  echo ".....$select_file_for_convert:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -3463,7 +3466,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"$nd\" нет образов \".img\" для конвертации."
+                  echo ....."$in_folder1 \"$nd\" $no_images \".img\" $for_conversion."
                   echo
                   main_menu
                   return
@@ -3488,7 +3491,7 @@ main_menu() {
             clear
             my_kbr() {
               echo
-              echo "..Перейдите в папку где находится файл \".dat\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \".dat\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -3500,7 +3503,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл для конвертации:"
+                  echo ".....$select_file_for_convert:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -3537,7 +3540,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"$nd\" нет образов \".dat\" для конвертации."
+                  echo ....."$in_folder1 \"$nd\" $no_images \".dat\" $for_conversion"
                   echo
                   main_menu
                   return
@@ -3577,16 +3580,19 @@ main_menu() {
     10)
       clear
       my8() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Конвертация sparse > raw; raw > sparse"
+        echo "      $menu_10"
+        echo "---------------------------------------------------------"
         echo
-        select img in "Конвертировать .img(raw) в .img (sparse)" "Конвертировать .img(sparse) в .img(raw)" "$exit_main_menu" "$close_program"; do
+        echo -en "\E[37;1m"
+        select img in "$convert .img(raw) -> .img (sparse)" "$convert .img(sparse) -> .img(raw)" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
             konv_img() {
               echo
-              echo "..Перейдите в папку где находится файл \".img(raw)\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \".img(raw)\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -3607,13 +3613,13 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo "...Находимся в папке: /$nd"
-                  echo "...Показаны только \"raw\" образы"
+                  echo "...$curent_folder: /$nd"
+                  echo "...$show_only \"raw\" $images1"
                   free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-                  echo "...В /${nd} свободно: $free_space"
+                  echo "...$in /${nd} $free: $free_space"
                   echo
 
-                  echo ".....Выберите файл для конвертации в \"sparse\":"
+                  echo ".....$select_file_for_convert_in \"sparse\":"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -3650,7 +3656,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ..."В папке \"/$nd\" нет \"raw\" образов для конвертации."
+                  echo ..."$in_folder1 \"/$nd\" $no \"raw\" $images_to_convert."
                   echo
                   main_menu
                   return
@@ -3674,7 +3680,7 @@ main_menu() {
             clear
             konv_img() {
               echo
-              echo "..Перейдите в папку где находится файл \".img(sparse)\", например: cd /sdcard:"
+              echo "..$go_folder_where_files_located \".img(sparse)\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -3690,12 +3696,12 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo "...Находимся в папке: /$nd"
-                  echo "...Показаны только \"sparse\" образы"
+                  echo "...$curent_folder: /$nd"
+                  echo "...$show_only \"sparse\" $images1"
                   free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-                  echo "...В /${nd} свободно: $free_space"
+                  echo "...$in /${nd} $free: $free_space"
                   echo
-                  echo ".....Выберите файл для конвертации в \"raw\":"
+                  echo ".....$select_file_for_convert_in \"raw\":"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -3732,7 +3738,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ..."В папке \"/$nd\" нет \"sparse\" образов для конвертации."
+                  echo ..."$in_folder1 \"/$nd\" $no \"sparse\" $images_to_convert"
                   echo
                   main_menu
                   return
@@ -3772,23 +3778,25 @@ main_menu() {
     11)
       clear
       my2() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Прочие инструменты"
+        echo "      $menu_11"
+        echo "---------------------------------------------------------"
         echo
-
-        select img in "Действия со структурой AVB" "Конвертация .sin -> .img" "Конвертировать .lz4" "Склеить образ из прошивки под Qfil" "Извлечение образов из payload.bin" "Извлечение образов из UPDATE.APP" "Создание образа из блока памяти текущей прошивки" "Распаковка(конвертация) .ozip" "Создание tar.md5" "Распаковка прошивок .img" "Распаковка прошивок .ofp" "$exit_main_menu" "$close_program"; do
+        echo -en "\E[37;1m"
+        select img in "$actions_with_structure AVB" "$convert .sin -> .img" "$convert .lz4" "$glue_image_from_firmware_under Qfil" "$extracting_images_from payload.bin" "$extracting_images_from UPDATE.APP" "$creating_image_from_block" "$unpacking_conversion .ozip" "$creation tar.md5" "$firmware_unpacking .img" "$firmware_unpacking .ofp" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
             read_avb() {
               echo
-              select img in "Патч vbmeta" "Просмотр структуры AVB файла" "Извлечение публичного ключа подписи AVB" "Создание своего ключа подписи AVB" "Подпись boot(recovery).img с выбором ключа" "$exit_main_menu" "$close_program"; do
+              select img in "$patch vbmeta" "$viewing_structure AVB $file1" "$extracting_public_key AVB" "$create_your_signature_key AVB" "$signature boot(recovery).img $with_choice_key" "$exit_main_menu" "$close_program"; do
                 case $REPLY in
                 1)
                   clear
                   vbmeta() {
                     echo
-                    echo "..Перейдите в папку где находится файл \"vbmeta.img\", например: cd /sdcard"
+                    echo "..$go_folder_where_files_located \"vbmeta.img\", $for_example: cd /sdcard"
                     read b && $b
                     if [ $(echo $?) -eq 0 ]; then
                       clear
@@ -3805,7 +3813,7 @@ main_menu() {
 
                       if [ ! -z "$v" ]; then
                         echo
-                        echo ".....Выберите файл для патча:"
+                        echo ".....$choose_file_patch:"
                         echo
                         select menu in $v "$exit_main_menu"; do
                           case $REPLY in
@@ -3816,7 +3824,7 @@ main_menu() {
                             if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                               clear
                               echo
-                              echo ".....Ищем значения для патча..."
+                              echo ".....$looking_patch_values..."
 
                               true_vb() {
                                 tru="$(avbtool info_image --image "$file" | busybox awk '/Flags:/ NR == 1 {if($2 == 3) { print $2 }}')"
@@ -3849,22 +3857,22 @@ main_menu() {
                                   if [ "$tru" == 3 -a "$rolbak" == 0 ]; then
                                     if [ -z "$real_nd" ]; then
                                       echo
-                                      echo ".....Успешно пропатчен /"$nd"/"$file_orig" -> /"$nd"/"$file_path""
+                                      echo ".....$successfully_patched /"$nd"/"$file_orig" -> /"$nd"/"$file_path""
                                       echo
                                     else
                                       echo
-                                      echo ".....Успешно пропатчен /"$nd"/"$file_orig""
+                                      echo ".....$successfully_patched /"$nd"/"$file_orig""
                                       echo
                                     fi
                                   else
                                     echo
-                                    echo ".....Ошибка при патче /"$nd"/"$file""
+                                    echo ".....$patch_error /"$nd"/"$file""
                                     echo
                                   fi
                                 fi
                               else
                                 echo
-                                echo ".....Файл /"$nd"/"$file" уже пропатчен!"
+                                echo ".....$file /"$nd"/"$file" $already_patched!"
                                 echo
                               fi
                               main_menu
@@ -3893,7 +3901,7 @@ main_menu() {
                         done
                       else
                         echo
-                        echo ....."В папке \"/$nd\" нет файлов \"vbmeta\" для патча."
+                        echo ....."$in_folder1 \"/$nd\" $no_files \"vbmeta\" $to_patch"
                         echo
                         main_menu
                         return
@@ -3917,12 +3925,12 @@ main_menu() {
                   clear
                   vbmeta_info() {
                     echo
-                    echo "..Перейдите в папку где находится файл \"*.img\", например: cd /sdcard"
+                    echo "..$go_folder_where_files_located \"*.img\", $for_example: cd /sdcard"
                     read b && $b
                     if [ $(echo $?) -eq 0 ]; then
                       clear
                       echo
-                      echo ".....Поиск файлов..."
+                      echo ".....$file_search..."
                       nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
 
                       v=$(for a in $(busybox find -maxdepth 1 -name "*.img" -type f -o -name "vbmeta*" -o -type l | busybox sed 's!./!!'); do
@@ -3937,7 +3945,7 @@ main_menu() {
                       if [ ! -z "$v" ]; then
                         clear
                         echo
-                        echo ".....Выберите файл:"
+                        echo ".....$select_file:"
                         echo
                         select menu in $v "$exit_main_menu"; do
                           case $REPLY in
@@ -3963,7 +3971,7 @@ main_menu() {
                               if [ ! -z "$(busybox cat "$f_avb" | busybox grep -o "Minimum libavb version:")" ]; then
                                 busybox cat "$f_avb"
                               else
-                                echo "     Структура AVB не найдена!"
+                                echo "     $structure AVB $not_found!"
                               fi
                               echo
                               echo "    $gg"
@@ -4019,12 +4027,12 @@ main_menu() {
                   clear
                   extract_key() {
                     echo
-                    echo "..Перейдите в папку где находится файл \"*.img\", например: cd /sdcard"
+                    echo "..$go_folder_where_files_located \"*.img\", $for_example: cd /sdcard"
                     read b && $b
                     if [ $(echo $?) -eq 0 ]; then
                       clear
                       echo
-                      echo ".....Поиск файлов..."
+                      echo ".....$file_search..."
                       nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
 
                       v=$(for a in $(busybox find . -maxdepth 1 -name "*.img" -type f | busybox sed 's!./!!'); do
@@ -4039,7 +4047,7 @@ main_menu() {
                       if [ ! -z "$v" ]; then
                         clear
                         echo
-                        echo ".....Выберите файл:"
+                        echo ".....$select_file:"
                         echo
                         select menu in $v "$exit_main_menu"; do
                           case $REPLY in
@@ -4077,7 +4085,7 @@ main_menu() {
                         done
                       else
                         echo
-                        echo ....."В папке \"/$nd\" нет файлов \"*.img\""
+                        echo ....."$in_folder1 \"/$nd\" $no_files \"*.img\""
                         echo
                         main_menu
                         return
@@ -4104,7 +4112,7 @@ main_menu() {
 
                     set -- $v
                     echo
-                    echo ".....Выберите алгоритм для создания ключа:"
+                    echo ".....$choose_algorithm_generate_key:"
                     echo
                     select menu in $v "$exit_main_menu"; do
                       case $REPLY in
@@ -4118,21 +4126,21 @@ main_menu() {
                           mkdir "$out_gen_key" 2>/dev/null
                           clear
                           echo
-                          echo ".....Создание ключей ${file}_private.pem и "$file"_pubkey.pem..."
+                          echo ".....$creating_keys ${file}_private.pem $and "$file"_pubkey.pem..."
 
                           openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:"$rs" -outform PEM -out "$out_gen_key"/"$file"_private.pem &>/dev/null
                           if [ $(echo $?) -eq 0 ]; then
 
                             echo
-                            echo ".....Успешно создан "$file"_private.pem "
-                            echo ".....Сохранено: "$out_gen_key"/"$file"_private.pem"
+                            echo ".....$successfully_created "$file"_private.pem "
+                            echo ".....$saved: "$out_gen_key"/"$file"_private.pem"
 
                             avbtool extract_public_key --key "$out_gen_key"/"$file"_private.pem --output "$out_gen_key"/"$file"_pubkey.pem
                             if [ $(echo $?) -eq 0 ]; then
                               sleep 1
                               echo
-                              echo ".....Успешно создан "$file"_pubkey.pem"
-                              echo ".....Сохранено: "$out_gen_key"/"$file"_pubkey.pem"
+                              echo ".....$successfully_created "$file"_pubkey.pem"
+                              echo ".....$saved: "$out_gen_key"/"$file"_pubkey.pem"
                               echo
                             fi
                           fi
@@ -4200,7 +4208,7 @@ main_menu() {
 
             sin_img() {
               echo
-              echo "..Перейдите в папку где находится файл \".sin\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \".sin\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -4210,7 +4218,7 @@ main_menu() {
 
                 konv() {
                   echo
-                  echo ".....Конвертация..."
+                  echo ".....$converting..."
                   echo
                   if [ ! -z "$(echo "$file" | busybox grep ".sin$")" ]; then
 
@@ -4221,12 +4229,12 @@ main_menu() {
                       num="$(busybox find -maxdepth 1 | busybox grep -Ev ".sin$|.crt$|.img$|.log$|.txt$" | busybox grep "$name_sin")"
                       busybox mv -f "$num" "$name_sin"_sin.img && file=/"$nd"/"$name_sin"_sin.img
                       echo
-                      echo ".....Успешно завершено!"
-                      echo ".....Получен файл $file"
+                      echo ".....$complete!"
+                      echo ".....$file_received $file"
                       echo
                     else
                       echo
-                      echo ".....Error. Ошибка при конвертации!"
+                      echo ".....$convert_error!"
                       echo
                     fi
                   fi
@@ -4237,7 +4245,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -4274,7 +4282,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"/$nd\" нет файлов \".sin\"."
+                  echo ....."$in_folder1 \"/$nd\" $no_files \".sin\"."
                   echo
                   main_menu
                   return
@@ -4298,15 +4306,15 @@ main_menu() {
           3)
             clear
             echo
-            echo "      Меню: Конвертация .lz4"
+            echo "      $menun: $converting .lz4"
             echo
-            select img in "Извлечение из .lz4" "Сжатие в .lz4" "$exit_main_menu" "$close_program"; do
+            select img in "$extract_from .lz4" "$compression_in .lz4" "$exit_main_menu" "$close_program"; do
               case $REPLY in
               1)
                 clear
                 decomp_lz4() {
                   echo
-                  echo "..Перейдите в папку где находится файл \".lz4\", например: cd /sdcard"
+                  echo "..$go_folder_where_files_located \".lz4\", $for_example: cd /sdcard"
                   read b && $b
                   if [ $(echo $?) -eq 0 ]; then
                     clear
@@ -4316,17 +4324,17 @@ main_menu() {
 
                     konv() {
                       echo
-                      echo ".....Конвертация..."
+                      echo ".....$converting..."
                       echo
                       lz4 -df --no-sparse "$file"
                       if [ "$?" -eq "0" ]; then
                         echo
-                        echo ".....Успешно завершено!"
+                        echo ".....$complete"
                         echo
                         return
                       else
                         echo
-                        echo ".....Ошибка при конвертации!"
+                        echo ".....$convert_error!"
                         echo
                         return
                       fi
@@ -4337,7 +4345,7 @@ main_menu() {
 
                     if [ ! -z "$v" ]; then
                       echo
-                      echo ".....Выберите файл для конвертации:"
+                      echo ".....$select_file_for_convert:"
                       echo
                       select menu in $v "$exit_main_menu"; do
                         case $REPLY in
@@ -4374,7 +4382,7 @@ main_menu() {
                       done
                     else
                       echo
-                      echo ....."В папке \"/$nd\" нет файлов \".lz4\" для конвертации."
+                      echo ....."$in_folder1 \"/$nd\" $no_files \".lz4\" $for_conversion"
                       echo
                       main_menu
                       return
@@ -4399,7 +4407,7 @@ main_menu() {
 
                 comp_lz4() {
                   echo
-                  echo "..Перейдите в папку где находится файл \".img\", например: cd /sdcard"
+                  echo "..$go_folder_where_files_located \".img\", $for_example: cd /sdcard"
                   read b && $b
                   if [ $(echo $?) -eq 0 ]; then
                     clear
@@ -4408,17 +4416,17 @@ main_menu() {
                     v=$(busybox find . -maxdepth 1 -name '*.img' 2>/dev/null | busybox sed 's!./!!')
                     konv() {
                       echo
-                      echo ".....Конвертация..."
+                      echo ".....$converting..."
                       echo
                       lz4 -3 -f "$file"
                       if [ "$?" -eq "0" ]; then
                         echo
-                        echo ".....Успешно завершено!"
+                        echo ".....$complete"
                         echo
                         return
                       else
                         echo
-                        echo ".....Ошибка при конвертации!"
+                        echo ".....$convert_error!"
                         echo
                         return
                       fi
@@ -4430,21 +4438,21 @@ main_menu() {
                         read b
                         if [ "$b" -le "9" ]; then
                           echo
-                          echo ".....Конвертация в "$file".lz4...Ждём..."
+                          echo ".....$convert_to "$file".lz4...$waiting..."
                           echo
                           lz4 -"$b" -f $file
                           if [ $(echo $?) -eq 0 ]; then
                             echo
-                            echo ".....Конвертация завершена!"
+                            echo ".....$conversion_completed_successfully!"
                             echo
                           else
                             echo
-                            echo ".....error: Ошибка при конвертации."
+                            echo ".....$convert_error."
                             echo
                           fi
                         else
                           echo
-                          echo ".....Вводите цифру от 0 до 9:"
+                          echo ".....$enter_number $from 0 $to1 9:"
                           mc
                           echo
                         fi
@@ -4452,7 +4460,7 @@ main_menu() {
                       }
 
                       echo
-                      echo ".....Для конвертации в .lz4 введите степень сжатия(цифру от 0 до 9):"
+                      echo ".....$to_convert_to .lz4 $enter_compression_ratio:"
                       mc
                       return
                     }
@@ -4461,7 +4469,7 @@ main_menu() {
 
                     if [ ! -z "$v" ]; then
                       echo
-                      echo ".....Выберите файл для конвертации:"
+                      echo ".....$select_file_for_convert:"
                       echo
                       select menu in $v "$exit_main_menu"; do
                         case $REPLY in
@@ -4498,7 +4506,7 @@ main_menu() {
                       done
                     else
                       echo
-                      echo ....."В папке \"/$nd\" нет файлов \".img\" для конвертации."
+                      echo ....."$in_folder1 \"/$nd\" $no_files \".img\" $for_conversion."
                       echo
                       main_menu
                       return
@@ -4542,11 +4550,11 @@ main_menu() {
                 busybox test "$size" -lt "$size_obraz"
                 if [ "$?" -eq "0" ]; then
                   busybox truncate -s $size_obraz ./$obraz
-                  echo " .....Получен образ \"$obraz\" с размером: $size_obraz байт."
-                  echo ".....Сохранено в $local_dir/UnpackerQfil"
+                  echo " .....$received_image \"$obraz\" $with_size: $size_obraz $byte."
+                  echo ".....$saved_in $local_dir/UnpackerQfil"
                 else
-                  echo " .....Получен образ \"$obraz\" с размером: $size байт."
-                  echo ".....Сохранено в $local_dir/UnpackerQfil"
+                  echo " .....$received_image \"$obraz\" $with_size: $size $byte."
+                  echo ".....$saved_in $local_dir/UnpackerQfil"
                 fi
               fi
             }
@@ -4554,9 +4562,9 @@ main_menu() {
             qfil_img() {
               free_space="$(busybox df -h $local_dir/UnpackerQfil | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
               echo
-              echo "     Положите в папку: $local_dir/UnpackerQfil все файлы \"super_xx|system_xx|vendor_xx|userdata_xx\" и все файлы \".xml\", начинающиеся на \"rawprogram*\", либо файлы  \"super|system|vendor.img_sparsechunk.*\"."
+              echo "     $put_in_folder: $local_dir/UnpackerQfil $all_files \"super_xx|system_xx|vendor_xx|userdata_xx\" $and $all_files \".xml\", $starting_with \"rawprogram*\", $or_files \"super|system|vendor.img_sparsechunk.*\"."
               echo
-              echo "...В $local_dir/UnpackerQfil свободно: $free_space"
+              echo "...$in $local_dir/UnpackerQfil $free: $free_space"
               echo
               select img in "Склеить" "$exit_main_menu" "$close_program"; do
                 case $REPLY in
@@ -4569,22 +4577,22 @@ main_menu() {
                     if [ ! -z "$(busybox ls *chunk* 2>/dev/null)" ]; then
 
                       echo
-                      echo ".....Найдены файлы \"*sparsechunk*\""
+                      echo ".....$files_found \"*sparsechunk*\""
                       echo
                       for name in "super" "system" "vendor" "product"; do
                         name1=$(find . -maxdepth 1 -name "${name}*chunk*" | sort -n | busybox grep -v "[0-9][0-9]")
                         name2=$(find . -maxdepth 1 -name "${name}*chunk*" | sort -n | busybox grep "[0-9][0-9]")
                         if [ ! -z "${name1}" ]; then
                           mkdir ./output 2>/dev/null
-                          echo ".....Склейка ${name}_chunk.raw.img..."
+                          echo ".....$gluing ${name}_chunk.raw.img..."
                           simg2img ${name1} ${name2} ./output/${name}_chunk.raw.img
                           if [ "$?" -eq "0" ]; then
-                            echo ".....Успешно создан файл ${name}_chunk.raw.img"
-                            echo ".....Сохранено в $local_dir/UnpackerQfil/output"
+                            echo ".....$file_created_successfully ${name}_chunk.raw.img"
+                            echo ".....$saved_in $local_dir/UnpackerQfil/output"
                             echo
                           else
                             echo
-                            echo ".....Ошибка при склейке ${name}_chunk.raw.img!"
+                            echo ".....$gluing_error ${name}_chunk.raw.img!"
                             echo
                           fi
                         fi
@@ -4603,8 +4611,8 @@ main_menu() {
                         check_name="$(busybox cat $rab_file | busybox awk -v var="$name" -F"filename=" '$2 ~ var { print $2}' | busybox cut -d" " -f1 | busybox sed '1!d; s!"!!g')"
                         if [ -f ./$check_name ]; then
                           echo
-                          echo ".....Найден файл ${rab_file}"
-                          echo ".....Склейка $obraz c использованием файла $rab_file..."
+                          echo ".....$file_found ${rab_file}"
+                          echo ".....$gluing $obraz $using_file $rab_file..."
                           python39 $binary_dir/bin_system/qfil1.py $local_dir/UnpackerQfil/"$rab_file" "$name"
                           if [ "$?" -eq "0" ]; then
                             obraz_real="$local_dir/UnpackerQfil/$obraz"
@@ -4615,32 +4623,32 @@ main_menu() {
                               busybox truncate -s "$size_obraz_r" "$obraz_real"
                               if [ "$?" -eq "0" ]; then
                                 echo
-                                echo " .....Получен образ \"$obraz\" с размером: $size_obraz_r байт."
-                                echo ".....Сохранено в $local_dir/UnpackerQfil"
+                                echo " .....$received_image \"$obraz\" $with_size: $size_obraz_r $byte."
+                                echo ".....$saved_in $local_dir/UnpackerQfil"
                               else
                                 echo
-                                echo "Ошибка при корректировке размера $obraz"
+                                echo "$error_when_adjusting_size $obraz"
                                 echo
                               fi
                             else
                               resize_img
                             fi
                           else
-                            echo ".....Возникла ошибка"
+                            echo ".....$error_occurred"
                             echo
                           fi
                         else
                           echo
-                          echo ".....Нет файла \"$check_name\" в $local_dir/UnpackerQfil" >>qfil.log
+                          echo ".....$no_file \"$check_name\" $in1 $local_dir/UnpackerQfil" >>qfil.log
                         fi
                       else
                         echo
-                        echo ".....Нет нужного файла .xml в $local_dir/UnpackerQfil" >>qfil.log
+                        echo ".....$required_file_missing .xml $in1 $local_dir/UnpackerQfil" >>qfil.log
                       fi
                     done
                   else
                     echo
-                    echo ".....Нет файлов для склейки в $local_dir/UnpackerQfil"
+                    echo ".....$No_files_merge_into $local_dir/UnpackerQfil"
                   fi
                   main_menu
                   break
