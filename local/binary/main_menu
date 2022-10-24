@@ -2838,14 +2838,14 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-          select img in "Собрать .img(sparse)" "Собрать .img(raw)" "Сборка super.img" "Запись в fs_config" "Информация о размере папки для сборки" "Восстановление симлинков" "$exit_main_menu" "$close_program"; do
+          select img in "$build .img(sparse)" "$build .img(raw)" "$build super.img" "$write $in1 fs_config" "$build_folder_size_info" "$restoring_symlinks" "$exit_main_menu" "$close_program"; do
             case $REPLY in
             1)
               clear
 
               sparse_s() {
                 echo
-                select img in "Собрать .img(sparse) с оригинальным размером" "Собрать .img(sparse) с вводом размера образа" "Собрать .img(sparse) с размером папки для сборки" "Собрать .img(sparse)(erofs в ext4)" "$exit_main_menu" "$close_program"; do
+                select img in "$build .img(sparse) $with_original_size" "$build .img(sparse) $with_image_size_input" "$build .img(sparse) $with_build_folder_size" "$build .img(sparse)(erofs $in1 ext4)" "$exit_main_menu" "$close_program"; do
                   case $REPLY in
                   1)
                     clear
@@ -2882,7 +2882,7 @@ main_menu() {
                       pack_img_raw_new
                     else
                       echo
-                      echo ".....Работа пункта меню: \"Собрать .img(raw)(erofs в ext4\" не поддерживается на 32-битной прошивке!"
+                      echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4\" $not_supported_on_32bit_firmware!"
                       echo
                       main_menu
                     fi
@@ -2913,7 +2913,7 @@ main_menu() {
               clear
               raw_s() {
                 echo
-                select img in "Собрать .img(raw) с оригинальным размером" "Собрать .img(raw) с вводом размера образа" "Собрать .img(raw) с размером папки для сборки" "Собрать .img(raw)(erofs в ext4)" "$exit_main_menu" "$close_program"; do
+                select img in "$build .img(sparse) $with_original_size" "$build .img(sparse) $with_image_size_input" "$build .img(sparse) $with_build_folder_size" "$build .img(sparse)(erofs $in1 ext4)" "$exit_main_menu" "$close_program"; do
                   case $REPLY in
                   1)
                     clear
@@ -2951,7 +2951,7 @@ main_menu() {
                       pack_img_raw_new
                     else
                       echo
-                      echo ".....Работа пункта меню: \"Собрать .img(raw)(erofs в ext4\" не поддерживается на 32-битной прошивке!"
+                      echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4\" $not_supported_on_32bit_firmware!"
                       echo
                       main_menu
                     fi
@@ -2981,9 +2981,9 @@ main_menu() {
             3)
               clear
               echo
-              echo ".....Проверьте наличие нужных образов в папке $local_dir/UnpackerSuper"
+              echo ".....$check_necessary_images_folder $local_dir/UnpackerSuper"
               echo
-              select img in "Собрать super.img(sparse)" "Собрать super.img(raw)" "$exit_main_menu" "$close_program"; do
+              select img in "$build super.img(sparse)" "$build super.img(raw)" "$exit_main_menu" "$close_program"; do
                 case $REPLY in
                 1)
                   clear
@@ -3016,9 +3016,9 @@ main_menu() {
             4)
               clear
               echo
-              echo ".....Добавьте папки или файлы в распакованный образ..."
+              echo ".....$add_folders_or_files_unpacked_image..."
               echo
-              select img in "Запись" "$exit_main_menu"; do
+              select img in "$write" "$exit_main_menu"; do
                 case $REPLY in
                 1)
                   clear
@@ -3049,7 +3049,7 @@ main_menu() {
 
                 if [ ! -z "$b" ]; then
                   echo
-                  echo ".....Выберите папку:"
+                  echo ".....$select_folder:"
                   echo
                   select menu in $b "$exit_main_menu" "$close_program"; do
                     case $REPLY in
@@ -3081,14 +3081,14 @@ main_menu() {
                         echo "       -----------------------------"
                         echo "       -----------------------------"
                         echo
-                        echo ".....Текущий размер для сборки образа:"
-                        echo "     $size_real байт"
+                        echo ".....$current_build_image_size:"
+                        echo "     $size_real $byte"
                         echo
-                        echo ".....Размер папки \"$pack_d\":"
-                        echo "     $size_orig байт"
+                        echo ".....$folder_size \"$pack_d\":"
+                        echo "     $size_orig $byte"
                         echo
-                        echo ".....Примерный минимальный размер с которым соберётся образ:"
-                        echo "     $size_new байт"
+                        echo ".....$Approximate_minimum_size_with_image_built:"
+                        echo "     $size_new $byte"
                         echo
                         main_menu
                         return
@@ -3120,7 +3120,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В \"$PWD\" нет папок для сборки."
+                  echo ....."$in \"$PWD\" $no_build_folders."
                   echo
                   main_menu
                   return
@@ -3145,7 +3145,7 @@ main_menu() {
 
                 if [ ! -z "$b" ]; then
                   echo
-                  echo ".....Выберите папку для восстановления:"
+                  echo ".....$select_folder_restore:"
                   echo
                   select menu in $b "$exit_main_menu"; do
                     case $REPLY in
@@ -3163,16 +3163,16 @@ main_menu() {
                           busybox tar -xf "$config"/"$pack_d"_sim.tar
                           if [ $(echo $?) -eq 0 ]; then
                             echo
-                            echo ".....Успешно восстановлено!"
+                            echo ".....$successfully_restored!"
                             echo
                           else
                             echo
-                            echo ".....Ошибка при восстановлении!"
+                            echo ".....$recovery_error!"
                             echo
                           fi
                         else
                           echo
-                          echo ".....Нет сохранённого архива для восстановления!"
+                          echo ".....$no_archive_restore!"
                           echo
                         fi
                         main_menu
@@ -3202,7 +3202,7 @@ main_menu() {
                 else
                   clear
                   echo
-                  echo ....."В \"$PWD\" нет папок для восстановления."
+                  echo ....."$in \"$PWD\" $no_folder_for_restore"
                   echo
                   main_menu
                   return
@@ -3226,7 +3226,7 @@ main_menu() {
           done
         else
           echo
-          echo ....."В \"$PWD\" нет папок для сборки."
+          echo ....."$in \"$PWD\" $no_build_folders"
           echo
           main_menu
           return
@@ -3243,9 +3243,12 @@ main_menu() {
       my6() {
         file_size=${dir}/pack_img_dat
         check_dat="222"
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Сборка и конвертация в .dat"
+        echo "      $menu_08"
+        echo "---------------------------------------------------------"
         echo
+        echo -en "\E[37;1m"
         select img in "Собрать .img -> .dat" "Собрать .img с вводом размера -> .dat" "Собрать .img с размером папки для сборки -> .dat" "Конвертировать \".img\" в \".dat\"" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
