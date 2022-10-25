@@ -64,7 +64,7 @@ error_select_menu() {
   if [ "$1" -eq "1" ]; then
     clear
     echo
-    echo "      $menu_anykey"
+    echo "      $anykey"
     echo
   else
     echo "$anykey"
@@ -83,7 +83,7 @@ free_place() {
   unset get_size_print
   echo
   echo
-  echo ".....Введите желаемый размер свободного места для собираемого образа, в мегабайтах:"
+  echo ".....$enter_desired_free_space_built_image_megabytes:"
   echo
   read a && set -- "$a"
   if [ $(echo $?) -eq 0 ]; then
@@ -103,19 +103,19 @@ free_place() {
   fi
   clear
   echo
-  echo ".....Установлен желаемый размер свободного места для собираемого образа ~ "$get_size_print" mb"
+  echo ".....$desiredfree_space_built_image ~ "$get_size_print" mb"
   echo
   return
 }
 
 nn1() {
   echo
-  echo "     Выбор папки сохранения образа    "
+  echo "     $selecting_image_save_folder    "
   echo "     -----------------------------    "
   echo
-  echo ".....При вводе 0, папка сохранения: $local_dir/UnpackerSuper/output"
-  echo ".....При вводе 1, папка сохранения: $local_dir/UnpackerSuper"
-  echo ".....Введите 0, 1, или свой путь к папке сохранения образа..."
+  echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSuper/output"
+  echo ".....$when_you_enter 1, $save_folder: $local_dir/UnpackerSuper"
+  echo ".....$enter 0, 1, $or_your_path_to_image_save_folder..."
   echo
   read h && if [ "$h" = "0" ]; then
     outdir=$local_dir/UnpackerSystem
@@ -123,7 +123,7 @@ nn1() {
 
     clear
     echo
-    echo "     Установлена папка сохранения выходного образа:"
+    echo "     $output_image_save_folder_set:"
     echo "     $outdir"
   elif [ "$h" = "1" ]; then
     outdir=$local_dir/UnpackerSuper
@@ -131,7 +131,7 @@ nn1() {
 
     clear
     echo
-    echo "     Установлена папка сохранения выходного образа:"
+    echo "     $output_image_save_folder_set:"
     echo "     $outdir"
   elif [ -d "$h" ]; then
     outdir=$h
@@ -139,12 +139,12 @@ nn1() {
 
     clear
     echo
-    echo "     Установлена папка сохранения выходного образа:"
+    echo "     $output_image_save_folder_set:"
     echo "     $outdir"
   else
     clear
     echo
-    echo ".....Папки сохранения не существует!"
+    echo ".....$save_folder_does_not_exist"
     nn
     return
   fi
@@ -153,17 +153,17 @@ nn1() {
 
 inf_space_menu() {
   free_space="$(busybox df -h "$outdir" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-  echo "    В папке свободно: "$free_space""
+  echo "    $free_in_folder: "$free_space""
   return
 }
 
 nn() {
   echo
-  echo "     Выбор папки сохранения образа    "
+  echo "     $selecting_image_save_folder    "
   echo "     -----------------------------    "
   echo
-  echo ".....При вводе 0, папка сохранения: $local_dir/UnpackerSystem"
-  echo ".....Введите 0, или свой путь к папке сохранения образа..."
+  echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSystem"
+  echo ".....$enter 0, $or_your_path_to_image_save_folder..."
   echo
   read h && if [ "$h" = "0" ]; then
     outdir=$local_dir/UnpackerSystem
@@ -172,7 +172,7 @@ nn() {
 
     clear
     echo
-    echo "    Установлена папка сохранения выходного образа:"
+    echo "    $output_image_save_folder_set:"
     echo "    $outdir"
     inf_space_menu
   elif [ -d "$h" -o -d /"$h" -a ! -z "$h" ]; then
@@ -183,7 +183,7 @@ nn() {
 
       clear
       echo
-      echo "    Установлена папка сохранения выходного образа:"
+      echo "    $output_image_save_folder_set:"
       set -- $outdir
       echo "    $outdir"
       inf_space_menu
@@ -191,9 +191,9 @@ nn() {
     else
       clear
       echo
-      echo "    \"$outdir\" недоступен для сохранения образа!"
+      echo "    \"$outdir\" $unavailable_image_saving!"
       echo
-      echo "    Установлена папка сохранения выходного образа:"
+      echo "    $output_image_save_folder_set:"
       outdir=$local_dir/UnpackerSystem
       set -- $outdir
       mkdir "$outdir" 2>/dev/null
@@ -204,9 +204,9 @@ nn() {
   else
     clear
     echo
-    echo "....Внимание! Папки сохранения не существует!"
+    echo "....$save_folder_does_not_exist"
     echo
-    echo "    Установлена папка сохранения выходного образа:"
+    echo "    $output_image_save_folder_set:"
     outdir=$local_dir/UnpackerSystem
     set -- $outdir
     mkdir "$outdir" 2>/dev/null
@@ -219,11 +219,11 @@ nn() {
 
 nnnnn() {
   echo
-  echo "     Выбор папки сохранения образа    "
+  echo "     $selecting_image_save_folder    "
   echo "     -----------------------------    "
   echo
-  echo ".....При вводе 0, папка сохранения: $local_dir/UnpackerSystem"
-  echo ".....Введите 0, или свой путь к папке сохранения образа..."
+  echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSystem"
+  echo ".....$enter 0, $or_your_path_to_image_save_folder..."
   echo
   read h && if [ "$h" = "0" ]; then
     outdir=$local_dir/UnpackerSystem
@@ -231,7 +231,7 @@ nnnnn() {
 
     clear
     echo
-    echo "     Установлена папка сохранения выходного образа:"
+    echo "     $output_image_save_folder_set:"
     echo "     $outdir"
   elif [ -d "$h" -o -d /"$h" ]; then
     outdir=/"$(echo "$h" | busybox sed 's!^/!!')"
@@ -241,16 +241,16 @@ nnnnn() {
 
       clear
       echo
-      echo "     Установлена папка сохранения выходного образа:"
+      echo "     $output_image_save_folder_set:"
       set -- $outdir
       echo "     $outdir"
       busybox rm -f "$outdir"/testuka 2>/dev/null
     else
       clear
       echo
-      echo "    \"$outdir\" недоступен для сохранения образа!"
+      echo "    \"$outdir\" $unavailable_image_saving!"
       echo
-      echo "    Установлена папка сохранения выходного образа:"
+      echo "    $output_image_save_folder_set:"
       outdir=$local_dir/UnpackerSystem
       set -- $outdir
       echo "    $outdir"
@@ -262,7 +262,7 @@ nnnnn() {
 
     clear
     echo
-    echo ".....Error! Папки сохранения не существует!"
+    echo ".....$save_folder_does_not_exist"
     nnnnn
     return
   fi
@@ -283,7 +283,7 @@ check_status() {
 
 check_size_img() {
   echo
-  echo ".....Определение размера для сборки..."
+  echo ".....$assembly_sizing..."
   echo
   i="$(busybox expr $(busybox du -s "$pack_d" | busybox awk '{ print $1 }') \* 1024)"
   while check_status; do
@@ -348,8 +348,8 @@ my_size_add() {
   real_size_orig="$(cat "$config"/"$pack_d"_size.txt)"
   real_size_orig_mb=$(busybox expr "$real_size_orig" / 1024 / 1024)
   echo
-  echo ".....Оригинальный размер образа ~ "$real_size_orig_mb" mb"
-  echo ".....Введите размер в mb, который хотите добавить к образу:"
+  echo ".....$original_image_size ~ "$real_size_orig_mb" mb"
+  echo ".....$enter_size_in_mb_you_want_add_to_image:"
   echo
   read a && set -- "$a"
   if [ $(echo $?) -eq 0 ]; then
@@ -363,7 +363,7 @@ my_size_add() {
     echo
   else
     echo
-    echo ".....Ошибка!"
+    echo ".....$error!"
     echo
     my_size_add
     return
@@ -375,11 +375,11 @@ fff_add() {
   clear
   if [ "$r_size" != 0 ]; then
     echo
-    echo "...Оригинальный размер образа ~ "$real_size_orig_mb" mb"
-    echo "...Собрать образ с размером ~ ${real_size} mb?"
+    echo "...$original_image_size ~ "$real_size_orig_mb" mb"
+    echo "...$assemble_image_with_size ~ ${real_size} mb?"
     echo
   fi
-  select img in "Да" "Нет, ввести другой размер" "$exit_main_menu"; do
+  select img in "$yes" "$no_enter_another_size" "$exit_main_menu"; do
     case $REPLY in
     1)
       set -- "$r_size"
@@ -416,7 +416,7 @@ fff_add() {
 my_size() {
   clear
   echo
-  echo ".....Введите размер в байтах:"
+  echo ".....$enter_size_in_bytes:"
   echo
   read a && set -- "$a"
   if [ $(echo $?) -eq 0 ]; then
@@ -428,7 +428,7 @@ my_size() {
     echo
   else
     echo
-    echo ".....Ошибка!"
+    echo ".....$error!"
     echo
     my_size
     return
@@ -440,14 +440,14 @@ fff() {
   clear
   if [ "$a" = "$r_size" ]; then
     echo
-    echo "...Собрать образ с размером: $r_size байт?"
+    echo "...$assemble_image_with_size: $r_size $byte?"
     echo
   else
     echo
-    echo "...Введённый размер не кратен \"4096\", собрать образ с размером: $r_size байт?"
+    echo "...$entered_size_not_multiple \"4096\"! $assemble_image_with_size: $r_size $byte?"
     echo
   fi
-  select img in "Да" "Нет, ввести другой размер" "$exit_main_menu"; do
+  select img in "$yes" "$no_enter_another_size" "$exit_main_menu"; do
     case $REPLY in
     1)
       set -- "$r_size"
@@ -538,7 +538,7 @@ pack_dat() {
   else
     clear
     echo
-    echo ....."В \"$PWD\" $no_build_folders_available."
+    echo ....."$in \"$PWD\" $no_build_folders_available."
     echo
     main_menu
     return
@@ -613,7 +613,7 @@ pack_dat_my() {
   else
     clear
     echo
-    echo ....."В \"$PWD\" $no_build_folders_available."
+    echo ....."$in \"$PWD\" $no_build_folders_available."
     echo
     main_menu
     return
@@ -697,7 +697,7 @@ pack_dat_new() {
   else
     clear
     echo
-    echo ....."В \"$PWD\" $no_build_folders_available."
+    echo ....."$in \"$PWD\" $no_build_folders_available."
     echo
     main_menu
     return
@@ -3087,7 +3087,7 @@ main_menu() {
                         echo ".....$folder_size \"$pack_d\":"
                         echo "     $size_orig $byte"
                         echo
-                        echo ".....$Approximate_minimum_size_with_image_built:"
+                        echo ".....$approximate_minimum_size_with_image_built:"
                         echo "     $size_new $byte"
                         echo
                         main_menu
@@ -4648,7 +4648,7 @@ main_menu() {
                     done
                   else
                     echo
-                    echo ".....$No_files_merge_into $local_dir/UnpackerQfil"
+                    echo ".....$no_files_merge_into $local_dir/UnpackerQfil"
                   fi
                   main_menu
                   break
@@ -4678,9 +4678,9 @@ main_menu() {
             clear
             payload() {
               echo
-              echo "         Извлечение из payload.bin     "
+              echo "         $extract_from payload.bin     "
               echo
-              echo "..Перейдите в папку где находится файл \"payload.bin\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \"payload.bin\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -4697,7 +4697,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -4708,17 +4708,17 @@ main_menu() {
                       if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                         clear
                         echo
-                        echo ".....Извлечение из /$nd/$file..."
+                        echo ".....$extract_from /$nd/$file..."
                         echo
                         payload-dumper -c 8 -o $local_dir/UnpackerPayload "$file"
                         if [ $(echo $?) -eq 0 ]; then
                           echo
-                          echo ".....Образы успешно извлечены!"
-                          echo ".....Сохранено в $local_dir/UnpackerPayload!"
+                          echo ".....$images_retrieved_successfully!"
+                          echo ".....$saved_in $local_dir/UnpackerPayload!"
                           echo
                         else
                           echo
-                          echo ".....Ошибка при извлечении!"
+                          echo ".....$extract_error!"
                           echo
                         fi
                         main_menu
@@ -4747,7 +4747,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"/$nd\" нет файлов \".bin\" для извлечения образов."
+                  echo ....."$in_folder1 \"/$nd\" $no_files \".bin\" $for_image_extraction."
                   echo
                   main_menu
                   return
@@ -4772,9 +4772,9 @@ main_menu() {
             clear
             update_app() {
               echo
-              echo "         Извлечение из UPDATE.APP     "
+              echo "         $extract_from UPDATE.APP     "
               echo
-              echo "..Перейдите в папку где находится файл \"*.app\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \"*.app\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -4790,7 +4790,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -4801,7 +4801,7 @@ main_menu() {
                       if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                         clear
                         echo
-                        echo ".....Извлечение из /$nd/$file..."
+                        echo ".....$extract_from /$nd/$file..."
                         echo
                         python39 $binary_dir/bin_system/splitapp_v2.py -f "$file" -o $local_dir/UnpackerUpdateApp
 
@@ -4810,27 +4810,27 @@ main_menu() {
                           napp=$(busybox find -name "super_[0-9].img" -type f | sort -n)
                           if [ ! -z "$napp" ]; then
                             echo
-                            echo ".....Склеиваем разбитый на части super.img..."
+                            echo ".....$glue_broken_apart super.img..."
                             simg2img ${napp} super.raw.img
                             if [ $(echo $?) -eq 0 ]; then
                               echo
-                              echo ".....Образы успешно извлечены!"
-                              echo ".....Сохранено в $local_dir/UnpackerUpdateApp!"
+                              echo ".....$images_retrieved_successfully!"
+                              echo ".....$saved_in $local_dir/UnpackerUpdateApp!"
                               echo
                             else
                               echo
-                              echo ".....Ошибка при склеивании!"
+                              echo ".....$pasting_error!"
                               echo
                             fi
                           else
                             echo
-                            echo ".....Образы успешно извлечены!"
-                            echo ".....Сохранено в $local_dir/UnpackerUpdateApp!"
+                            echo ".....$images_retrieved_successfully!"
+                            echo ".....$saved_in $local_dir/UnpackerUpdateApp!"
                             echo
                           fi
                         else
                           echo
-                          echo ".....Ошибка при извлечении!"
+                          echo ".....$extract_error!"
                           echo
                         fi
                         main_menu
@@ -4859,7 +4859,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"/$nd\" нет файлов \".app\" для извлечения образов."
+                  echo ....."$in_folder1 \"/$nd\" $no_files \".app\" $for_image_extraction."
                   echo
                   main_menu
                   return
@@ -4892,7 +4892,7 @@ main_menu() {
             my_ozip() {
               cd
               echo
-              echo "...Перейдите в папку где находятся файлы: \".ozip\", например: cd /sdcard"
+              echo "...$go_folder_where_files_located: \".ozip\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 nd=$(echo $b | busybox awk '{ print $2 }')
@@ -4906,7 +4906,7 @@ main_menu() {
                   set -- $v
                   if [ ! -z "$v" ]; then
                     echo
-                    echo ".....Выберите файл:"
+                    echo ".....$select_file:"
                     echo
                     select menu in $v "$exit_main_menu"; do
                       case $REPLY in
@@ -4920,11 +4920,11 @@ main_menu() {
                           python39 $binary_dir/bin_system/ozipdecrypt.py "$file"
                           if [ $(echo $?) -eq 0 ]; then
                             echo
-                            echo ".....Успешно завершено!"
+                            echo ".....$complete!"
                             echo
                           else
                             echo
-                            echo ".....error: Возникла ошибка!"
+                            echo ".....$error_occurred!"
                             echo
                           fi
                           main_menu
@@ -4953,7 +4953,7 @@ main_menu() {
                     done
                   else
                     echo
-                    echo ".....В папке \"$nd\" нет файлов \".ozip\"."
+                    echo ".....$in_folder1 \"$nd\" $no_files \".ozip\"."
                     echo
                     main_menu
                     return
@@ -4980,9 +4980,9 @@ main_menu() {
 
             comp_md5() {
               echo
-              echo "         Создание tar.md5     "
+              echo "         $creation tar.md5     "
               echo
-              echo "..Перейдите в папку где находится файл \"*.img\" или \"*.zip\", например: cd /sdcard"
+              echo "..$go_folder_where_files_located \"*.img\" $or \"*.zip\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
@@ -4994,7 +4994,7 @@ main_menu() {
 
                 if [ ! -z "$v" ]; then
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -5009,11 +5009,11 @@ main_menu() {
                         busybox tar -cf "$file".tar "$file" && busybox md5sum "$file_tar" >>"$file_tar" && busybox mv "$file_tar" "$file_tar".md5
                         if [ $(echo $?) -eq 0 ]; then
                           echo
-                          echo ".....Успешно создан файл: "$file_tar".md5"
+                          echo ".....$file_created_successfully: "$file_tar".md5"
                           echo
                         else
                           echo
-                          echo ".....Ошибка при создании "$file_tar".md5!"
+                          echo ".....$error_creating "$file_tar".md5!"
                           echo
                         fi
                         main_menu
@@ -5042,7 +5042,7 @@ main_menu() {
                   done
                 else
                   echo
-                  echo ....."В папке \"$nd\" нет файлов \".img\" для конвертации."
+                  echo ....."$in_folder1 \"$nd\" $no_files \".img\" $for_conversion"
                   echo
                   main_menu
                   return
@@ -5067,18 +5067,18 @@ main_menu() {
 
             rokchip_extract() {
               echo
-              echo "         Распаковка прошивок .img     "
+              echo "         $firmware_unpacking .img     "
 
               rok_dir="$local_dir/UnpackerSystem"
 
               echo
-              echo "..Перейдите в папку где находится файл прошивки \".img\", например: cd /sdcard"
+              echo "...$go_to_folder_where_firmware_file_located \".img\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
                 nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
                 echo
-                echo ".....Поиск файлов..."
+                echo ".....$file_search..."
 
                 v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -type f | busybox sed 's!./!!'); do
 
@@ -5092,7 +5092,7 @@ main_menu() {
                 if [ ! -z "$v" ]; then
                   clear
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
@@ -5583,7 +5583,7 @@ main_menu() {
                 if [ ! -z "$v" ]; then
                   clear
                   echo
-                  echo ".....Выберите файл:"
+                  echo ".....$select_file:"
                   echo
                   select menu in $v "$exit_main_menu"; do
                     case $REPLY in
