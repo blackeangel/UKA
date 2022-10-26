@@ -1,11 +1,14 @@
 #!/system/bin/sh
-
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
 cap_name=$(cat config/"$pack_d"*_name.txt)
-dir_bb=/data/local/binary
+dir_bb=$local_dir/binary
 
 if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/busybox grep '3a ff 26 ed')" ]; then
 
-      dir_loop=/data/local/"$pack_d".new
+      dir_loop=$local_dir/"$pack_d".new
       loops=$("$dir_bb"/busybox mount | cut -d" " -f1,3 | "$dir_bb"/busybox grep "$dir_loop$" | cut -d" " -f1)
 
       if [ ! -z "$("$dir_bb"/busybox mount | cut -d" " -f3 | "$dir_bb"/busybox grep "$dir_loop$")" ]; then
@@ -17,10 +20,10 @@ if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/b
       "$dir_bb"/busybox mount -t ext4 -o rw,loop "$pack_d".new.img "$dir_loop" 2>/dev/null
       if [ "$?" -eq "0" ]; then
             echo
-            echo "....."$pack_d".new.img смонтирован в папку: $dir_loop для записи capabilities."
+            echo "....."$pack_d".new.img $mount_in_folder: $dir_loop $for_write capabilities."
             echo
 
-            cat /data/local/UnpackerSystem/config/"$cap_name"_cap.txt | "$dir_bb"/busybox sed "s!$cap_name!$pack_d.new!" | while read a b c; do
+            cat $local_dir/UnpackerSystem/config/"$cap_name"_cap.txt | "$dir_bb"/busybox sed "s!$cap_name!$pack_d.new!" | while read a b c; do
                   setcap "$c" "$a"
                   echo "$c" "$a"
             done
@@ -28,10 +31,10 @@ if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/b
             "$dir_bb"/busybox umount "$dir_loop"
             if [ "$?" -eq "0" ]; then
                   echo
-                  echo ".....Успешно размонтировано: "$dir_loop""
+                  echo ".....$successfully_unmounted: "$dir_loop""
                   echo
                   losetup -d "$loops" 2>/dev/null
-                  rm -rf "$dir_loop" || echo "Ошибка удаления."
+                  rm -rf "$dir_loop" || echo "$deletion_error."
             fi
       else
             for i in 0 1 2 3 4 5 6 7; do
@@ -44,10 +47,10 @@ if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/b
             "$dir_bb"/busybox mount -t ext4 -o loop $loop "$dir_loop"
             if [ "$?" -eq "0" ]; then
                   echo
-                  echo "....."$cap_name".img смонтирован в папку: $dir_loop для записи capabilities."
+                  echo "....."$cap_name".img $mount_in_folder: $dir_loop $for_write capabilities."
                   echo
 
-                  cat /data/local/UnpackerSystem/config/"$cap_name"_cap.txt | "$dir_bb"/busybox sed "s!$cap_name!$pack_d.new!" | while read a b c; do
+                  cat $local_dir/UnpackerSystem/config/"$cap_name"_cap.txt | "$dir_bb"/busybox sed "s!$cap_name!$pack_d.new!" | while read a b c; do
                         setcap "$c" "$a"
                         #echo "$c" "$a"
                   done
@@ -57,16 +60,16 @@ if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/b
                         losetup -d "$loop" 2>/dev/null
                         rm -rf "$dir_loop"
                         echo
-                        echo ".....Успешно размонтировано: "$dir_loop""
+                        echo ".....$successfully_unmounted: "$dir_loop""
                         echo
                   else
-                        echo ".....Ошибка размонтирования!"
+                        echo ".....$unmount_error!"
                         echo
                   fi
             else
                   echo
-                  echo "\033[31;47;1m ...Ошибка монтирования для записи caps!    \033[0m"
-                  echo "\033[31;47;1m ...Capabilities не записаны!                  \033[0m"
+                  echo "\033[31;47;1m ...$write_mount_failed caps!    \033[0m"
+                  echo "\033[31;47;1m ...Capabilities $not_writed!                  \033[0m"
                   echo
             fi
       fi
