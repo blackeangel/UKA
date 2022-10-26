@@ -1,5 +1,8 @@
 #!/system/bin/sh
-
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
 clear
 
 part_num() {
@@ -8,9 +11,9 @@ part_num() {
 
     set -- $v
     echo
-    echo ".....Выберите partition name:"
+    echo ".....$select partition name:"
     echo
-    select menu in $v "Выход в главное меню"; do
+    select menu in $v "$exit_main_menu"; do
         case $REPLY in
         [1-9]*)
             i="$#"
@@ -28,7 +31,7 @@ part_num() {
             else
                 clear
                 echo
-                echo "      Вводите цифры, соответствующие меню."
+                echo "      $anykey."
                 part_num
                 return
                 break
@@ -38,7 +41,7 @@ part_num() {
         *)
             clear
             echo
-            echo "      Вводите цифры, соответствующие меню."
+            echo "      $anykey."
             part_num
             return
             break
@@ -56,7 +59,7 @@ key_algoritm() {
     echo
     echo ".....Выберите алгоритм для подписи:"
     echo
-    select menu in $v "Выход в главное меню"; do
+    select menu in $v "$exit_main_menu"; do
         case $REPLY in
         [1-9]*)
             i="$#"
@@ -74,7 +77,7 @@ key_algoritm() {
             else
                 clear
                 echo
-                echo "      Вводите цифры, соответствующие меню."
+                echo "      $anykey."
                 key_algoritm
                 return
                 break
@@ -84,7 +87,7 @@ key_algoritm() {
         *)
             clear
             echo
-            echo "      Вводите цифры, соответствующие меню."
+            echo "      $anykey."
             key_algoritm
             return
             break
@@ -95,7 +98,7 @@ key_algoritm() {
 }
 
 aik_pack() {
-    #avb_dir=/data/local/UnpackerSystem
+    #avb_dir=$local_dir/UnpackerSystem
     if busybox test "$(avbtool info_image --image "$file_real" 2>/dev/null)"; then
         size_sign="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Image size:/ { print $3 }')"
         part_name="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Partition Name:/ { print $3 }')"
@@ -172,7 +175,7 @@ search_key() {
             echo
             echo ".....Выберите ключ:"
             echo
-            select menu in $v "Выход в главное меню"; do
+            select menu in $v "$exit_main_menu"; do
                 case $REPLY in
                 [1-9]*)
                     i="$#"
@@ -196,7 +199,7 @@ search_key() {
                     else
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        echo "      $anykey."
                         search_key
                         return
                         break
@@ -206,7 +209,7 @@ search_key() {
                 *)
                     clear
                     echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    echo "      $anykey."
                     search_key
                     return
                     break
@@ -288,7 +291,7 @@ sign_image() {
             echo
             echo ".....Выберите файл:"
             echo
-            select menu in $v "Выход в главное меню" "Завершение работы"; do
+            select menu in $v "$exit_main_menu" "Завершение работы"; do
                 case $REPLY in
                 [1-9]*)
                     i="$#"
@@ -300,7 +303,7 @@ sign_image() {
                         clear
                         file=/"$nd"/"$file"
                         file_real="$file"
-                        avb_dir=/data/local/UnpackerSystem
+                        avb_dir=$local_dir/UnpackerSystem
                         if busybox test "$(avbtool info_image --image "$file" 2>/dev/null)"; then
 
                             avbtool info_image --image "$file" >"$avb_dir"/avb.img
@@ -326,7 +329,7 @@ sign_image() {
                     else
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        echo "      $anykey."
                         sign_image
                         return
                         break
@@ -336,7 +339,7 @@ sign_image() {
                 *)
                     clear
                     echo
-                    echo "      Вводите цифры, соответствующие меню."
+                    echo "      $anykey."
                     sign_image
                     return
                     break
