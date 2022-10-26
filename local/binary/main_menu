@@ -5106,7 +5106,7 @@ main_menu() {
 
                         if [ -d "$rok_dir"/"$name_rok" -a "$rok_dir"/"$name_rok" != "$rok_dir"/ ]; then
                           echo
-                          echo ".....Удаление старой папки: "$rok_dir"/"$name_rok""
+                          echo ".....$deleting_old_folder: "$rok_dir"/"$name_rok""
                           busybox rm -rf "$rok_dir"/"$name_rok"
 
                         fi
@@ -5116,7 +5116,7 @@ main_menu() {
                           echo
                           echo ".....Detected Magic Rockchip..."
                           echo
-                          echo ".....Извлечение из /$nd/$file..."
+                          echo ".....$extract_from /$nd/$file..."
                           echo
                           if [ ! -z "$(busybox hexdump -C -n 20 /"$nd"/"$file" | busybox grep -o "52 4b 46 57 66")" ]; then
                             busybox mkdir "$rok_dir"/"$name_rok" 2>/dev/null
@@ -5132,17 +5132,17 @@ main_menu() {
                               afptool -unpack update.img .
                               if busybox test -s "$(busybox find "$rok_dir"/"$name_rok" -name "parameter*" | busybox head -1)"; then
                                 echo
-                                echo ".....Образы успешно извлечены!"
-                                echo ".....Сохранено в "$rok_dir"/"$name_rok""
+                                echo ".....$images_retrieved_successfully!"
+                                echo ".....$saved_in "$rok_dir"/"$name_rok""
                                 echo
                               else
                                 echo
-                                echo ".....Error! Ошибка при извлечении!"
+                                echo ".....$extract_error!"
                                 echo
                               fi
                             else
                               echo
-                              echo ".....Error! Ошибка при извлечении, нет update.img!"
+                              echo ".....$extract_error! $no update.img!"
                               echo
                             fi
 
@@ -5155,12 +5155,12 @@ main_menu() {
                             afptool -unpack update.img .
                             if busybox test -s "$(busybox find "$rok_dir"/"$name_rok" -name "parameter*" | busybox head -1)"; then
                               echo
-                              echo ".....Образы успешно извлечены!"
-                              echo ".....Сохранено в "$rok_dir"/"$name_rok""
+                              echo ".....$images_retrieved_successfully!"
+                              echo ".....$saved_in "$rok_dir"/"$name_rok""
                               echo
                             else
                               echo
-                              echo ".....Error! Ошибка при извлечении!"
+                              echo ".....$extract_error!"
                               echo
                             fi
                           fi
@@ -5171,7 +5171,7 @@ main_menu() {
                           echo
                           echo ".....Detected Magic Alwinner..."
                           echo
-                          echo ".....Извлечение из /$nd/$file..."
+                          echo ".....$extract_from /$nd/$file..."
                           echo
                           busybox cp -f /"$nd"/"$file" "$rok_dir"/"$file"
                           cd "$rok_dir"
@@ -5179,13 +5179,13 @@ main_menu() {
                           if [ $(echo $?) -eq 0 ]; then
                             busybox mv -f /"$rok_dir"/"$name_rok".img.dump /"$rok_dir"/"$name_rok"
                             echo
-                            echo ".....Образы успешно извлечены!"
-                            echo ".....Сохранено в "$rok_dir"/"$name_rok""
+                            echo ".....$images_retrieved_successfully!"
+                            echo ".....$saved_in "$rok_dir"/"$name_rok""
                             echo
                             busybox rm -f "$file"
                           else
                             echo
-                            echo ".....Error! Ошибка при извлечении!"
+                            echo ".....$extract_error!"
                             echo
                           fi
 
@@ -5194,18 +5194,18 @@ main_menu() {
                           echo
                           echo ".....Detected Magic Amlogic..."
                           echo
-                          echo ".....Извлечение из /$nd/$file..."
+                          echo ".....$extract_from /$nd/$file..."
                           echo
                           busybox mkdir "$rok_dir"/"$name_rok" 2>/dev/null
                           aml_image_v2_packer -d /"$nd"/"$file" "$rok_dir"/"$name_rok"
                           if [ $(echo $?) -eq 0 ]; then
                             echo
-                            echo ".....Образы успешно извлечены!"
-                            echo ".....Сохранено в "$rok_dir"/"$name_rok""
+                            echo ".....$images_retrieved_successfully!"
+                            echo ".....$saved_in "$rok_dir"/"$name_rok""
                             echo
                           else
                             echo
-                            echo ".....Error! Ошибка при извлечении!"
+                            echo ".....$extract_error!"
                             echo
                           fi
                         fi
@@ -5237,7 +5237,7 @@ main_menu() {
                 else
                   clear
                   echo
-                  echo ....."В папке \"/$nd\" нет прошивок \".img\" для извлечения образов."
+                  echo ....."$in_folder1 \"/$nd\" $no_firmware \".img\" $for_image_extraction."
                   echo
                   main_menu
                   return
@@ -5295,7 +5295,7 @@ main_menu() {
                         if [ ! -z "$load" ]; then
                           clear
                           echo
-                          echo ".....Сборка прошивки .img..."
+                          echo ".....$firmware_assembly .img..."
                           echo
                           busybox sleep 2
 
@@ -5305,36 +5305,36 @@ main_menu() {
                             chmod 755 ./pack.sh && ./pack.sh
                             if [ $(echo $?) -eq 0 ]; then
                               echo
-                              echo ".....Успешно создан "$outdir"/"$name_rok"_new.img"
+                              echo ".....$successfully_created "$outdir"/"$name_rok"_new.img"
                               echo
                             else
                               echo
-                              echo ".....Ошибка при сборке общего образа!"
+                              echo ".....$error_building_shared_image!"
                               echo
                             fi
                           else
                             echo
-                            echo ".....Ошибка при сборке первичного образа!"
+                            echo ".....$error_building_primary_image!"
                             echo
                           fi
                         else
-                          echo ".....Ошибка конфигурации!"
+                          echo ".....$configuration_error!"
                         fi
                         busybox rm -f update.new.img pack.sh
 
                       elif busybox test -s "$name_rok"/image.cfg; then
                         echo
-                        echo ".....Сборка прошивки .img..."
+                        echo ".....$firmware_assembly .img..."
                         echo
                         busybox sleep 2
                         aml_image_v2_packer -r "$name_rok"/image.cfg "$rok_dir"/"$name_rok" "$outdir"/"$name_rok".new.img
                         if [ $(echo $?) -eq 0 ]; then
                           echo
-                          echo ".....Успешно создан "$outdir"/"$name_rok"_new.img"
+                          echo ".....$successfully_created "$outdir"/"$name_rok"_new.img"
                           echo
                         else
                           echo
-                          echo ".....Ошибка при сборке общего образа!"
+                          echo ".....$error_building_shared_image!"
                           echo
                         fi
                       fi
@@ -5368,7 +5368,7 @@ main_menu() {
                 done
               else
                 echo
-                echo ....."В \"$PWD\" нет папок для сборки."
+                echo ....."$in \"$PWD\" $no_build_folders."
                 echo
                 main_menu
                 return
@@ -5379,9 +5379,9 @@ main_menu() {
             menu_rok() {
               if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
                 echo
-                echo "         Распаковка прошивок .img     "
+                echo "         $firmware_unpacking .img     "
                 echo
-                select img in "Распаковать прошивку .img" "$exit_main_menu" "$close_program"; do
+                select img in "$unpack_firmware .img" "$exit_main_menu" "$close_program"; do
                   case $REPLY in
                   1)
                     clear
@@ -5407,7 +5407,7 @@ main_menu() {
                 done
               else
                 echo
-                echo ".....Работа пункта меню: \"Перепаковка прошивок .img\" не поддерживается на 32-битной прошивке!"
+                echo ".....$menu_item_operation: \"$firmware_repacking .img\" $not_supported_on_32bit_firmware!"
                 echo
                 main_menu
               fi
@@ -5431,7 +5431,7 @@ main_menu() {
               fi
               set -- $v
               echo
-              echo ".....Выберите регион для склейки super.raw.img:"
+              echo ".....$choose_region_gluing super.raw.img:"
               echo
               select menu in $v "$exit_main_menu"; do
                 case $REPLY in
@@ -5456,12 +5456,12 @@ main_menu() {
                     chmod 755 ./pack.sh && ./pack.sh
                     if [ $(echo $?) -eq 0 ]; then
                       echo
-                      echo ".....Успешно завершено!"
+                      echo ".....$complete!"
                       echo
                       return
                     else
                       echo
-                      echo ".....Ошибка при склеивании super.raw.img!"
+                      echo ".....$pasting_error super.raw.img!"
                       echo
                       return
                     fi
@@ -5498,8 +5498,8 @@ main_menu() {
               mkdir "$m_name" 2>/dev/null
               >super_simg
               echo
-              echo ".....Извлечение образов из "$file""
-              echo ".....Ждём..."
+              echo ".....$extracting_images_from "$file""
+              echo ".....$waiting..."
               echo
               python39 $binary_dir/bin_oppo_decrypt/ofp_mtk_decrypt.py "$file" "$m_name" 1>log.txt
               python39 $binary_dir/bin_oppo_decrypt/ofp_qc_decrypt.py "$file" /"$ofp_dir"/"$m_name" 1>>log.txt
@@ -5507,11 +5507,11 @@ main_menu() {
 
               if [ ! -z "$(busybox cat log.txt | busybox grep -E "Files successfully|Done. Extracted")" ]; then
                 echo
-                echo ".....Образы успешно извлечены в $local_dir/UnpackerSystem/$m_name"
+                echo ".....$images_retrieved_successfully $in $local_dir/UnpackerSystem/$m_name"
                 echo
               else
                 echo
-                echo ".....Ошибка при извлечении!"
+                echo ".....$extract_error!"
                 echo
               fi
 
@@ -5530,7 +5530,7 @@ main_menu() {
                   done
 
                   echo
-                  echo ".....Склеиваем super.raw.img! Ждём..."
+                  echo ".....$we_glue super.raw.img! $waiting..."
 
                   echo "simg2img "$(busybox cat super_simg)"$m_name/super.raw.img" >super.sh
                   if [ ! -z "$(busybox cat super.sh | busybox awk '/super/ { print $2 }')" ]; then
@@ -5538,11 +5538,11 @@ main_menu() {
 
                     if [ $(echo $?) -eq 0 ]; then
                       echo
-                      echo ".....Успешно завершено!"
+                      echo ".....$complete!"
                       echo
                     else
                       echo
-                      echo ".....Ошибка при склеивании super.raw.img!"
+                      echo ".....$pasting_error super.raw.img!"
                       echo
                     fi
                   fi
@@ -5550,7 +5550,7 @@ main_menu() {
                   aa
                 else
                   echo
-                  echo ".....Нет файла для склейки по регионам!"
+                  echo ".....$no_file_for_gluing_region!"
                   echo
                 fi
               fi
@@ -5561,18 +5561,18 @@ main_menu() {
 
             ofp_extract() {
               echo
-              echo "         Распаковка прошивок .ofp     "
+              echo "         $firmware_unpacking .ofp     "
 
               ofp_dir="$local_dir/UnpackerSystem"
 
               echo
-              echo "..Перейдите в папку где находится файл прошивки \".ofp\", например: cd /sdcard"
+              echo "...$go_to_folder_where_firmware_file_located \".ofp\", $for_example: cd /sdcard"
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
                 clear
                 nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
                 echo
-                echo ".....Поиск файлов..."
+                echo ".....$file_search..."
 
                 v=$(for a in $(busybox find . -maxdepth 1 -name '*.ofp' -type f | busybox sed 's!./!!'); do
                   echo "$a"
@@ -5598,7 +5598,7 @@ main_menu() {
 
                         if [ -d "$ofp_dir"/"$name_ofp" -a "$ofp_dir"/"$name_ofp" != "$ofp_dir"/ ]; then
                           echo
-                          echo ".....Удаление старой папки: "$ofp_dir"/"$name_ofp""
+                          echo ".....$deleting_old_folder: "$ofp_dir"/"$name_ofp""
                           busybox rm -rf "$ofp_dir"/"$name_ofp"
                         fi
                         ofp
@@ -5630,7 +5630,7 @@ main_menu() {
                 else
                   clear
                   echo
-                  echo ....."В папке \"/$nd\" нет прошивок \".ofp\" для извлечения образов."
+                  echo ....."$in_folder1 \"/$nd\" $no_firmware \".ofp\" $for_image_extraction."
                   echo
                   main_menu
                   return
@@ -5650,9 +5650,9 @@ main_menu() {
 
             menu_ofp() {
               echo
-              echo "         Распаковка прошивок .ofp     "
+              echo "         $firmware_unpacking .ofp     "
               echo
-              select img in "Распаковать прошивку .ofp" "$exit_main_menu" "$close_program"; do
+              select img in "$unpack_firmware .ofp" "$exit_main_menu" "$close_program"; do
                 case $REPLY in
                 1)
                   clear
@@ -5710,20 +5710,23 @@ main_menu() {
         chmod 755 $del
 
         echo
-        echo " .....Выполнена очистка папки: $del"
+        echo " .....$folder_cleaned_up: $del"
         echo
         return
       }
       my9() {
+        echo -en "\E[32;1m"
         echo
-        echo "      Меню: Очистка рабочих папок"
+        echo "      $menu_12"
+        echo "---------------------------------------------------------"
         echo
+        echo -en "\E[37;1m"
         echo -en "\E[31;47;1m"
-        echo " Перед очисткой, переместите нужные файлы в другую папку! "
+        echo " $before_cleaning_move_files! "
         echo -en "\E[37;0m"
         echo -en "\E[37;1m"
         echo
-        select img in "Очистить папку: $local_dir/UnpackerSystem" "Очистить папку: $local_dir/UnpackerQfil" "Очистить папку: $local_dir/UnpackerContexts" "Очистить папку: $local_dir/UnpackerPayload" "Очистить папку: $local_dir/UnpackerSuper" "Очистить папку: $local_dir/UnpackerUpdateApp" "Очистить папку: $local_dir/UnpackerPreloader" "Очистить сразу все папки" "$exit_main_menu" "$close_program"; do
+        select img in "$clear_folder: $local_dir/UnpackerSystem" "$clear_folder: $local_dir/UnpackerQfil" "$clear_folder: $local_dir/UnpackerContexts" "$clear_folder: $local_dir/UnpackerPayload" "$clear_folder: $local_dir/UnpackerSuper" "$clear_folder: $local_dir/UnpackerUpdateApp" "$clear_folder: $local_dir/UnpackerPreloader" "$clear_all_folders" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -5783,7 +5786,7 @@ main_menu() {
               chmod 755 $del_all
             done
             echo
-            echo " .....Выполнена очистка всех рабочих папок."
+            echo " .....$cleaned_all_folders."
             echo
             main_menu
             break
@@ -5810,11 +5813,11 @@ main_menu() {
       del_unpack() {
         echo
         echo -en "\E[31;47;1m"
-        echo "     Удалить \"Unpacker Kitchen for Android\" с телефона?     "
+        echo "     $delete \"Unpacker Kitchen for Android\" $from_phone?     "
         echo -en "\E[37;0m"
         echo -en "\E[37;1m"
         echo
-        select img in "Да" "Нет,выйти в главное меню"; do
+        select img in "$yes" "$no_exit_main_menu"; do
           case $REPLY in
           1)
             clear
@@ -5822,7 +5825,7 @@ main_menu() {
               $local_dir/AIK-mobile/cleanup.sh
 
               echo
-              echo ".....Удаление AIK-mobile..."
+              echo ".....$deliting AIK-mobile..."
               $local_dir/AIK-mobile/bin/aik --uninstall
               busybox mount -o rw,remount / 2>/dev/null
               busybox mount -o rw,remount /system 2>/dev/null
@@ -5830,7 +5833,7 @@ main_menu() {
               busybox rm -rf $local_dir/AIK-mobile /data/adb/modules/aik-mobile 2>/dev/null
               if [ $(echo $?) -eq 0 ]; then
                 echo
-                echo ".....AIK-mobile удалён!"
+                echo ".....AIK-mobile $deleted!"
                 echo
               fi
             fi
@@ -5842,7 +5845,7 @@ main_menu() {
               busybox chmod 755 /cache/recovery/openrecoveryscript 2>/dev/null
               echo
               echo
-              echo -ne "        Перезагрузка через 5 сек      \r"
+              echo -ne "        $reboot_via 5 $seconds      \r"
               sleep 1
               echo -ne "         ..... 5 .....                \r"
               sleep 1
