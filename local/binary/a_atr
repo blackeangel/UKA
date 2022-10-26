@@ -191,7 +191,7 @@ ff_dirs() {
             done
       else
             echo
-            echo "..Ошибка, неверный формат ввода! Вводите только цифры, например: 0 0 755"
+            echo "..$invalid_input_format: 0 0 755"
             echo
             ff_dirs
             return
@@ -202,7 +202,7 @@ ff_dirs() {
 attr() {
       clear
       echo
-      echo "...Атрибуты для файлов в \"$xxx\" при распаковке:"
+      echo "...$attributes_for_files_in \"$xxx\" $when_unpacking:"
       echo
       k="$xxx"
       if [ "$k" == "$vv" -a "$sar" = "true" ]; then
@@ -220,16 +220,15 @@ attr() {
 
 ff_files() {
       echo
-      echo "..Введите атрибуты для файлов,добавленных в \""$xxx"\", которые надо записать в fs_config, через пробел(владелец группа права, например:0 0 644):"
+      echo "..$enter_attributes_for_files_added_to \""$xxx"\", $which_recorded_in fs_config, $for_example: 0 0 644:"
       echo
       read ac && bb=$(python39 $binary_dir/atrib.py "$ac")
       if [ ! -z "$(echo "$bb" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
             clear
             echo
-            echo "...Сохранить во временный файл атрибуты для
-   добавленных в \"$xxx\" файлов: $bb?"
+            echo "...$save_temporary_file_attributes \"$xxx\" $files2: $bb?"
             echo
-            select img in "Да" "Нет, ввести другие значения" "Вернуться к вводу папок" "Удалить временный файл и выйти в главное меню"; do
+            select img in "$yes" "$no_enter_other_values" "$back_entering_folders" "$delete_temporary_file_and_exit"; do
                   case $REPLY in
                   1)
                         clear
@@ -280,7 +279,7 @@ ff_files() {
             done
       else
             echo
-            echo "..Ошибка, неверный формат ввода! Вводите только цифры, например: 0 0 644"
+            echo "..$invalid_input_format: 0 0 644"
             echo
             ff_files
             return
@@ -295,15 +294,15 @@ read_fs() {
       clear
       echo
       echo
-      echo "...Получены такие строки для записи, проверьте правильность:"
+      echo "...$received_following_lines_to_write:"
       echo
       cat "$config"/"$xx"_ffff.txt
 
       my_read() {
             echo
-            echo ".....Записать в "$xx"_fs_config?"
+            echo ".....$write_to "$xx"_fs_config?"
             echo
-            select img in "Записать и продолжить" "Записать, удалить временный файл и выйти в главное меню" "Не записывать и продолжить" "Не записывать, удалить временный файл и выйти в главное меню"; do
+            select img in "$write_and_continue" "$write_delete_temporary_file_and_exit" "$dont_write_continue" "$dont_write_delete_temporary_file_and_exit"; do
                   case $REPLY in
                   1)
                         clear
@@ -322,7 +321,7 @@ read_fs() {
 
                         busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
                         echo
-                        echo ".....Записано в "$config"/"$xx"_fs_config."
+                        echo ".....$written_in "$config"/"$xx"_fs_config."
                         echo
                         ttt
                         break
@@ -345,7 +344,7 @@ read_fs() {
                         busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
                         rm -f "$config"/"$xx"_ffff.txt
                         echo
-                        echo ".....Записано в "$config"/"$xx"_fs_config."
+                        echo ".....$written_in "$config"/"$xx"_fs_config."
                         echo
                         main_menu
                         break
@@ -403,7 +402,7 @@ s_atr() {
 
                   my_enter() {
                         echo
-                        select img in "Ввод атрибутов" "Вернутся к вводу папок" "Выйти в главное меню"; do
+                        select img in "$entering_attributes" "$back_entering_folders" "$exit_main_menu"; do
                               case $REPLY in
                               1)
                                     clear
@@ -460,13 +459,13 @@ s_atr() {
                   my_enter
             else
                   echo
-                  echo ".....Добавлений в \"$xxx\" не обнаружено."
+                  echo ".....$additions_to \"$xxx\" $no_found"
                   ttt
                   return
             fi
       else
             echo
-            echo ".....Возникла ошибка!"
+            echo ".....$error_occurred!"
             echo
             main_menu
             return
@@ -487,6 +486,6 @@ if [ check_d -eq "0" ]; then
       s_atr
 else
       echo
-      echo ".....Нет папок для сборки!"
+      echo ".....$no_build_folders!"
       echo
 fi
