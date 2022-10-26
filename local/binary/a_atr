@@ -1,11 +1,14 @@
 #!/system/bin/sh
-
-cd /data/local/UnpackerSystem
-
+#############################
+local_dir="/data/local"
+binary_dir="$local_dir/binary"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+cd $local_dir/UnpackerSystem
+#############################
 my_d() {
       echo
-      echo ".....Введите путь к папке с добавленными файлами, например: system/app"
-      read cc && xxx=$(echo "$cc" | busybox sed 's!/data/local/UnpackerSystem!!; s!^/!!')
+      echo ".....$enter_path_folder_with_files_example: system/app"
+      read cc && xxx=$(echo "$cc" | busybox sed 's!$local_dir/UnpackerSystem!!; s!^/!!')
       if [ $(echo $?) -eq 0 ]; then
             vv=$(echo $xxx | busybox awk -F"/" '{ print $1}')
 
@@ -28,9 +31,9 @@ my_d() {
                   echo
             else
                   echo
-                  echo ".....error: В $PWD нет папки: $xxx!"
+                  echo ".....$error! $in $PWD $no_folder: $xxx!"
                   echo
-                  echo ".....Введите существующую папку!"
+                  echo ".....$enter_existing_folder!"
                   echo
                   my_d
                   return
@@ -55,7 +58,7 @@ replace_perm() {
 ttt() {
       echo
       if busybox test -s "$config"/"$xx"_ffff.txt; then
-            select img in "Продолжить" "Не удалять временный файл и выйти в главное меню" "Удалить временный файл и выйти в главное меню"; do
+            select img in "$continue" "$dont_delete_temporary_file_and_exit" "$delete_temporary_file_and_exit"; do
                   case $REPLY in
                   1)
                         clear
@@ -76,7 +79,7 @@ ttt() {
                   *)
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие этому меню."
+                        echo "      $anykey"
                         echo
                         ttt
                         break
@@ -84,7 +87,7 @@ ttt() {
                   esac
             done
       else
-            select img in "Продолжить" "Выйти в главное меню"; do
+            select img in "$continue" "$exit_main_menu"; do
                   case $REPLY in
                   1)
                         clear
@@ -99,7 +102,7 @@ ttt() {
                   *)
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие этому меню."
+                        echo "      $anykey"
                         echo
                         ttt
                         break
@@ -114,7 +117,7 @@ ttt() {
 ff_dirs() {
       clear
       echo
-      echo "...Атрибуты для папок в \"$xxx\" при распаковке:"
+      echo "...$attributes_for_folders_in \"$xxx\" $when_unpacking:"
       echo
       h="$xxx"
       if [ "$h" == "$vv" -a "$sar" = "true" ]; then
@@ -125,16 +128,15 @@ ff_dirs() {
             cat "$config"/"$xx"_gg_d.txt | busybox grep "$h" | busybox awk -F"/" '!($1 $2 in a) {a[$1 $2];print}'
       fi
       echo
-      echo "..Введите атрибуты для папок,добавленных в \""$xxx"\", которые надо записать в fs_config, через пробел(владелец группа права, например:0 0 755):"
+      echo "...$enter_attributes_for_folders_added_to \""$xxx"\", $which_recorded_in fs_config, $for_example: 0 0 755:"
       echo
-      read ab && aa=$(python39 /data/local/binary/atrib.py "$ab")
+      read ab && aa=$(python39 $binary_dir/atrib.py "$ab")
       if [ ! -z "$(echo "$aa" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
             clear
             echo
-            echo "...Сохранить во временный файл атрибуты для
-   добавленных в \"$xxx\" папок: $aa?"
+            echo "...$save_temporary_file_attributes \"$xxx\" $folders2: $aa?"
             echo
-            select img in "Да" "Нет, ввести другие значения" "Вернуться к вводу папок" "Выход в главное меню"; do
+            select img in "$yes" "$no_enter_other_values" "$back_entering_folders" "$exit_main_menu"; do
                   case $REPLY in
                   1)
                         clear
@@ -181,7 +183,7 @@ ff_dirs() {
                   *)
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие этому меню."
+                        echo "      $anykey"
                         ff_dirs
                         break
                         ;;
@@ -220,7 +222,7 @@ ff_files() {
       echo
       echo "..Введите атрибуты для файлов,добавленных в \""$xxx"\", которые надо записать в fs_config, через пробел(владелец группа права, например:0 0 644):"
       echo
-      read ac && bb=$(python39 /data/local/binary/atrib.py "$ac")
+      read ac && bb=$(python39 $binary_dir/atrib.py "$ac")
       if [ ! -z "$(echo "$bb" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
             clear
             echo
@@ -269,7 +271,7 @@ ff_files() {
                   *)
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие этому меню."
+                        echo "      $anykey"
                         ff_files
                         return
                         break
@@ -362,7 +364,7 @@ read_fs() {
                   *)
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие этому меню."
+                        echo "      $anykey"
                         my_read
                         break
                         ;;
@@ -445,7 +447,7 @@ s_atr() {
                               *)
                                     clear
                                     echo
-                                    echo "      Вводите цифры, соответствующие этому меню."
+                                    echo "      $anykey"
                                     echo
                                     my_enter
                                     break
@@ -473,7 +475,6 @@ s_atr() {
 }
 
 check_d() {
-      #cd /data/local/UnpackerSystem
       for a in $(busybox find -maxdepth 1 ! -name "." -type d | sed 's!./!!'); do
             if [ -f "config/"$a"/"$a"_file_contexts" ]; then
                   return 0

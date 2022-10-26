@@ -5817,7 +5817,7 @@ main_menu() {
         echo -en "\E[37;0m"
         echo -en "\E[37;1m"
         echo
-        select img in "$yes" "$no_exit_main_menu"; do
+        select img in "$yes" "$no_exit_to_main_menu"; do
           case $REPLY in
           1)
             clear
