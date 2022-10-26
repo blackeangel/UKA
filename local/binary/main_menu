@@ -6,6 +6,12 @@ binary_dir="$local_dir/binary"
 
 export PATH=$binary_dir:$PATH
 #############################
+# create_work_folders -->
+folder_list = "UnpackerContexts UnpackerPayload UnpackerPreloader UnpackerQfil UnpackerSuper UnpackerSystem UnpackerUpdateApp"
+for folder in $folder_list; do
+  [ ! -d $local_dir/$folder ] && mkdir -m 755 -p $local_dir/$folder
+done
+# <-- create_work_folders
 cd "$local_dir/Unpacker_lang"
 if [ -z $(cat ./selection.txt) ]; then
   v=$(find . -maxdepth 1 -iname '*.lang' -type f 2>/dev/null | busybox sed 's!./!!;s!.lang!!' | sort)
