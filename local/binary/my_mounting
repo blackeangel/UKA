@@ -1,44 +1,40 @@
 #!/system/bin/sh
-
-dir_bb="/data/local/binary"
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
+dir_bb="/data/local/binary/lib"
 dir_loop="/data/local/$a"
 
-if [ -z "$(busybox mount | cut -d" " -f3 | grep "$dir_loop$")" ]; then
+if [ -z "$("$dir_bb"/busybox mount | "$dir_bb"/busybox cut -d" " -f3 | "$dir_bb"/busybox grep "$dir_loop$")" ]; then
 
    mkdir "$dir_loop" 2>/dev/null
-   busybox mount -t ext4 -o rw,loop "$file" "$dir_loop" 2>/dev/null
+   "$dir_bb"/busybox mount -t ext4 -o rw,loop "$file" "$dir_loop" 2>/dev/null
    if [ "$?" -eq "0" ]; then
       echo
-      echo "     $file смонтирован в папку: $dir_loop"
+      echo "     $file $mount_in_folder: $dir_loop"
       echo
    else
-      mount_loop="$(busybox mount | busybox awk '/loop/ { print $1 }' | busybox grep -Eo '[0-9]+' | busybox sort -nk1 | busybox tail -1)"
-      if [ -z "$mount_loop" ]; then
-         i=0
-      else
-         let i="$mount_loop"+1
-      fi
-
-      loop=/dev/block/loop$i
+      loop="$("$dir_bb"/busybox losetup -f)"
+      i="$(echo "$loop" | busybox awk -F"loop" '{ print $2 }')"
       [ -e /dev/block/loop1 ] && minor=$(busybox ls -l /dev/block/loop1 | busybox awk '{ print $6 }')
       "$dir_bb"/busybox mknod $loop b 7 $(($i * $minor)) 2>/dev/null
-      #"$dir_bb"/busybox mknod $loop b 7 $i 2> /dev/null
       "$dir_bb"/busybox losetup $loop "$a".img 2>/dev/null
-
       "$dir_bb"/busybox mount -t ext4 -o loop,noatime $loop "$dir_loop"
+
       if [ "$?" -eq "0" ]; then
          echo
-         echo "     $file смонтирован в папку: $dir_loop"
+         echo "     $file $mount_in_folder: $dir_loop"
          echo
       else
          echo
-         echo ".....Ошибка монтирования"
+         echo ".....$mount_error"
          echo
-         busybox losetup -d $loop
+         "$dir_bb"/busybox losetup -d $loop
       fi
    fi
 else
    echo
-   echo ".....Уже ранее была смонтирована папка $dir_loop"
+   echo ".....$folder_already_mounted $dir_loop"
    echo
 fi
