@@ -1,16 +1,18 @@
 #!/system/bin/sh
-
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
 size_output_raw() {
     if busybox test -s "$file"; then
         size_out="$(busybox stat -c %s "$file")"
         size_free="$(busybox expr "$(tune2fs -l "$file" | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024)"
-        echo ".....Размер raw == $size_out байт"
-        echo ".....Свободное место: $size_free мб"
+        echo ".....$size raw == $size_out $byte"
+        echo ".....$free_space: $size_free mb"
         echo
     fi
     return
 }
-#r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|_|[+]|[.]|[{]|[(]" '{ print $1 }')
 
 r="$(busybox basename $file)"
 r_name=${r%.*}
@@ -18,26 +20,26 @@ r_name=${r%.*}
 if [ -f ./"$file" ]; then
     if [ -z "$(busybox hexdump -C -n 4 ./"$file" | grep '3a ff 26 ed')" ]; then
         echo
-        echo ".....Конвертация..."
+        echo ".....$converting..."
         echo
         img2simg ./"$file" ./"$r_name".sparse.img 2>/dev/nul
         if [ $(echo $?) -eq 0 ]; then
             echo
-            echo ".....Получен sparse образ: \""$r_name".sparse.img\"!"
+            echo ".....$received_image sparse: \""$r_name".sparse.img\"!"
             size_output_raw
             echo
         else
             echo
-            echo ".....Ошибка при конвертации!"
+            echo ".....$convert_error!"
             echo
         fi
     else
         echo
-        echo ".....Образ уже является sparse."
+        echo ".....$image_is_already sparse."
         echo
     fi
 else
     echo
-    echo ".....В папке нет образа "$file"."
+    echo ".....$no_image_in_folder "$file"."
     echo
 fi
