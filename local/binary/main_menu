@@ -2265,9 +2265,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 my_b
                 return
@@ -3674,9 +3674,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 konv_img
                 return
@@ -3919,9 +3919,9 @@ main_menu() {
                       echo
                     else
                       echo
-                      echo .....$error_enter_dir!
+                      echo ".....$error_enter_dir!"
                       echo
-                      echo $enter_directory_correctly!
+                      echo "$enter_directory_correctly!"
                       echo
                       vbmeta
                       return
@@ -4021,9 +4021,9 @@ main_menu() {
                       echo
                     else
                       echo
-                      echo .....$error_enter_dir!
+                      echo ".....$error_enter_dir!"
                       echo
-                      echo $enter_directory_correctly!
+                      echo "$enter_directory_correctly!"
                       echo
                       vbmeta_info
                       return
@@ -4103,9 +4103,9 @@ main_menu() {
                       echo
                     else
                       echo
-                      echo .....$error_enter_dir!
+                      echo ".....$error_enter_dir!"
                       echo
-                      echo $enter_directory_correctly!
+                      echo "$enter_directory_correctly!"
                       echo
                       extract_key
                       return
@@ -4300,9 +4300,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 sin_img
                 return
@@ -4400,9 +4400,9 @@ main_menu() {
                     echo
                   else
                     echo
-                    echo .....$error_enter_dir!
+                    echo ".....$error_enter_dir!"
                     echo
-                    echo $enter_directory_correctly!
+                    echo "$enter_directory_correctly!"
                     echo
                     decomp_lz4
                     return
@@ -4524,9 +4524,9 @@ main_menu() {
                     echo
                   else
                     echo
-                    echo .....$error_enter_dir!
+                    echo ".....$error_enter_dir!"
                     echo
-                    echo $enter_directory_correctly!
+                    echo "$enter_directory_correctly!"
                     echo
                     comp_lz4
                     return
@@ -4765,9 +4765,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 payload
                 return
@@ -4877,9 +4877,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 update_app
                 return
@@ -5060,9 +5060,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 comp_md5
                 return
