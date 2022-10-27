@@ -713,6 +713,10 @@ pack_dat_new() {
 
 main_menu() {
   echo -en "\E[32;1m"
+  #############################
+  echo "created by kory-vadim 4PDA.ru
+  (https://4pda.to/forum/index.php?showuser=4226678)" 
+  #############################
   MENU=(
     "$menu_01"
     "$menu_02"
