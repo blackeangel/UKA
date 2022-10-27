@@ -1,28 +1,30 @@
 #!/system/bin/sh
-
-dir=/data/local/binary
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
+dir=$local_dir/binary
 export PATH="$dir":$PATH
 
 cd
 
 n() {
-   #clear
    echo
-   echo "     Ввод папки сохранения образа    "
+   echo "     $entering_image_save_folder    "
    echo "     -----------------------------    "
    echo
-   echo ".....При вводе 0, папка сохранения: /data/local/UnpackerSystem/uka_backup"
-   echo ".....Введите 0, или путь к папке сохранения образа..."
+   echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSystem/uka_backup"
+   echo ".....$enter 0, $or_your_path_to_image_save_folder..."
    echo
    read h && if [ "$h" = "0" ]; then
-      dir_b=/data/local/UnpackerSystem/uka_backup
+      dir_b=$local_dir/UnpackerSystem/uka_backup
       mkdir "$dir_b" 2>/dev/null
 
       set -- $dir_b
 
       clear
       echo
-      echo "     Установлена папка сохранения образа:"
+      echo "     $output_image_save_folder_set:"
       echo "     $dir_b"
    elif [ -d "$h" ]; then
       dir_b="$(echo "$h" | busybox sed 's!/!!; s!^!/!')"
@@ -30,12 +32,12 @@ n() {
 
       clear
       echo
-      echo "     Установлена папка сохранения образа:"
+      echo "     $output_image_save_folder_set:"
       echo "     $dir_b"
    else
       clear
       echo
-      echo ".....Папки сохранения не существует!"
+      echo ".....$save_folder_does_not_exist"
       n
       return
    fi
@@ -44,27 +46,27 @@ n() {
 
 inf_space_mmm() {
    free_space="$(busybox df -h "$dir_b" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-   echo "    В папке свободно: "$free_space""
+   echo "    $free_in_folder: "$free_space""
    return
 }
 
 nnn() {
 
    echo
-   echo "     Выбор папки сохранения образа    "
+   echo "     $selecting_image_save_folder    "
    echo "     -----------------------------    "
    echo
-   echo ".....При вводе 0, папка сохранения: /data/local/UnpackerSystem/uka_backup"
-   echo ".....Введите 0, или свой путь к папке сохранения образа..."
+   echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSystem/uka_backup"
+   echo ".....$enter 0, $or_your_path_to_image_save_folder..."
    echo
    read h && if [ "$h" = "0" ]; then
-      dir_b=/data/local/UnpackerSystem/uka_backup
+      dir_b=$local_dir/UnpackerSystem/uka_backup
       mkdir "$dir_b" 2>/dev/null
       set -- $dir_b
 
       clear
       echo
-      echo "    Установлена папка сохранения выходного образа:"
+      echo "    $output_image_save_folder_set:"
       echo "    $dir_b"
       inf_space_mmm
    elif [ -d "$h" -o -d /"$h" -a ! -z "$h" ]; then
@@ -75,7 +77,7 @@ nnn() {
 
          clear
          echo
-         echo "    Установлена папка сохранения выходного образа:"
+         echo "    $output_image_save_folder_set:"
          set -- $dir_b
          echo "    $dir_b"
          inf_space_mmm
@@ -83,10 +85,10 @@ nnn() {
       else
          clear
          echo
-         echo "    \"$dir_b\" недоступен для сохранения образа!"
+         echo "    \"$dir_b\" $unavailable_image_saving!"
          echo
-         echo "    Установлена папка сохранения выходного образа:"
-         dir_b=/data/local/UnpackerSystem/uka_backup
+         echo "    $output_image_save_folder_set:"
+         dir_b=$local_dir/UnpackerSystem/uka_backup
          set -- $dir_b
          mkdir "$dir_b" 2>/dev/null
          echo "    $dir_b"
@@ -97,10 +99,10 @@ nnn() {
 
       clear
       echo
-      echo "....Внимание! Папки сохранения не существует!"
+      echo "....$save_folder_does_not_exist!"
       echo
-      echo "    Установлена папка сохранения выходного образа:"
-      dir_b=/data/local/UnpackerSystem/uka_backup
+      echo "    $output_image_save_folder_set:"
+      dir_b=$local_dir/UnpackerSystem/uka_backup
       set -- $dir_b
       mkdir "$dir_b" 2>/dev/null
       echo "    $dir_b"
@@ -111,19 +113,19 @@ nnn() {
 }
 
 inf() {
-   dir=/data/local/binary
+   dir=$local_dir/binary
    export PATH="$dir":$PATH
 
    cd
 
-   name=$(busybox cat /data/local/binary/ddd.txt | busybox awk '{ print $1 }')
+   name=$(busybox cat $local_dir/binary/ddd.txt | busybox awk '{ print $1 }')
    set -- $name
    if [ ! -z "$name" ]; then
       clear
       echo
-      echo ".....Выберите раздел:"
+      echo ".....$select_section:"
       echo
-      select menu in $name "Выход в главное меню"; do
+      select menu in $name "$exit_main_menu"; do
          case $REPLY in
          [0-9]*)
             i="$#"
@@ -147,7 +149,7 @@ inf() {
             else
                clear
                echo
-               echo "      Вводите цифры, соответствующие меню."
+               echo "      $anykey."
                inf
                return
                break
@@ -157,7 +159,7 @@ inf() {
          *)
             clear
             echo
-            echo "      Вводите цифры, соответствующие меню."
+            echo "      $anykey."
             inf
             return
             break
@@ -166,7 +168,7 @@ inf() {
       done
    else
       echo
-      echo ....."В папке нет подходящих файлов"
+      echo ....."$no_matching_files_in_folder"
       echo
       main_menu
       return
@@ -191,21 +193,20 @@ pre_work() {
       if [ ! -z "$name_pre" -a ! -z "$size_pre" ]; then
          busybox dd if=pre.img of=preloader.tmp bs="$size_pre" count=1 &>>output/pre.log && busybox rm -rf pre.img
          if [ "$?" -eq "0" ]; then
-            #busybox mkdir -p output
             busybox mv -f preloader.tmp output/"${name_pre}"
             echo
-            echo ".....Успешно извлечён $name_pre!"
-            echo ".....Сохранено в /data/local/UnpackerPreloader/output"
+            echo ".....$successfully_retrieved $name_pre!"
+            echo ".....$saved_in $local_dir/UnpackerPreloader/output"
             echo
          else
             echo
-            echo ".....Ошибка извлечения preloder'а!"
+            echo ".....$extract_error preloder!"
             echo
          fi
       fi
    else
       echo
-      echo ".....Ошибка, не найден header MTK!"
+      echo ".....$error_not_found header MTK!"
       echo
    fi
    cd - &>/dev/null
@@ -214,13 +215,13 @@ pre_work() {
 
 pre_extract_file() {
    echo
-   echo "   Положите файл в папку: /data/local/UnpackerPreloader"
+   echo "   $put_file_in_folder: $local_dir/UnpackerPreloader"
    echo
-   select img in "Вырезать preloader из файла" "Выход в главное меню" "Завершение работы"; do
+   select img in "$cut preloader $from_file" "$exit_main_menu" "$close_program"; do
       case $REPLY in
       1)
          clear
-         cd /data/local/UnpackerPreloader
+         cd $local_dir/UnpackerPreloader
          b=$(for a in $(busybox find -maxdepth 1 -type f); do
             if [ ! -z "$(busybox hexdump -C -n 20000 "$a" | busybox grep -E "4d 4d 4d 01 38|45 4d 4d 43 5f 42 4f 4f 54")" ]; then
                echo "$a" | busybox sed 's!./!!'
@@ -231,9 +232,9 @@ pre_extract_file() {
 
          if [ ! -z "$b" ]; then
             echo
-            echo ".....Выберите файл:"
+            echo ".....$select_file:"
             echo
-            select menu in $b "Выход в главное меню"; do
+            select menu in $b "$exit_main_menu"; do
                case $REPLY in
                [0-9]*)
                   i="$#"
@@ -253,7 +254,7 @@ pre_extract_file() {
                   else
                      clear
                      echo
-                     echo "      Вводите цифры, соответствующие меню."
+                     echo "      $anykey"
                      pre_extract_file
                      return
                      break
@@ -263,7 +264,7 @@ pre_extract_file() {
                *)
                   clear
                   echo
-                  echo "      Вводите цифры, соответствующие меню."
+                  echo "      $anykey"
                   pre_extract_file
                   return
                   break
@@ -272,7 +273,7 @@ pre_extract_file() {
             done
          else
             echo
-            echo ....."В папке нет файлов для извлечения."
+            echo ....."$folder_no_files_to_extract"
             echo
             main_menu
             return
@@ -291,7 +292,7 @@ pre_extract_file() {
       *)
          clear
          echo
-         echo "      Вводите цифры, соответствующие этому меню."
+         echo "      $anykey"
          pre_extract_file
          break
          ;;
@@ -319,8 +320,6 @@ pre_extract() {
       mtk="$(busybox strings pre.img | busybox grep -o "MTK_BLOADER_INFO")"
       if [ ! -z "$mtk" ]; then
          name_pre="$(busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1)"
-         #busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1 > name.txt
-         #name_pre="$(busybox cat name.txt)"
          size_pre=$(busybox printf "%d\n" "$(busybox hexdump -n 35 pre.img | busybox awk '/0000020/ { print "0x"$3$2 }')")
          if [ ! -z "$name_pre" -a ! -z "$size_pre" ]; then
             busybox dd if=pre.img of=preloader.img bs="$size_pre" count=1 &>>pre.log && busybox rm -f pre.img
@@ -329,13 +328,13 @@ pre_extract() {
                busybox mv preloader.img "${name_pre}"
                cd - &>/dev/null
                echo
-               echo ".....Успешно извлечён $name_pre!"
-               echo ".....Сохранено в папку: $dir_pre"
+               echo ".....$successfully_retrieved $name_pre!"
+               echo ".....$saved_in_folder: $dir_pre"
                echo
                return
             else
                echo
-               echo ".....Ошибка извлечения preloder'а!"
+               echo ".....$extract_error preloder'а!"
                echo
                return
             fi
@@ -343,13 +342,13 @@ pre_extract() {
          fi
       else
          echo
-         echo ".....Ошибка, не найден header MTK!"
+         echo ".....$error_not_found header MTK!"
          echo
          return
       fi
    else
       echo
-      echo ".....Ошибка, не найден /dev/block/mmcblk0boot0!"
+      echo ".....$error_not_found /dev/block/mmcblk0boot0!"
       echo
       return
    fi
@@ -358,7 +357,7 @@ pre_extract() {
 
 selekt() {
    echo
-   select img in "Выбор раздела для сохранения" "Инфо о размере и номер блока раздела" "Поиск разделов" "Извлечение образов из раздела \"super\" текущей прошивки" "Извлечение preloader из текущей прошивки(только MTK)" "Извлечение preloader из файла(только MTK)" "Выход в главное меню" "Завершение работы"; do
+   select img in "$select_partition_to_save" "$size_info_and_section_block_number" "$search_partitions" "$extract_images_from_super_partition_current_firmware" "$extract_preloader_from_current_firmware_mtk" "$extract_preloader_from_file_mtk" "$exit_main_menu" "$close_program"; do
       case $REPLY in
       1)
          clear
@@ -384,10 +383,10 @@ selekt() {
          p=$(busybox find /dev/block -iname "super" -type l | busybox head -1)
          if [ ! -z "$p" ]; then
             file="$p"
-            . /data/local/binary/unpack_img
+            . $local_dir/binary/unpack_img
          else
             echo
-            echo ".....В текущей прошивке не найден раздел super!"
+            echo ".....$partition_not_found_in_current_firmware super!"
             echo
          fi
          selekt
@@ -404,7 +403,6 @@ selekt() {
       6)
          clear
          pre_extract_file
-         #selekt
          return
          break
          ;;
@@ -422,7 +420,7 @@ selekt() {
       *)
          clear
          echo
-         echo "      Вводите цифры, соответствующие этому меню."
+         echo "      $anykey"
          selekt
          return
          break
@@ -433,7 +431,6 @@ selekt() {
 }
 
 becap() {
-   #clear
    echo
    echo ".....Поиск разделов..."
 
@@ -453,14 +450,13 @@ becap() {
 }
 
 bek() {
-   #clear
    name="$(busybox cat "$dir"/ddd.txt | busybox awk '{ print $1 }')"
    set -- $name
    if [ ! -z "$name" ]; then
       echo
-      echo ".....Выберите раздел для сохранения:"
+      echo ".....$select_partition_to_save:"
       echo
-      select menu in $name "Выход в главное меню"; do
+      select menu in $name "$exit_main_menu"; do
          case $REPLY in
          [1-9]*)
             i="$#"
@@ -471,14 +467,13 @@ bek() {
 
                ext=$(busybox cat "$dir"/ddd.txt | grep "^$file " | busybox awk '{ print $3 }')
                opla=$(busybox hexdump -C -n 20000 "$ext" | busybox grep -o "30 50 4c 41")
-               #sparse_super=$(busybox hexdump -C -n 2000 "$ext" | grep -o "3a ff 26 ed")
                ext_file="$(busybox hexdump -C -n 2000 "$ext" | busybox awk '/00000430/ { print $10$11 }' | grep "53ef")"
 
                [ -z "$opla" -a -z "$ext_file" ] && fs=false || fs=true
 
                if [ "$fs" == "false" ]; then
                   echo
-                  echo ".....Создание бекапа $file.img..."
+                  echo ".....$creating_backup $file.img..."
                   echo
                   busybox cat "$dir"/ddd.txt | grep "^$file "
                   echo
@@ -486,25 +481,25 @@ bek() {
                   if [ "$?" -eq "0" ]; then
                      busybox cat "$dir"/ll.txt | busybox grep -v "records"
                      echo
-                     echo ".....Успешно создан $file.img!"
-                     echo ".....Сохранено в папку: $dir_b."
+                     echo ".....$successfully_created $file.img!"
+                     echo ".....$saved_in_folder: $dir_b."
                      echo
                      selekt
                      return
                   else
                      echo
-                     echo ".....Ошибка при создании бекапа!"
+                     echo ".....$error_creating_backup!"
                      echo
                   fi
 
                elif [ "$fs" == "true" ]; then
                   echo
-                  select img in "Сохранить $file.img(raw)" "Сохранить $file.img(sparse)" "Вернутся к выбору раздела" "Выход в главное меню"; do
+                  select img in "$save $file.img(raw)" "$save $file.img(sparse)" "$back_section_selection" "$exit_main_menu"; do
                      case $REPLY in
                      1)
                         clear
                         echo
-                        echo ".....Создание бекапа $file.img..."
+                        echo ".....$creating_backup $file.img..."
                         echo
                         busybox cat "$dir"/ddd.txt | grep "^$file "
                         echo
@@ -512,14 +507,14 @@ bek() {
                         if [ "$?" -eq "0" ]; then
                            busybox cat "$dir"/ll.txt | busybox grep -v "records"
                            echo
-                           echo ".....Успешно создан $file.img!"
-                           echo ".....Сохранено в папку: $dir_b."
+                           echo ".....$successfully_created $file.img!"
+                           echo ".....$saved_in_folder: $dir_b."
                            echo
                            selekt
                            return
                         else
                            echo
-                           echo ".....Ошибка при создании бекапа!"
+                           echo ".....$error_creating_backup!"
                            echo
                         fi
                         break
@@ -527,21 +522,21 @@ bek() {
                      2)
                         clear
                         echo
-                        echo ".....Создание бекапа $file.sparse.img..."
+                        echo ".....$creating_backup $file.sparse.img..."
                         echo
                         busybox cat "$dir"/ddd.txt | grep "^$file "
                         echo
                         $(busybox cat "$dir"/ddd.txt | busybox awk -v a="$dir_b" '{ print "img2simg"" "$3" "a"/"$1".sparse.img" }' | busybox grep "/$file".sparse.img)
                         if [ "$?" -eq "0" ]; then
                            echo
-                           echo ".....Успешно создан $file.sparse.img!"
-                           echo ".....Сохранено в папку: $dir_b."
+                           echo ".....$successfully_created $file.sparse.img!"
+                           echo ".....$saved_in_folder: $dir_b."
                            echo
                            selekt
                            return
                         else
                            echo
-                           echo ".....Ошибка при создании бекапа!"
+                           echo ".....$error_creating_backup!"
                            echo
                         fi
                         break
@@ -560,7 +555,7 @@ bek() {
                      *)
                         clear
                         echo
-                        echo "      Вводите цифры, соответствующие меню."
+                        echo "      $anykey."
                         bek
                         break
                         ;;
@@ -577,7 +572,7 @@ bek() {
             else
                clear
                echo
-               echo "      Вводите цифры, соответствующие меню."
+               echo "      $anykey."
                bek
                return
                break
@@ -587,7 +582,7 @@ bek() {
          *)
             clear
             echo
-            echo "      Вводите цифры, соответствующие меню."
+            echo "      $anykey."
             bek
             return
             break
@@ -596,7 +591,7 @@ bek() {
       done
    else
       echo
-      echo ....."Не найдены разделы для бекапа."
+      echo ....."$partitions_not_found_for_backup"
       echo
       return
    fi
