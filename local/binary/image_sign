@@ -57,7 +57,7 @@ key_algoritm() {
 
     set -- $v
     echo
-    echo ".....Выберите алгоритм для подписи:"
+    echo ".....$choose_algorithm_signing:"
     echo
     select menu in $v "$exit_main_menu"; do
         case $REPLY in
@@ -121,27 +121,27 @@ aik_pack() {
     echo "avbtool add_hash_footer --image "$file_real" --partition_size "$size_sign" "$prop_avb"--partition_name "$part_name" "$sign_print" --key "$pack_file"" >"$avb_dir"/avb.sh
     clear
     echo
-    echo ".....Подписываем...."
+    echo ".....$signing...."
     echo
     chmod 755 "$avb_dir"/avb.sh && "$avb_dir"/avb.sh
     if [ $(echo $?) -eq 0 ]; then
         clear
         echo
-        echo ".....Успешно создана структура AVB"
+        echo ".....$structure_successfully_created AVB"
         check_alg="$(avbtool info_image --image "$file_real" | busybox awk '/^Algorithm:/ { print $2 }' 2>/dev/null)"
 
         if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
-            echo ".....Успешно подписан $file_real"
+            echo ".....$successfully_signed $file_real"
             return
         else
             echo
-            echo ".....Структура AVB создана без подписи $file_real"
+            echo ".....$structure AVB $created_without_signature $file_real"
             busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
             return
         fi
     else
         echo
-        echo ".....Ошибка при создании структуры AVB"
+        echo ".....$error_creating_structure AVB"
         busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
         return
     fi
@@ -151,13 +151,13 @@ aik_pack() {
 search_key() {
     #clear
     echo
-    echo ".....Перейдите в папку где находится приватный ключ для подписи, например: cd /sdcard"
+    echo ".....$go_folder_where_private_key_located: cd /sdcard"
     read b && $b
     if [ $(echo $?) -eq 0 ]; then
         clear
         nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
         echo
-        echo ".....Поиск ключей..."
+        echo ".....$finding_keys..."
 
         v=$(for a in $(busybox find -maxdepth 1 -size -10k -type f -exec busybox grep -rl "PRIVATE KEY" {} \;); do
             echo "$a"
@@ -173,7 +173,7 @@ search_key() {
                 echo ".....Алгоритм: $check_alg"
             fi
             echo
-            echo ".....Выберите ключ:"
+            echo ".....$select_key:"
             echo
             select menu in $v "$exit_main_menu"; do
                 case $REPLY in
@@ -219,16 +219,16 @@ search_key() {
         else
             clear
             echo
-            echo ....."В папке \"/$nd\" нет подходящих ключей для подписи."
+            echo ....."$in_folder1 \"/$nd\" $no_matching_keys_to_sign"
             echo
             return
         fi
         echo
     else
         echo
-        echo ".....error: Ошибка перехода в директорию!"
+        echo ".....$error_enter_dir!"
         echo
-        echo ".....Введите директорию правильно!"
+        echo ".....$enter_directory_correctly!"
         echo
         search_key
         return
@@ -238,7 +238,7 @@ search_key() {
 
 my_size_sign() {
     echo
-    echo ".....Введите размер стокового образа в mb"
+    echo ".....$enter_size_stock_image_in mb"
     echo
     read a && set -- "$a"
     if [ $(echo $?) -eq 0 ]; then
@@ -249,14 +249,14 @@ my_size_sign() {
         else
             clear
             echo
-            echo ".....Вводите размер правильно"
+            echo ".....$enter_size_correctly"
             echo
             my_size_sign
             return
         fi
     else
         echo
-        echo ".....Ошибка!"
+        echo ".....$error!"
         echo
         my_size_sign
         return
@@ -267,16 +267,16 @@ my_size_sign() {
 sign_image() {
     #clear
     echo
-    echo "         Подпись образов     "
+    echo "         $image_signature     "
 
     echo
-    echo "..Перейдите в папку где находится файл \".img\" для подписи, например: cd /sdcard"
+    echo "..$go_folder_where_files_located \".img\" $for_signature_example: cd /sdcard"
     read b && $b
     if [ $(echo $?) -eq 0 ]; then
         clear
         nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
         echo
-        echo ".....Поиск файлов..."
+        echo ".....$file_search..."
 
         v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -type f | busybox sed 's!./!!'); do
             if [ ! -z "$(busybox hexdump -C -n 4500 "$a" 2>/dev/null | busybox grep -o '41 4e 44 52 4f 49 44 21')" ]; then
@@ -289,9 +289,9 @@ sign_image() {
         if [ ! -z "$v" ]; then
             clear
             echo
-            echo ".....Выберите файл:"
+            echo ".....$select_file:"
             echo
-            select menu in $v "$exit_main_menu" "Завершение работы"; do
+            select menu in $v "$exit_main_menu" "$close_program"; do
                 case $REPLY in
                 [1-9]*)
                     i="$#"
@@ -349,7 +349,7 @@ sign_image() {
         else
             clear
             echo
-            echo ....."В папке \"/$nd\" нет файлов \".img\" для подписи."
+            echo ....."$in_folder1 \"/$nd\" $no_files \".img\" $for_signature."
             echo
             main_menu
             return
@@ -357,9 +357,9 @@ sign_image() {
         echo
     else
         echo
-        echo ".....error: Ошибка перехода в директорию!"
+        echo ".....$error_enter_dir!"
         echo
-        echo ".....Введите директорию правильно!"
+        echo ".....$enter_directory_correctly!"
         echo
         sign_image
         return
