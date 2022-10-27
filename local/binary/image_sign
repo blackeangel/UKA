@@ -71,7 +71,6 @@ key_algoritm() {
                 break
             elif [ "$REPLY" == "$i" ]; then
                 clear
-                #main_menu
                 return
                 break
             else
@@ -98,7 +97,6 @@ key_algoritm() {
 }
 
 aik_pack() {
-    #avb_dir=$local_dir/UnpackerSystem
     if busybox test "$(avbtool info_image --image "$file_real" 2>/dev/null)"; then
         size_sign="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Image size:/ { print $3 }')"
         part_name="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Partition Name:/ { print $3 }')"
@@ -149,7 +147,6 @@ aik_pack() {
 }
 
 search_key() {
-    #clear
     echo
     echo ".....$go_folder_where_private_key_located: cd /sdcard"
     read b && $b
@@ -265,7 +262,6 @@ my_size_sign() {
 }
 
 sign_image() {
-    #clear
     echo
     echo "         $image_signature     "
 

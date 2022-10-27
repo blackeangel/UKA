@@ -4466,7 +4466,7 @@ main_menu() {
                       }
 
                       echo
-                      echo ".....$to_convert_to .lz4 $enter_compression_ratio:"
+                      echo ".....$to_convert_to .lz4 $enter_compression_ratio_0_9:"
                       mc
                       return
                     }
