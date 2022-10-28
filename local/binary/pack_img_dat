@@ -22,115 +22,115 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
         g=$(busybox grep 'ro.build.version.sdk=.*.' $local_dir/UnpackerSystem/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null || g=$(busybox grep 'ro.build.version.sdk=.*.' "$pack_d"/system/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null
         if [ "$g" -ge "24" ]; then
             echo
-            echo "......Обнаружена версия АРI = $g Версия андроид: $a"
+            echo "......$version_found АРI = $g $android_version: $a"
             echo
-            echo "......Конвертация в .dat..."
+            echo "......$convert_to .dat..."
             echo
             $b 4
             if [ $(echo $?) -eq 0 ]; then
                 mv_dat
                 echo
-                echo ".....Успешно завершено!"
+                echo ".....$complete"
                 echo
-                echo ".....Размер raw == $size_out байт"
-                echo ".....Свободное место: $size_free мб"
+                echo ".....$size raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
             else
                 echo
-                echo ".....error: Ошибка при конвертации."
+                echo ".....$convert_error!"
                 echo
             fi
 
         elif [ "$g" -eq "21" ]; then
             echo
-            echo "......Обнаружена версия АРI = $g Версия андроид: $a"
+            echo "......$version_found АРI = $g $android_version: $a"
             echo
-            echo "......Конвертация в .dat..."
+            echo "......$convert_to .dat..."
             echo
             $b 1
             if [ $(echo $?) -eq 0 ]; then
                 mv_dat
                 echo
-                echo ".....Успешно завершено!"
+                echo ".....$complete"
                 echo
-                echo ".....Размер raw == $size_out байт"
-                echo ".....Свободное место: $size_free мб"
+                echo ".....$size raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
             else
                 echo
-                echo ".....error: Ошибка при конвертации."
+                echo ".....$convert_error!"
                 echo
             fi
 
         elif [ "$g" -eq "22" ]; then
             echo
-            echo "......Обнаружена версия АРI = $g Версия андроид: $a"
+            echo "......$version_found АРI = $g $android_version: $a"
             echo
-            echo "......Конвертация в .dat..."
+            echo "......$convert_to .dat..."
             echo
             $b 2
             if [ $(echo $?) -eq 0 ]; then
                 mv_dat
                 echo
-                echo ".....Успешно завершено!"
+                echo ".....$complete"
                 echo
-                echo ".....Размер raw == $size_out байт"
-                echo ".....Свободное место: $size_free мб"
+                echo ".....$size raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
             else
                 echo
-                echo ".....error: Ошибка при конвертации."
+                echo ".....$convert_error!"
                 echo
             fi
 
         elif [ "$g" -eq "23" ]; then
             echo
-            echo "......Обнаружена версия АРI = $g Версия андроид: $a"
+            echo "......$version_found АРI = $g $android_version: $a"
             echo
-            echo "......Конвертация в .dat..."
+            echo "......$convert_to .dat..."
             echo
             $b 3
             if [ $(echo $?) -eq 0 ]; then
                 mv_dat
                 echo
-                echo ".....Успешно завершено!"
+                echo ".....$complete"
                 echo
-                echo ".....Размер raw == $size_out байт"
-                echo ".....Свободное место: $size_free мб"
+                echo ".....$size raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
             else
                 echo
-                echo ".....error: Ошибка при конвертации."
+                echo ".....$convert_error!"
                 echo
             fi
 
         else
-            echo ".....Не найдена версия SDK."
+            echo ".....$version_not_found SDK."
             echo
-            echo ".....Введите цифру, соответствующую версии андроида, собираемого образа:"
+            echo ".....$enter_number_version_android_for_built:"
             echo
             $b
             if [ $(echo $?) -eq 0 ]; then
                 mv_dat # функция переименования
                 echo
-                echo ".....Успешно завершено!"
+                echo ".....$complete"
                 echo
-                echo ".....Размер raw == $size_out байт"
-                echo ".....Свободное место: $size_free мб"
+                echo ".....$size raw == $size_out $byte"
+                echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
             else
                 echo
-                echo ".....error: Ошибка при конвертации!"
+                echo ".....$convert_error!"
                 echo
             fi
         fi
     fi
 else
-    echo ".....Нет образa \""$pack_d".new.img\" для конвертации."
+    echo ".....$no_image \""$pack_d".new.img\" $for_conversion"
 fi
 rm -f $local_dir/python39/tmp* tmp*
