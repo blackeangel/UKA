@@ -16,7 +16,7 @@ size_output_sparse() {
     busybox rm -f "$pack_d".tmp.img "$pack_d".size.img
     echo "$size_out" >"$config"/"$pack_d"_size_out.txt
     if [ "$check_dat" != "222" ]; then
-      echo ".....$size raw == $size_out $byte"
+      echo ".....$size1 raw == $size_out $byte"
       echo ".....$free_space: $size_free mb"
       echo
     fi

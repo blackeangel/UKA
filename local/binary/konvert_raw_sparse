@@ -7,7 +7,7 @@ size_output_raw() {
     if busybox test -s "$file"; then
         size_out="$(busybox stat -c %s "$file")"
         size_free="$(busybox expr "$(tune2fs -l "$file" | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024)"
-        echo ".....$size raw == $size_out $byte"
+        echo ".....$size1 raw == $size_out $byte"
         echo ".....$free_space: $size_free mb"
         echo
     fi

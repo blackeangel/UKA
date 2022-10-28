@@ -37,7 +37,7 @@ myk() {
         echo
         echo ".....$conversion_completed_successfully!"
         echo
-        echo ".....$size raw == $size_out $byte"
+        echo ".....$size1 raw == $size_out $byte"
         echo ".....$free_space: $size_free mb"
         echo
     else

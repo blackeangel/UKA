@@ -32,7 +32,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo
                 echo ".....$complete"
                 echo
-                echo ".....$size raw == $size_out $byte"
+                echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
@@ -54,7 +54,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo
                 echo ".....$complete"
                 echo
-                echo ".....$size raw == $size_out $byte"
+                echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
@@ -76,7 +76,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo
                 echo ".....$complete"
                 echo
-                echo ".....$size raw == $size_out $byte"
+                echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
@@ -98,7 +98,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo
                 echo ".....$complete"
                 echo
-                echo ".....$size raw == $size_out $byte"
+                echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img
@@ -119,7 +119,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo
                 echo ".....$complete"
                 echo
-                echo ".....$size raw == $size_out $byte"
+                echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
                 rm -f "$outdir"/"$pack_d".new.img

@@ -51,7 +51,7 @@ if [ -f ./"$file" ]; then
       size_out="$(busybox hexdump -C -n 50 "$file" | busybox awk '{if($1==00000000) {b="0x"$17$16$15$14}} {if($1==00000010) {a="0x"$5$4$3$2}}
 END {print a*b}')"
 
-      print_size_out="$(echo ".....$size raw == $size_out $byte")"
+      print_size_out="$(echo ".....$size1 raw == $size_out $byte")"
 
       busybox dd if="$file" ibs=1 skip=40 of="$f_name".size.img bs=1 count=65536 &>/dev/null
       size_free="$(busybox expr "$(tune2fs -l "$f_name".size.img 2>/dev/null | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024 2>/dev/null)"
