@@ -59,20 +59,14 @@ my_pack() {
     echo ".....$creating_image "$pack_d".new.img..."
     echo
     if [ "$size" = "111" ]; then
-
       if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
-
         size_avb="$(avbtool add_hashtree_footer --partition_size "$r_size" --do_not_generate_fec --calc_max_image_size)"
-
         chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
         if [ $(echo $?) -eq 0 ]; then
           echo
           echo ".....$structure_creation AVB..."
-
           echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
-
           chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
-
           if [ $(echo $?) -eq 0 ]; then
             size_output_sparse
           else
@@ -150,15 +144,12 @@ elif [ "$erof" == "0" ]; then
   img_name=$(busybox cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
 fi
 . $local_dir/binary/perm_fs
-
 size_obraz="$(busybox cat "$dir_avb"/"$pack_d"_size.txt)"
 if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
   prop_avb="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
   part_name="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt)"
 fi
-
 sed -i '/^$/d' "$config"/"$pack_d"_fs_config 2>/dev/null
-
 if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
   if [ ! -f ./file_contexts ]; then
     echo

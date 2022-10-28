@@ -19,9 +19,7 @@ n() {
    read h && if [ "$h" = "0" ]; then
       dir_b=$local_dir/UnpackerSystem/uka_backup
       mkdir "$dir_b" 2>/dev/null
-
       set -- $dir_b
-
       clear
       echo
       echo "     $output_image_save_folder_set:"
@@ -29,7 +27,6 @@ n() {
    elif [ -d "$h" ]; then
       dir_b="$(echo "$h" | busybox sed 's!/!!; s!^!/!')"
       set -- $dir_b
-
       clear
       echo
       echo "     $output_image_save_folder_set:"
@@ -63,7 +60,6 @@ nnn() {
       dir_b=$local_dir/UnpackerSystem/uka_backup
       mkdir "$dir_b" 2>/dev/null
       set -- $dir_b
-
       clear
       echo
       echo "    $output_image_save_folder_set:"
@@ -74,7 +70,6 @@ nnn() {
       set -- $dir_b
       make_ext4fs -l 10485760 "$dir_b"/testuka >/dev/null
       if busybox test -s "$dir_b"/testuka; then
-
          clear
          echo
          echo "    $output_image_save_folder_set:"
@@ -96,7 +91,6 @@ nnn() {
          busybox rm -f "$dir_b"/testuka 2>/dev/null
       fi
    else
-
       clear
       echo
       echo "....$save_folder_does_not_exist!"
@@ -115,9 +109,7 @@ nnn() {
 inf() {
    dir=$local_dir/binary
    export PATH="$dir":$PATH
-
    cd
-
    name=$(busybox cat $local_dir/binary/ddd.txt | busybox awk '{ print $1 }')
    set -- $name
    if [ ! -z "$name" ]; then
@@ -132,7 +124,6 @@ inf() {
             let i=i+1
             file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
             if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
-
                ext=$(busybox cat "$dir"/ddd.txt | busybox grep "^$file ")
                clear
                echo
@@ -302,7 +293,6 @@ pre_extract_file() {
 }
 
 pre_extract() {
-
    dir_pre="$dir_b/preload"
    if [ -d "$dir_pre" ]; then
       busybox rm -rf "$dir_pre"
@@ -312,7 +302,6 @@ pre_extract() {
       busybox mkdir -p "$dir_pre" 2>/dev/null
       cd "$dir_pre"
    fi
-
    if [ -e /dev/block/mmcblk0boot0 ]; then
       bs_size_real="$(busybox printf "%d\n" "$(busybox hexdump -C -n 20000 /dev/block/mmcblk0boot0 | busybox awk '/4d 4d 4d 01 38/ { print "0x"$1}' | busybox head -1)")"
       busybox dd if=/dev/block/mmcblk0boot0 of=pre.tmp &>pre.log
@@ -432,12 +421,10 @@ selekt() {
 
 becap() {
    echo
-   echo ".....Поиск разделов..."
-
+   echo ".....$search_partitions..."
    busybox find /dev/block ! -iname 'userdata' -type l | busybox grep 'by-name' | while read p; do
       echo ${p##*/} = $(readlink $p) = $(busybox blockdev --getsize64 $(readlink $p))
    done | busybox sort -u >"$dir"/ddd.txt
-
    busybox mount | busybox awk '/dm-[0-9]/ { print $1" "$3}' | busybox grep -Ev "apex|data" | while read a b; do
       ff=$(echo "$b" | busybox sed 's!/!!')
       if [ -z "$ff" ]; then
@@ -445,7 +432,6 @@ becap() {
       fi
       echo "$ff" = "$a" = $(busybox blockdev --getsize64 "$a")
    done | busybox sort -u >>"$dir"/ddd.txt
-
    return
 }
 
@@ -464,13 +450,10 @@ bek() {
             file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
             if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                clear
-
                ext=$(busybox cat "$dir"/ddd.txt | grep "^$file " | busybox awk '{ print $3 }')
                opla=$(busybox hexdump -C -n 20000 "$ext" | busybox grep -o "30 50 4c 41")
                ext_file="$(busybox hexdump -C -n 2000 "$ext" | busybox awk '/00000430/ { print $10$11 }' | grep "53ef")"
-
                [ -z "$opla" -a -z "$ext_file" ] && fs=false || fs=true
-
                if [ "$fs" == "false" ]; then
                   echo
                   echo ".....$creating_backup $file.img..."
@@ -491,7 +474,6 @@ bek() {
                      echo ".....$error_creating_backup!"
                      echo
                   fi
-
                elif [ "$fs" == "true" ]; then
                   echo
                   select img in "$save $file.img(raw)" "$save $file.img(sparse)" "$back_section_selection" "$exit_main_menu"; do

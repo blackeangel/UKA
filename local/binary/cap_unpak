@@ -9,28 +9,21 @@ fi
 dir_base=$local_dir/UnpackerSystem
 cap_name=$(cat "$dir_base"/config/"$r_name"*_name.txt)
 dir_bb=$local_dir/binary
-
 if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$cap_name".img | "$dir_bb"/busybox grep '3a ff 26 ed')" ]; then
   dir_loop=$local_dir/"$cap_name"
   loops=$("$dir_bb"/busybox mount | cut -d" " -f1,3 | "$dir_bb"/busybox grep "$dir_loop$" | cut -d" " -f1)
-
   if [ ! -z "$("$dir_bb"/busybox mount | cut -d" " -f3 | "$dir_bb"/busybox grep "$dir_loop$")" ]; then
     "$dir_bb"/busybox umount "$dir_loop" 2>/dev/null
     losetup -d "$loops" 2>/dev/null
   fi
-
   mkdir "$dir_loop" 2>/dev/null
   "$dir_bb"/busybox mount -t ext4 -o rw,loop "$cap_name".img "$dir_loop" 2>/dev/null
-
   if [ "$?" -eq "0" ]; then
     echo
     echo "....."$cap_name".img $mount_in_folder: $dir_loop $for_getting capabilities."
     echo
-
     >$local_dir/UnpackerSystem/config/"$cap_name"_cap.txt
-
     getcap -r "$dir_loop" >>$local_dir/UnpackerSystem/config/"$cap_name"_cap.txt
-
     "$dir_bb"/busybox umount "$dir_loop"
     if [ "$?" -eq 0 ]; then
       losetup -d "$loops" 2>/dev/null
@@ -43,7 +36,6 @@ if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$cap_name".img | "$dir_bb"/bus
       echo
     fi
   else
-
     for i in 0 1 2 3 4 5 6 7; do
       loop=/dev/block/loop$i
       "$dir_bb"/busybox mknod $loop b 7 $i 2>/dev/null
@@ -55,11 +47,8 @@ if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$cap_name".img | "$dir_bb"/bus
       echo
       echo "....."$cap_name".img $mount_in_folder: $dir_loop $for_getting capabilities."
       echo
-
       >$local_dir/UnpackerSystem/config/"$cap_name"_cap.txt
-
       getcap -r "$dir_loop" >>$local_dir/UnpackerSystem/config/"$cap_name"_cap.txt
-
       "$dir_bb"/busybox umount "$dir_loop"
       if [ "$?" -eq 0 ]; then
         losetup -d "$loop" 2>/dev/null

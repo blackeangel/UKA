@@ -43,16 +43,13 @@ br_conv() {
 
 r="$(busybox basename $file)"
 img_name=${r%.*}
-
 if [ -f ./"$file" ]; then
   if [ ! -z "$(busybox hexdump -C -n 4 ./"$file" | grep '3a ff 26 ed')" ]; then
     if busybox test -s "$file"; then
       f_name="$(echo "$file" | busybox awk -F"." '{ print $1 }')"
       size_out="$(busybox hexdump -C -n 50 "$file" | busybox awk '{if($1==00000000) {b="0x"$17$16$15$14}} {if($1==00000010) {a="0x"$5$4$3$2}}
 END {print a*b}')"
-
       print_size_out="$(echo ".....$size1 raw == $size_out $byte")"
-
       busybox dd if="$file" ibs=1 skip=40 of="$f_name".size.img bs=1 count=65536 &>/dev/null
       size_free="$(busybox expr "$(tune2fs -l "$f_name".size.img 2>/dev/null | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024 2>/dev/null)"
       if [ $(echo $?) -eq 0 ]; then
@@ -61,7 +58,6 @@ END {print a*b}')"
         print_size_free=$(echo ".....$free_space: $not_defined")
       fi
     fi
-
     echo
     echo ".....$converting "$file" -> "$img_name".new.dat..."
     echo
@@ -83,9 +79,7 @@ END {print a*b}')"
       echo ".....$convert_error_in .dat!"
       echo
     fi
-
   elif [ ! -z "$(busybox hexdump -C -n 2000 "$file" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 20000 "$file" | busybox grep -o "30 50 4c 41")" -o ! -z "$(busybox hexdump -C -n 2000 "$file" | busybox awk '/00000400/ { print $2$3$4$5 }' | busybox grep -o "e2e1f5e0")" ]; then
-
     if busybox test -s "$file"; then
       size_out="$(busybox stat -c %s "$file")"
       print_size_out="$(echo ".....Размер raw == $size_out байт")"
@@ -103,7 +97,6 @@ END {print a*b}')"
       echo
       echo ".....$convert_to sparse $successfully_completed!"
       echo
-
       if [ ! -z "$(busybox hexdump -C -n 4 ./"$img_name".sparse.img | busybox grep '3a ff 26 ed')" ]; then
         echo
         echo ".....$converting "$img_name".sparse.img -> "$img_name".new.dat..."
@@ -112,7 +105,6 @@ END {print a*b}')"
         echo
         python39 /data/local/binary/bin_system/img2sdat-master/img2sdat5.py ./"$img_name".sparse.img
         if [ $(echo $?) -eq 0 ]; then
-
           busybox mv -f ./"$img_name".sparse.new.dat ./"$img_name".new.dat
           busybox mv -f ./"$img_name".sparse.patch.dat ./"$img_name".patch.dat
           busybox mv -f ./"$img_name".sparse.transfer.list ./"$img_name".transfer.list

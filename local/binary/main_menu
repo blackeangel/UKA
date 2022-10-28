@@ -7,7 +7,7 @@ binary_dir="$local_dir/binary"
 export PATH=$binary_dir:$PATH
 #############################
 # create_work_folders -->
-folder_list = "UnpackerContexts UnpackerPayload UnpackerPreloader UnpackerQfil UnpackerSuper UnpackerSystem UnpackerUpdateApp"
+folder_list="UnpackerContexts UnpackerPayload UnpackerPreloader UnpackerQfil UnpackerSuper UnpackerSystem UnpackerUpdateApp"
 for folder in $folder_list; do
   [ ! -d $local_dir/$folder ] && mkdir -m 755 -p $local_dir/$folder
 done

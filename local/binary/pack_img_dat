@@ -41,7 +41,6 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
-
         elif [ "$g" -eq "21" ]; then
             echo
             echo "......$version_found АРI = $g $android_version: $a"
@@ -63,7 +62,6 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
-
         elif [ "$g" -eq "22" ]; then
             echo
             echo "......$version_found АРI = $g $android_version: $a"
@@ -85,7 +83,6 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
-
         elif [ "$g" -eq "23" ]; then
             echo
             echo "......$version_found АРI = $g $android_version: $a"
@@ -107,7 +104,6 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
-
         else
             echo ".....$version_not_found SDK."
             echo

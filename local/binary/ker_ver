@@ -34,7 +34,6 @@ if [ ! -z "$kernel_bit" ]; then
 elif [ ! -z "$kernel_bit3" ]; then
   echo "...$kernel_bitness: 64 bit"
 else
-
   if [ -f "kernel" ]; then
     kernel_bit1="$(busybox strings kernel | busybox grep -Eo "arch/arm.." | busybox head -1 | busybox sed 's!/.!!2')"
     kernel_bit2="$(busybox strings kernel | busybox grep -Eo "Linux/arm.." | busybox head -1 | busybox sed 's!/.!!2')"

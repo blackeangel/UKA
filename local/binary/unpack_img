@@ -494,7 +494,7 @@ else
     fi
   else
     echo
-    echo ".....$no_image "$file" $in_folder11: $local_dir/UnpackerSystem."
+    echo ".....$image11 "$file" $is_absent $in_folder11: $local_dir/UnpackerSystem."
     echo
   fi
 fi
