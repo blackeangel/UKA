@@ -63,7 +63,7 @@ END {print a*b}')"
     echo
     echo ".....$enter_number_version_android_for_built:"
     echo
-    python39 /data/local/binary/bin_system/img2sdat-master/img2sdat5.py ./"$file"
+    python39 /data/local/binary/bin_system/img2sdat-master/img2sdat.py ./"$file"
     if [ $(echo $?) -eq 0 ]; then
       echo
       echo ".....$convert_to .dat $successfully_completed!"
@@ -103,7 +103,7 @@ END {print a*b}')"
         echo
         echo ".....$enter_number_version_android_for_built:"
         echo
-        python39 /data/local/binary/bin_system/img2sdat-master/img2sdat5.py ./"$img_name".sparse.img
+        python39 /data/local/binary/bin_system/img2sdat-master/img2sdat.py ./"$img_name".sparse.img
         if [ $(echo $?) -eq 0 ]; then
           busybox mv -f ./"$img_name".sparse.new.dat ./"$img_name".new.dat
           busybox mv -f ./"$img_name".sparse.patch.dat ./"$img_name".patch.dat
