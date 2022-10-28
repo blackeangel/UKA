@@ -162,12 +162,12 @@ sed -i '/^$/d' "$config"/"$pack_d"_fs_config 2>/dev/null
 if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
   if [ ! -f ./file_contexts ]; then
     echo
-    echo ".....Не найден сторонний file_contexts,собираем с полученным при распаковке образа..."
+    echo ".....$not_found_other file_contexts, $assemble_with_image_obtained_when_unpacking..."
     cp ./"$config"/"$pack_d"*_fs_config ./fs_config
     cp ./"$config"/"$pack_d"*_file_contexts ./file_contexts
     if [ -f ./file_contexts -a -f ./fs_config ]; then
       echo
-      echo ".....Создание образа "$pack_d".new.img..."
+      echo ".....$creating_image "$pack_d".new.img..."
       echo
       if [ "$size" = "111" ]; then
         if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
@@ -175,19 +175,19 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
           if [ $(echo $?) -eq 0 ]; then
             echo
-            echo ".....Создание структуры AVB..."
+            echo ".....$structure_creation AVB..."
             echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
             if [ $(echo $?) -eq 0 ]; then
               size_output_sparse
             else
               echo
-              echo ".....error: Ошибка при создании структуры AVB!"
+              echo ".....$error_creating_structure AVB!"
               echo
             fi
           else
             echo
-            echo ".....error: Ошибка при сборке!"
+            echo ".....$build_error!"
             echo
           fi
         else
@@ -196,7 +196,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
             size_output_sparse
           else
             echo
-            echo ".....error: Ошибка при сборке!"
+            echo ".....$build_error!"
             echo
           fi
         fi
@@ -206,14 +206,14 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
           if [ $(echo $?) -eq 0 ]; then
             echo
-            echo ".....Создание структуры AVB..."
+            echo ".....$structure_creation AVB..."
             echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
             if [ $(echo $?) -eq 0 ]; then
               size_output_sparse
             else
               echo
-              echo ".....error: Ошибка при создании структуры AVB!"
+              echo ".....$error_creating_structure AVB!"
               echo
             fi
           else
@@ -221,7 +221,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
               size_output_sparse
             else
               echo
-              echo ".....error: Ошибка при сборке!"
+              echo ".....$build_error!"
               echo
             fi
           fi
@@ -231,14 +231,14 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
             size_output_sparse
           else
             echo
-            echo ".....error: Ошибка при сборке!"
+            echo ".....$build_error!"
             echo
           fi
         fi
       fi
     else
       echo
-      echo ".....Не хватает файлов конфигурации в папке: $local_dir/UnpackerSystem/config."
+      echo ".....$missing_config_files_in_folder: $local_dir/UnpackerSystem/config."
       echo
     fi
   else
@@ -246,7 +246,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
   fi
 else
   echo
-  echo ".....Нет папки \""$pack_d"\" для сборки образа, или файла *_pack_sparse.sh."
+  echo ".....$no_folder \""$pack_d"\" $for_building_image_or_file_missing *_pack_sparse.sh."
   echo
 fi
 unset erof
