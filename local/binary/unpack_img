@@ -129,7 +129,7 @@ END {print a*b}')"
 super() {
   if [ ! -z "$opla" -a ! -z "$sparse_super" ]; then$error_when_extracting_images
     echo
-    echo ".....Образ определён, как super.img(sparse)"
+    echo ".....$image_defined_as super.img(sparse)"
     echo
     echo ".....$converting "$file"(sparse) -> $super_dir/super.raw.img(raw)..."
     echo
@@ -152,7 +152,7 @@ super() {
       super_space
 
       echo
-      echo "\033[33;1m.....Образы успешно извлечены в папку: $super_dir \033[0m"
+      echo "\033[33;1m.....$images_successfully_extracted_to_folder: $super_dir \033[0m"
       echo
     else
       echo
@@ -161,7 +161,7 @@ super() {
     fi
   elif [ ! -z "$opla" -a -z "$sparse_super" ]; then
     echo
-    echo ".....Образ определён, как super.img(raw)"
+    echo ".....$image_defined_as super.img(raw)"
     echo
     echo ".....$extracting_images_from "$file"..."
     echo
@@ -182,7 +182,7 @@ super() {
       super_space
 
       echo
-      echo "\033[33;1m.....Образы успешно извлечены в папку: $super_dir \033[0m"
+      echo "\033[33;1m.....$images_successfully_extracted_to_folder: $super_dir \033[0m"
       echo
 
     else
@@ -238,7 +238,7 @@ check_obraz() {
   mkdir -p "$config" 2>/dev/null
   if [ -z "$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")" ]; then
     echo
-    echo ".....Проверка образа..."
+    echo ".....$image_verification..."
     e2fsck -pf -E bmap2extent "$file" &>"$config"/"$r_name"_e2fsk.log
   fi
   return
@@ -273,7 +273,7 @@ contet() {
     i=1
     busybox sed -i -e "$i s!^!${real_con}\n!" "$config"/"$r_name"_file_contexts
     if [ $(echo $?) -eq 0 ]; then
-      echo ".....Запись в \"${r_name}_file_contexts\"..."
+      echo ".....$recording_in \"${r_name}_file_contexts\"..."
     fi
   fi
   busybox rm -f "$config"/"$r_name".txt
@@ -344,7 +344,7 @@ str_avb() {
     echo "$full_avb" | busybox awk '/Partition Name:/ { print $3 }' >"$dir_avb"/"$r_name"/"$r_name"_part_name.txt
     echo "$full_avb" >"$dir_avb"/"$r_name"/"$r_name"_avb.img
     echo
-    echo ".....Обнаружена структура AVB!"
+    echo ".....$find_struct AVB!"
 
     if busybox test -s "$dir_avb"/"$r_name"/"$r_name"_avb.img; then
 
@@ -354,14 +354,14 @@ str_avb() {
 
     else
       echo
-      echo ".....Ошибка при создании фвйла конфигурации!"
+      echo ".....$error_creating_configuration_file!"
       echo
     fi
   elif [ ! -z "$(cat "$dir_avb"/"$r_name"/"$r_name"_avb.log | busybox grep -Eo "Given image does")" ]; then
     echo >/dev/null
   else
     echo
-    echo ".....Ошибка при обнаружении AVB!"
+    echo ".....$discovery_error AVB!"
     echo
   fi
   return
@@ -372,18 +372,18 @@ if [ ! -z "$opla" ]; then
 elif [ ! -z "$erofs" -a -z "$sparse_super" ]; then
   if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
     echo
-    echo "\033[33;1m.....$file имеет файловую систему erofs!\033[0m"
+    echo "\033[33;1m.....$file $has_file_system erofs!\033[0m"
 
     . unpack_img_erofs
   else
     echo
-    echo "\033[33;1m.....$file имеет файловую систему erofs!\033[0m"
+    echo "\033[33;1m.....$file $has_file_system erofs!\033[0m"
     erfs
   fi
 elif [ ! -z "$erofs" -a ! -z "$sparse_super" ]; then
   file_raw="/$nd"/"$r_name".raw.img
   echo
-  echo "\033[33;1m.....$file имеет файловую систему erofs!\033[0m"
+  echo "\033[33;1m.....$file $has_file_system erofs!\033[0m"
   echo
   echo ".....$converting "$file" -> "$file_raw"..."
 
@@ -397,14 +397,14 @@ elif [ ! -z "$erofs" -a ! -z "$sparse_super" ]; then
   fi
 else
   echo
-  echo ".....Удаление старой папки \""$r_name"\" и файлов конфигурации..."
+  echo ".....$deleting_old_folder \""$r_name"\" $and_configuration_files..."
 
   find -maxdepth 1 -name "$r_name" -type d | xargs rm -rf
 
   if [ -f "$r_name" ]; then
     echo
-    echo ".....Внимание! Имя файла: "$PWD"/"$r_name" уже существует"
-    echo ".....Переименовываем "$r_name" в "$r_name".real.img"
+    echo ".....$warning_file_name: "$PWD"/"$r_name" $already_exists"
+    echo ".....$renaming "$r_name" -> "$r_name".real.img"
     echo
     busybox mv -f "$r_name" "$r_name".real.img
   fi
@@ -415,7 +415,7 @@ else
 
     check_obraz
 
-    echo ".....Распаковка ${file}..."
+    echo ".....$unpacking ${file}..."
 
     python39 $local_dir/binary/bin_system/imgextractor1.py "$file" "$PWD"
     if [ $(echo $?) -eq 0 ]; then
@@ -434,7 +434,7 @@ else
         fi
       else
         echo
-        echo ".....Error! Нет распакованной папки или "$config"/"$r_name"_fs_config."
+        echo ".....$error_no_unpacked_folder_or "$config"/"$r_name"_fs_config."
       fi
 
       h=$(busybox find "$r_name" | busybox grep [[:space:]])
@@ -459,7 +459,7 @@ else
 
       if busybox test -s "$config"/"$r_name"*_space.txt]; then
         echo
-        echo ".....В образе "${file}" есть файлы с пробелами... исправлено, сохранено в "$base_dir"/"$config"/"$r_name"_space.txt!"
+        echo ".....$in_image "${file}" $there_files_with_spaces_fixed_saved_to "$base_dir"/"$config"/"$r_name"_space.txt!"
         echo
       fi
 
@@ -467,18 +467,18 @@ else
         echo
         echo "\033[33;1m.....$successfully_unpacked! \033[0m"
         echo
-        echo "...В образе "${file}" есть файлы с пробелами, исправляем..."
+        echo "...$in_image "${file}" $there_files_with_spaces_fix..."
         echo "$h" >"$config"/"$r_name"_space.txt
         gg
 
         if [ $(echo $?) -eq 0 ]; then
 
           echo
-          echo "...Исправлено, сохранено в "$config"/"$r_name"_space.txt!"
+          echo "...$corrected_saved_to "$config"/"$r_name"_space.txt!"
           echo
         else
           echo
-          echo "...Ошибка исправления файлов с пробелами!"
+          echo "...$error_fixing_files_with_spaces!"
           echo
         fi
       else
@@ -488,13 +488,13 @@ else
       fi
     else
       echo
-      echo "\033[31;47;1m   .....error: $unpacking_error!              \033[0m"
+      echo "\033[31;47;1m   .....$unpacking_error!              \033[0m"
       echo
       busybox rm -f "$config"/"$r_name"
     fi
   else
     echo
-    echo ".....Образа "$file", нет в папке: $local_dir/UnpackerSystem."
+    echo ".....$no_image "$file" $in_folder11: $local_dir/UnpackerSystem."
     echo
   fi
 fi
