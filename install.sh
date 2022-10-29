@@ -97,7 +97,7 @@ on_install() {
   unzip -p "$ZIPFILE" "aik.tar.xz" | tar xJ -C /data/local >/dev/null
   #Create work folders
   ui_print "- Creating working folders"
-  folder_list = "UnpackerContexts UnpackerPayload UnpackerPreloader UnpackerQfil UnpackerSuper UnpackerSystem UnpackerUpdateApp"
+  folder_list="UnpackerContexts UnpackerPayload UnpackerPreloader UnpackerQfil UnpackerSuper UnpackerSystem UnpackerUpdateApp"
   for folder in $folder_list; do
     [ ! -d /data/local/$folder ] && mkdir -m 755 -p /data/local/$folder
   done
