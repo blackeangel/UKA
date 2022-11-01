@@ -184,3 +184,193 @@ AIK-mobile можно полностью удалить с телефона пр
 
 ✓Изменения в версии: 4.0
 Добавлено меню.
+
+===============================================================================================
+
+✓ Changes in version 5.14:
+Items added:
+"Unpack all images"
+"Creating Your Own AVB Signing Key"
+"Signature boot(recovery).img with key selection"
+When building images in ext4, props (if any) will be added to the AVB structure.
+When assembling boot(recovery).img, the image will be signed with a test key (if there was a signature)
+
+✓ Changes in version 5.13:
+Unpacking and assembly fixes.
+Added item to "Other tools": "Extract public key of AVB signature"
+
+✓ Changes in version 5.12:
+Fixed bugs when assembling images.
+
+✓ Changes in version 5.11:
+Added build point, unpacked erofs images to ext4. (7-1-4 and 7-2-4) (Not supported on 32-bit firmware).
+As before, not all images with erofs are unpacked correctly, in this case the program will report incorrect extraction of files, and the unpacked folder will not be available for assembly in ext4.
+Fixed merging of the whole file from separate images.
+Fixed extraction of images from payload.bin
+
+✓ Changes in version 5.10:
+When building with the size of the folder, I added the input of the desired size of free space for the assembled image.
+I think it is relevant for images from super.img, where you need to adjust the size.
+After assembly, the free space may differ by several MB from the entered number.
+If you do not enter anything, then the image will be assembled without free space.
+Removed item: "Add N mb to size and build .img"
+Corrected gluing the whole file from separate images.
+
+✓ Changes in version 5.9:
+Corrections in the code for unpacking images with the "erofs" file system.
+After unpacking the .ofp firmware, a menu for selecting a region for gluing super.img has been added.
+Continued testing of version 5.9.
+Added for now, only unpacking images with "erofs" file system.
+Not all images will be unpacked.
+Please test and post results.
+Test unpacking payload.bin, it should extract images faster.
+I also changed the code for gluing images broken into parts.
+
+✓ Changes in version 5.8:
+Kitchen fixes on android 11.
+Made automatic termination of processes that interfere with the unmounting of images.
+
+✓ Changes in version 5.7:
+In Other tools, added the item "Unpacking firmware .ofp".
+Please test this item and write the result.
+If the firmware is not unpacked, then write in the subject and give a link to it.
+Changed super.img assembly code.
+Incorrectly assembled images should assemble normally.
+
+✓ Changes in version 5.6:
+Updated python to version 3.9.7
+Fixed unpacking of images with .PARTITION extension
+Added output of the raw image size during assembly, the sizes are also saved in the config folder, in the files: xxx_size.txt (size when unpacking), xxx_size_out.txt (size when assembling).
+Added display of free space in the assembled image.
+Fixed saving the image to an arbitrary folder when building.
+Added output of free space in the assembled image.
+Corrected, saving the image to an arbitrary folder during assembly.
+
+✓ Changes in version 5.4:
+Remade the item "Unpacking firmware .img" in "Other tools".
+The item will work if UKA is installed on 64-bit firmware.
+Support for decompressing a generic .img image (Rockchip, Alwinner, Amlogic).
+Added item "Convert .img -> .br" to "Build and convert to .br"
+
+✓ Changes in version 5.3:
+I did it for testing in "Other Tools", the item for repacking .img firmware is for Rockchip, UKA should be installed on a 64-bit firmware, I tried to do it on a 32-bit one, but the a11 firmware is not unpacked there, so for now.
+
+✓ Changes in version: 5.2.1:
+Made changes to repacking boot / recovery
+Added a "Prop:" entry to the AVB structure when building boot/recovery.
+
+✓ Changes in version: 5.2
+Some changes in the code.
+Added items: "Patch vbmeta", "View AVB file structure", also just in case added item "Patch boot.img (32bit, SAR) for magisk".
+Added the ability to save super.img from the current firmware to sparse.
+Made changes to the definition of the version and bitness of the kernel when unpacking boot (recovery).img
+
+✓ Changes in version: 5.1
+Some changes in the code.
+Added AIK-mobile v3.8
+
+✓ Changes in version: 5.0
+Added conversion and unpacking of .sin images.
+Now the unpacked folder has the name: "name of the unpacked file without extension", when building, it will be "name of the unpacked file without extension" + "new.img(.new.dat)(.new dat.br)"
+
+✓ Changes in version: 4.9.9
+Added item "Unpack from last used folder".
+When unpacking, the display of information about the amount of free space has been added.
+When unpacking and assembling super.img, the display of information about the free space in it has been added.
+Added the item "Extracting images from super.img of the current firmware" (the image is not saved to a separate file, but images are immediately extracted to save space).
+Fixed extraction of super.img from update.app.
+Images are now built with logging disabled.
+Fixed unpacking system_ext.new.dat.br.
+
+✓ Changes in version: 4.9.8
+Added automatic entry to fs_config when building an image.
+
+✓ Changes in version: 4.9.7
+Added extraction of images from UPDATE.APP.
+Changed extraction of images from payload.bin, now you need to enter the path to the folder where the file is located, instead of copying it or moving it to the /data/local/UnpackerPayload folder.
+
+✓ Changes in version: 4.9.6
+Various fixes.
+
+✓ Changes in version: 4.9.5
+Main changes:
+★ Added :
+Creating an image from the memory section of the current firmware.
+Unpacking (converting) .ozip.
+Repacking super.img.
+Ability to repack images with any name.
+Ability to enter the path to the folder where the output image will be saved during assembly.
+Assembly .dat, .br with the input of its size and the size of the folder for the assembly.
+Added python3.9 instead of python3.6 and python3.4.2.
+Added gluing super.img.
+Updated AIK-mobile to version 3.7.
+
+✓ Changes in version: 4.9.1
+Correction of assembly of images with android 9-10.
+
+✓ Changes in version: 4.8
+The version is universal, i.e. it makes no difference whether make_ext4fs is present or not.
+To save space in / data, I added the ability to unpack and mount * .img images from any folder (you need to enter the path), also when unpacking .dat, .br, the .img image will be in the same folder as the files: .dat, .br
+The sparse image is built immediately in sparse, without prior conversion, i.e. as before in the version for phones with make_ext4fs.
+Added restoration of symlinks, i.e. you can restore symlinks that were in the image during unpacking at any time. Menu item: Build .img -> Restore symlinks.
+Updated AIK-mobile to version 3.6, it has ramdisk.img 96mb.
+
+✓ Changes in version: 4.7
+Fixed bugs during unpacking, conversion and other fixes in scripts.
+Because of:
+"If the unpacked image has spaces in folder or file names, then make_ex4fs will not build such an image until you rename the files and correct the entries in fs_config.
+Therefore, folders and files with spaces cannot be added to the unpacked image either."
+Added automatic replacement of spaces in file names (if any), correction of entries in fs_config, file_contexts to underscore when unpacking an image.
+Just in case, paths to files with spaces are stored in /data/local/UnpackerSystem/config/xxx_space.txt
+
+✓ Changes in version: 4.6
+Added write helper to fs_config.
+Aik-mobile, broli have been updated, there are fewer items in some menus, some scripts have been changed.
+
+✓ Changes in version: 4.5
+The installed busybox is not needed (if there are problems without it, then write in the topic).
+Updated Aik-mobile to version 3.3.
+Added payload.bin unpacking. To unpack, put payload.bin in the folder: /data/local/UnpackerPayload, select in the menu: Unpack .img -> Unpack payload.bin and wait patiently, because unpacking takes a long time.
+Added selection of assembly sparse.img or raw.img, and choice of assembly with the original size of the image, or with entering your own size.
+Changed installation script.
+
+✓ Changes in version: 4.4
+Some changes in scripts.
+Added gluing system.img from separate images (from the firmware for Qfil).
+For gluing, place all system_xx and the file rawprogram0.xml or rawprogram_unsparse.xml in the folder: /data/local/UnpackerQfil.
+Select "Menu: Unpack .img" > "Merge image from firmware under Qfil".
+Will get "system.raw.img" in the folder: /data/local/UnpackerQfil. Then you can perform actions, as with a regular .img.
+
+✓ Changes in version: 4.3
+Some changes in scripts.
+Now file_contexts is automatically created for the image that is being unpacked, which means that it can only be used to build the same image.
+The system(vendor)_file_contexts and system(vendor)_fs_config files will be located in the /data/local/UnpackerSystem/config folder, if necessary, they can also be edited, moved, and do not need to be renamed.
+The image will be built with the file_contexts obtained during unpacking.
+To build with file_contexts obtained from boot.img, you need to put it in the folder: /data/local/UnpackerSystem as before.
+After building or unpacking, the third party file_contexts will be removed.
+Files from: /data/local/UnpackerSystem/config, as well as the "system" or "vendor" folders from: /data/local/UnpackerSystem, are deleted only after unpacking the following image.
+
+✓ Changes in version: 4.2
+Added mounting of *.img raw images to the folder: /data/local/raw image name without .img extension.
+To mount, use the corresponding menu item, and the raw image must be located in the folder: /data/local/UnpackerSystem.
+Don't forget to unmount the image.
+Added complete removal of unpack-android from the menu.
+
+✓ Changes in version: 4.1
+The launch of the install_sef.sh file is listed in the menu, in the item: Extracting file_contexts; sub-item: Setting the configuration.
+You only need to run it once.
+Added selection of .img files (no more than 5) for unpacking in the /data/local/UnpackerSystem folder
+When unpacking, the folders will be deleted: "system", or "vendor"; files: *_fs_config and *_pack.sh from previous unpacking.
+Added choice of compression ratio for converting *.new.dat to br.
+To reduce the conversion time, compression can be selected 3-5 (maximum 7).
+Added AIK-mobile.
+To unpack, put the file in the folder: /data/local/AIK-mobile, in the menu: "unpack boot" select the file.
+For packaging, use the clause: "pack boot".
+The compiled file will be located in the folder: /data/local/AIK-mobile with the name boot-output.img.
+To clean up the working folder, also use the corresponding item. The source and output files will not be deleted.
+AIK-mobile can be completely removed from the phone directly from the menu.
+If, for some reason, you do not want to flash AIK-mobile, then remove the file "AIK.Mobile.Installer.v3.2.zip" from the archive and flash "unpack-android_4.1.zip" without this file.
+
+✓ Changes in version: 4.0
+Menu added.
+
