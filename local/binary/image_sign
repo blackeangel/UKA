@@ -110,6 +110,8 @@ aik_pack() {
         size_sign="$size_sign"
         part_num #Функция
     fi
+    size_footer="$(avbtool add_hash_footer --partition_size "$size_sign" --calc_max_image_size)"
+    truncate -s "$size_footer" "$file_real"
     echo "avbtool add_hash_footer --image "$file_real" --partition_size "$size_sign" "$prop_avb"--partition_name "$part_name" "$sign_print" --key "$pack_file"" >"$avb_dir"/avb.sh
     clear
     echo
@@ -133,7 +135,7 @@ aik_pack() {
     else
         echo
         echo ".....$error_creating_structure AVB"
-        busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
+        #busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
         return
     fi
     return
@@ -348,4 +350,4 @@ sign_image() {
 }
 sign_image
 
-busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
+#busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
