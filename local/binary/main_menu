@@ -1,5 +1,5 @@
 #!/system/bin/sh
-program_version="5.14"
+program_version="5.15"
 clear
 local_dir="/data/local"
 binary_dir="$local_dir/binary"
@@ -715,7 +715,7 @@ main_menu() {
   echo -en "\E[32;1m"
   #############################
   echo "             created by kory-vadim 4PDA.ru"
-  echo "   (https://4pda.to/forum/index.php?showuser=4226678)" 
+  echo "   (https://4pda.to/forum/index.php?showuser=4226678)"
   #############################
   MENU=(
     "$menu_01"
@@ -1374,6 +1374,8 @@ main_menu() {
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
         elif [ "$nd" == "$local_dir/UnpackerSystem/uka_backup" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
+        elif [ "$nd" == "data/local/UnpackerQfil" -a -d /"$nd" ]; then
+          cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
         elif [ "$nd" == "$(busybox cat "$dir_dat"/last.txt 2>/dev/null)" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
         fi
@@ -1595,7 +1597,7 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-        select menu in "$unpacking .img $from_folder: $local_dir/UnpackerSystem" "$unpacking .img $from_folder: $local_dir/UnpackerSuper" "$unpacking .img $from_folder: $local_dir/UnpackerPayload" "$unpacking .img $from_folder: $local_dir/UnpackerSystem/uka_backup" "$unpacking .img $from_last_used_folder" "$enter_path_folder_with_image .img" "$exit_main_menu" "$close_program"; do
+        select menu in "$unpacking .img $from_folder: $local_dir/UnpackerSystem" "$unpacking .img $from_folder: $local_dir/UnpackerSuper" "$unpacking .img $from_folder: $local_dir/UnpackerPayload" "$unpacking .img $from_folder: $local_dir/UnpackerSystem/uka_backup" "$unpacking .img $from_folder: /data/local/UnpackerQfil" "$unpacking .img $from_last_used_folder" "$enter_path_folder_with_image .img" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -1635,6 +1637,15 @@ main_menu() {
             ;;
           5)
             clear
+            nd=data/local/UnpackerQfil
+            my_super
+            return
+            main_menu
+            return
+            break
+            ;;
+          6)
+            clear
             last_dir="$(busybox cat $binary_dir/last.txt 2>/dev/null | busybox sed 's!^/!!')"
             if [ ! -z "$last_dir" -a -d /"$last_dir" ]; then
               nd="$last_dir"
@@ -1651,7 +1662,7 @@ main_menu() {
             fi
             break
             ;;
-          6)
+          7)
             clear
 
             my_d
@@ -1660,12 +1671,12 @@ main_menu() {
             return
             break
             ;;
-          7)
+          8)
             clear
             main_menu
             break
             ;;
-          8)
+          9)
             clear
             return
             break
@@ -2395,6 +2406,16 @@ main_menu() {
         return
       }
 
+      qqq_space() {
+        free_space="$(busybox df -h "$outdir" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
+        free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
+        echo "\033[33;1m...В $outdir свободно: $free_space \033[0m"
+        if [ "$free_space" != "$free_data" ]; then
+          echo "\033[33;1m...В /data свободно: $free_data \033[0m"
+        fi
+        return
+      }
+
       pack_img_my() {
         b=$(for a in $(busybox find -maxdepth 1 ! -name "." -type d | busybox sed 's!./!!'); do
           if [ -f "config/"$a"/"$a"_file_contexts" ]; then
@@ -2687,12 +2708,13 @@ main_menu() {
           echo
           echo ".....$select_build_folder:"
           echo
-          select menu in $b "$exit_main_menu"; do
+          select menu in $b "$build_all_images" "$exit_main_menu"; do
             case $REPLY in
             [1-9]*)
               i="$#"
-
+              j="$#"
               let i=i+1
+              let j=j+2
 
               file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
               if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
@@ -2725,6 +2747,45 @@ main_menu() {
                 return
                 break
               elif [ "$REPLY" -eq "$i" ]; then
+                clear
+                for papka in "$@"; do
+                  if [ "$erof" == "0" ]; then
+                    erof="0"
+                  elif [ "$erof" == "1" ]; then
+                    erof="1"
+                  fi
+                  pack_d="$papka"
+                  config="config/$pack_d"
+
+                  size_orig="$(busybox expr $(busybox du -s "$pack_d" | busybox awk '{ print $1 }') \* 1024)"
+                  size_real="$(busybox cat "$config"/"$pack_d"_size.txt)"
+                  if busybox test "$size_orig" -le "10485760"; then
+                    get_add="8192"
+                    check_size_img
+                  else
+                    get_add="1048576"
+                    check_size_img
+                  fi
+                  size=111
+                  set -- $size
+                  r_size="$size_new"
+                  set -- $r_size
+                  file_size=${dir}/pack_img_raw
+                  if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
+                    file_sh=./"$config"/"$pack_d"*_pack_avb.sh
+                  else
+                    file_sh=./"$config"/"$pack_d"*_pack.sh
+                    busybox sed -e "s!-l [0-9]*!-l "$r_size"!" $file_sh >"$config"/"$pack_d"_gsize.sh
+                  fi
+                  . $file_size
+                  qqq_space
+                  sleep 2
+                done
+                main_menu
+                return
+                break
+
+              elif [ "$REPLY" -eq "$j" ]; then
                 clear
                 main_menu
                 return
@@ -2770,12 +2831,13 @@ main_menu() {
           echo
           echo ".....$select_build_folder:"
           echo
-          select menu in $b "$exit_main_menu"; do
+          select menu in $b "$build_all_images" "$exit_main_menu"; do
             case $REPLY in
             [1-9]*)
               i="$#"
-
+              j="$#"
               let i=i+1
+              let j=j+2
 
               file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
               if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
@@ -2808,6 +2870,45 @@ main_menu() {
                 return
                 break
               elif [ "$REPLY" -eq "$i" ]; then
+                for papka in "$@"; do
+                  clear
+                  if [ "$erof" == "0" ]; then
+                    erof="0"
+                  elif [ "$erof" == "1" ]; then
+                    erof="1"
+                  fi
+
+                  pack_d="$papka"
+                  config="config/$pack_d"
+
+                  size_orig="$(busybox expr $(busybox du -s "$pack_d" | busybox awk '{ print $1 }') \* 1024)"
+                  size_real="$(busybox cat "$config"/"$pack_d"_size.txt)"
+                  if busybox test "$size_orig" -le "10485760"; then
+                    get_add="8192"
+                    check_size_img
+                  else
+                    get_add="1048576"
+                    check_size_img
+                  fi
+                  size=111
+                  set -- $size
+                  r_size="$size_new"
+                  set -- $r_size
+                  file_size=${dir}/pack_img
+                  if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
+                    file_sh=./"$config"/"$pack_d"*_pack_avb_sparse.sh
+                  else
+                    file_sh=./"$config"/"$pack_d"*_pack_sparse.sh
+                    busybox sed -e "s!-l [0-9]*!-l "$r_size"!" $file_sh >"$config"/"$pack_d"_gsize.sh
+                  fi
+                  . $file_size
+                  qqq_space
+                  sleep 2
+                done
+                main_menu
+                return
+                break
+              elif [ "$REPLY" -eq "$j" ]; then
                 clear
                 main_menu
                 return
@@ -2958,7 +3059,7 @@ main_menu() {
                       cd $local_dir/UnpackerSystem/erofs
                       erof="1"
                       set -- $erof
-                      pack_img_raw_new
+                      pack_img_new
                     else
                       echo
                       echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4\" $not_supported_on_32bit_firmware!"

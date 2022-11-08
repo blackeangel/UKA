@@ -6,13 +6,13 @@ eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.
 size_output_raw() {
     if busybox test -s "$outdir"/"$pack_d".new.img; then
         echo
-        echo ".....$successfully_created "$pack_d".new.img!"
+        echo "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"
         echo
         size_out="$(busybox stat -c %s "$outdir"/"$pack_d".new.img)"
         size_free="$(busybox expr "$(tune2fs -l "$outdir"/"$pack_d".new.img | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024)"
         echo "$size_out" >"$config"/"$pack_d"_size_out.txt
-        echo ".....$size1 raw == $size_out $byte"
-        echo ".....$free_space: $size_free mb"
+        echo "\033[33;1m.....$size1 raw == $size_out $byte\033[0m"
+        echo "\033[33;1m.....$free_space: $size_free mb\033[0m"
         echo
     fi
     return
