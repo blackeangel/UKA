@@ -127,7 +127,7 @@ END {print a*b}')"
 }
 
 super() {
-  if [ ! -z "$opla" -a ! -z "$sparse_super" ]; then$error_when_extracting_images
+  if [ ! -z "$opla" -a ! -z "$sparse_super" ]; then
     echo
     echo ".....$image_defined_as super.img(sparse)"
     echo

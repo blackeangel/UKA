@@ -756,7 +756,7 @@ main_menu() {
         echo -en "\E[37;1m"
         echo "     $put boot.img $in_folder2: $local_dir/UnpackerContexts"
         echo
-        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)(версия:8.38)" "$setting_configuration" "$exit_main_menu" "$close_program"; do
+        select img in "$extract file_contexts" "$converting file_contexts(txt) -> file_contexts(bin)($menu_version:8.38)" "$setting_configuration" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -2001,7 +2001,7 @@ main_menu() {
             clear
             cd
             echo
-            echo "..$go_folder_where_files_located: \".dat\" и \".transfer.list\", $for_example: cd /sdcard"
+            echo "..$go_folder_where_files_located: \".dat\" $and \".transfer.list\", $for_example: cd /sdcard"
             my_d() {
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
@@ -2204,7 +2204,7 @@ main_menu() {
             clear
             cd
             echo
-            echo "...$go_folder_where_files_located: \".br\" и \".transfer.list\", $for_example: cd /sdcard"
+            echo "...$go_folder_where_files_located: \".br\" $and \".transfer.list\", $for_example: cd /sdcard"
             my_b() {
               read b && $b
               if [ $(echo $?) -eq 0 ]; then
@@ -2409,9 +2409,9 @@ main_menu() {
       qqq_space() {
         free_space="$(busybox df -h "$outdir" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
         free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-        echo "\033[33;1m...В $outdir свободно: $free_space \033[0m"
+        echo "\033[33;1m...$in $outdir $free: $free_space \033[0m"
         if [ "$free_space" != "$free_data" ]; then
-          echo "\033[33;1m...В /data свободно: $free_data \033[0m"
+          echo "\033[33;1m...$in /data $free: $free_data \033[0m"
         fi
         return
       }
@@ -3360,7 +3360,7 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-        select img in "$build .img -> .dat" "$build .img $with_image_size_input -> .dat" "$build .img $with_build_folder_size -> .dat" "$convert \".img\" в \".dat\"" "$exit_main_menu" "$close_program"; do
+        select img in "$build .img -> .dat" "$build .img $with_image_size_input -> .dat" "$build .img $with_build_folder_size -> .dat" "$convert \".img\" $in1 \".dat\"" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -4066,7 +4066,7 @@ main_menu() {
                             file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
                             if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
 
-                              t="     Файл: /$nd/$file"
+                              t="     $file: /$nd/$file"
                               g=${#t}
                               ggg="$(busybox expr "$g" - 6)"
                               gg="$(busybox seq -s- "$ggg" | busybox tr -d '[:digit:]')"
@@ -4114,7 +4114,7 @@ main_menu() {
                         done
                       else
                         echo
-                        echo ....."В папке \"/$nd\" нет файлов \"*.img\""
+                        echo ".....$in_folder1 \"/$nd\" $no_files \"*.img\""
                         echo
                         main_menu
                         return
@@ -4677,7 +4677,7 @@ main_menu() {
               echo
               echo "...$in $local_dir/UnpackerQfil $free: $free_space"
               echo
-              select img in "Склеить" "$exit_main_menu" "$close_program"; do
+              select img in "$glue" "$exit_main_menu" "$close_program"; do
                 case $REPLY in
                 1)
                   clear
@@ -5563,7 +5563,7 @@ main_menu() {
 
                     clear
                     echo
-                    echo ".....Склейка $f_out, Ждём..."
+                    echo ".....$gluing $f_out, $waiting..."
                     chmod 755 ./pack.sh && ./pack.sh
                     if [ $(echo $?) -eq 0 ]; then
                       echo
@@ -5629,7 +5629,7 @@ main_menu() {
               check_sup="$(busybox cat log.txt | busybox awk '/super.[0-9]/ { print $2 }' | busybox sed 's!"!!g')"
               if [ ! -z "$check_sup" ]; then
                 echo
-                echo ".....Найден super.img, разбитый на части!"
+                echo ".....$found super.img, $broken_apart!"
                 if [ "$check_pack" == "0" ]; then
                   echo "$check_sup" | while read a; do
                     f="$m_name/${a}"

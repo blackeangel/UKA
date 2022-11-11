@@ -372,6 +372,10 @@ selekt() {
          p=$(busybox find /dev/block -iname "super" -type l | busybox head -1)
          if [ ! -z "$p" ]; then
             file="$p"
+            if busybox test "$(bootctl get-current-slot 2>/dev/null)" == "1"; then
+               real_slot="1"
+               set -- $real_slot
+            fi
             . $local_dir/binary/unpack_img
          else
             echo

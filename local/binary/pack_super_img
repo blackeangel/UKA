@@ -35,24 +35,6 @@ ttt_sort() {
   return
 }
 
-size_minus() {
-  rr="$(busybox expr "$max_size_super2" - "$F")"
-  ss=$(busybox expr "$rr" / 1024 / 1024)
-  echo "....$sum_sizes_collected_images_less_than_maximum $rr $byte (~$ss mb)"
-  echo " real = $F $byte  <  max = $max_size_super2 $byte"
-  echo
-  return
-}
-
-size_plus() {
-  rr="$(busybox expr "$F" - "$max_size_super2")"
-  ss=$(busybox expr "$rr" / 1024 / 1024)
-  echo "....$sum_sizes_collected_images_more_than $rr $byte(~$ss mb)!"
-  echo " real = $F $byte  >  max = $max_size_super2 $byte"
-  echo
-  return
-}
-
 if busybox test -s config/super_config.txt; then
   meta_size="$(busybox cat config/super_config.txt | busybox awk '/Metadata max size:/ { print $4 }')"
   meta_slot_check="$(busybox cat config/super_config.txt | busybox grep -A10 "Group table:" | busybox grep "Name:" | busybox awk '{ print $1 }' | busybox wc -l)"
@@ -109,15 +91,11 @@ if busybox test -s config/super_config.txt; then
 
       if [ "$group_table2" == "$gr_gr_a" -a ! -z "$gr_gr_a" ]; then
         group_table2="$group_table2"
-      elif [ "$group_table2" == "$gr_gr_cow" -a ! -z "$gr_gr_cow" ]; then
-        group_table2="$gr_gr_cow"
       else
         group_table2="$gr_gr_rev"_a
       fi
       if [ "$group_table3" == "$gr_gr_b" -a ! -z "$gr_gr_b" ]; then
         group_table3="$group_table3"
-      elif [ "$group_table3" == "$gr_gr_cow" -a ! -z "$gr_gr_cow" ]; then
-        group_table3="$gr_gr_cow"
       else
         group_table3="$gr_gr_rev"_b
       fi
@@ -133,10 +111,6 @@ if busybox test -s config/super_config.txt; then
       else
         max_size_super2="$(busybox expr "$size_super" / 2 - "$first_sector_size" \* 2)"
         max_size_super3="$max_size_super2"
-      fi
-
-      if [ ! -z "$gr_suf_cow" ]; then
-        max_size_super3="0"
       fi
 
       echo "lpmake --metadata-size="$meta_size" --super-name="$name_super" --metadata-slots="$meta_slot" --device=super:"$size_super":"$first_sector" --group="$group_table2":"$max_size_super2" --group="$group_table3":"$max_size_super3"" >config/pack_super.tmp
@@ -176,8 +150,6 @@ if busybox test -s config/super_config.txt; then
           attr=none
           if [ ! -z "$(echo "$a" | busybox grep ".*_a$" | busybox grep -v ".*cow")" ]; then
             group_part="$group_table2"
-          elif [ ! -z "$(echo "$a" | busybox grep ".*cow$")" ]; then
-            group_part="cow"
           elif [ ! -z "$(echo "$a" | busybox grep ".*_b$")" ]; then
             group_part="$group_table3"
           fi
@@ -230,6 +202,23 @@ END {print a*b}')"
       echo
 
       mkdir ./output 2>/dev/null
+size_minus() {
+  rr="$(busybox expr "$max_size_super2" - "$F")"
+  ss=$(busybox expr "$rr" / 1024 / 1024)
+  echo "....$sum_sizes_collected_images_less_than_maximum $rr $byte (~$ss mb)"
+  echo " real = $F $byte  <  max = $max_size_super2 $byte"
+  echo
+  return
+}
+
+size_plus() {
+  rr="$(busybox expr "$F" - "$max_size_super2")"
+  ss=$(busybox expr "$rr" / 1024 / 1024)
+  echo "....$sum_sizes_collected_images_more_than $rr $byte(~$ss mb)!"
+  echo " real = $F $byte  >  max = $max_size_super2 $byte"
+  echo
+  return
+}
 
       F_a="$(cat config/pack_size_a.txt | busybox awk '{ sum += $1 } END { print sum }')"
       F="$(cat config/pack_size.txt | busybox awk '{ sum += $1 } END { print sum }')"

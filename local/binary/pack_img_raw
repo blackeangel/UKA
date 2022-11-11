@@ -18,6 +18,38 @@ size_output_raw() {
     return
 }
 
+if [ "$erof" == "1" ]; then
+    baze_dir=$local_dir/UnpackerSystem/erofs
+    dir_avb=$local_dir/UnpackerSystem/erofs/config/"$pack_d"
+    config="config/$pack_d"
+    img_name=$(cat $local_dir/UnpackerSystem/erofs/"$config"/"$pack_d"*_name.txt)
+elif [ "$erof" == "0" ]; then
+    baze_dir=$local_dir/UnpackerSystem
+    dir_avb=$local_dir/UnpackerSystem/config/"$pack_d"
+    config="config/$pack_d"
+    img_name=$(cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
+fi
+
+. $local_dir/binary/perm_fs
+
+size_obraz="$(busybox cat "$dir_avb"/"$pack_d"_size.txt)"
+if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
+    prop_avb="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
+    part_name_tmp="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt)"
+    if busybox test ! -z "$part_name_tmp"; then
+        part_name="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt | busybox awk '{ print "--partition_name"" "$0 }')"
+    else
+        part_name=""
+    fi
+fi
+
+if [ -f "$dir_avb"/"$pack_d"*_size_avb.txt ]; then
+    offset="$(busybox cat "$dir_avb"/"$pack_d"*_size_avb.txt)"
+    ofsize="$(busybox expr "$offset" / 4096)"
+fi
+
+sed -i '/^$/d' "$config"/"$pack_d"_fs_config 2>/dev/null
+
 my_pack() {
     echo
     echo ".....$build_with_other file_contexts..."
@@ -110,38 +142,6 @@ my_pack() {
         echo
     fi
 }
-
-if [ "$erof" == "1" ]; then
-    baze_dir=$local_dir/UnpackerSystem/erofs
-    dir_avb=$local_dir/UnpackerSystem/erofs/config/"$pack_d"
-    config="config/$pack_d"
-    img_name=$(cat $local_dir/UnpackerSystem/erofs/"$config"/"$pack_d"*_name.txt)
-elif [ "$erof" == "0" ]; then
-    baze_dir=$local_dir/UnpackerSystem
-    dir_avb=$local_dir/UnpackerSystem/config/"$pack_d"
-    config="config/$pack_d"
-    img_name=$(cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
-fi
-
-. $local_dir/binary/perm_fs
-
-size_obraz="$(cat "$dir_avb"/"$pack_d"_size.txt)"
-if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
-    prop_avb="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
-    part_name_tmp="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt)"
-    if busybox test ! -z "$part_name_tmp"; then
-        part_name="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt | busybox awk '{ print "--partition_name"" "$0 }')"
-    else
-        part_name=""
-    fi
-fi
-
-if [ -f "$dir_avb"/"$pack_d"*_size_avb.txt ]; then
-    offset="$(busybox cat "$dir_avb"/"$pack_d"*_size_avb.txt)"
-    ofsize="$(busybox expr "$offset" / 4096)"
-fi
-
-sed -i '/^$/d' "$config"/"$pack_d"_fs_config 2>/dev/null
 
 if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack.sh ]; then
 
@@ -245,5 +245,5 @@ else
     echo ".....$no_folder \""$pack_d"\" $for_building_image_or_file_missing *_pack.sh."
     echo
 fi
-unset erof
+#unset erof
 busybox rm -f ./fs_config ./file_contexts

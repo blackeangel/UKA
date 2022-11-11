@@ -24,7 +24,6 @@ part_num() {
                 break
             elif [ "$REPLY" == "$i" ]; then
                 clear
-                #main_menu
                 return
                 break
             else
@@ -135,7 +134,7 @@ aik_pack() {
     else
         echo
         echo ".....$error_creating_structure AVB"
-        #busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
+        busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
         return
     fi
     return
@@ -350,4 +349,4 @@ sign_image() {
 }
 sign_image
 
-#busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
+busybox rm -f "$avb_dir"/avb.sh "$avb_dir"/avb.img
