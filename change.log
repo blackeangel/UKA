@@ -1,3 +1,10 @@
+✓Изменения в версии 5.15:
+В пункт "Распаковка .img" добавлена распаковка из папки /data/local/UnpackerQfil.
+В пункт "Собрать .img с размером папки для сборки" добавлена сборка всех образов. Введённое свободное место примениться ко всем образам.
+Изменения в коде сборки super.img.
+Исправление при создании структуры AVB у образов не имеющих "partition name".
+При использовании пункта "Извлечение образов из раздела "super" текущей прошивки", образы будут извлекаться из активного слота.
+
 ✓Изменения в версии 5.14:
 Добавлены пункты:
 "Распаковать все образы"
@@ -186,6 +193,14 @@ AIK-mobile можно полностью удалить с телефона пр
 Добавлено меню.
 
 ===============================================================================================
+
+
+✓ Changes in version 5.15:
+Unpacking from the /data/local/UnpackerQfil folder has been added to the "Unpacking .img" item.
+Added assembly of all images to the "Build .img with the size of the folder to build" item. The free space entered applies to all images.
+Changes in super.img assembly code.
+Correction when creating an AVB structure for images that do not have a "partition name".
+When using the item "Extracting images from the "super" section of the current firmware", the images will be extracted from the active slot.
 
 ✓ Changes in version 5.14:
 Items added:
