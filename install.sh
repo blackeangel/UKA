@@ -102,7 +102,7 @@ on_install() {
     [ ! -d /data/local/$folder ] && mkdir -m 755 -p /data/local/$folder
   done
   ui_print "- Creating working files"
-  /data/local/binary/make_ext4fs -l 268435456 /data/local/AIK-mobile/bin/ramdisk.img
+  /data/local/binary/make_ext4fs -l 268435456 /data/local/AIK-mobile/bin/ramdisk.img  >/dev/null
   ui_print "- Unmounting /system, /data, and rootfs"
   mount -o ro,remount "/" 2>/dev/null
   mount -o ro,remount "$sys_mount" 2>/dev/null
