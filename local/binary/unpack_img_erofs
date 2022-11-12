@@ -118,14 +118,14 @@ str_avb() {
         if [ -f "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts ]; then
             busybox cp "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts "$base_dir"/"$config"/${r_name}_file_contexts_orig && sed -i "s!^/!/${r_name}/!" "$base_dir"/"$config"/${r_name}_file_contexts_orig
         fi
-        con_sar #функция для SAR
+        con_sar
         echo ".....Detected image \"System as Root\""
     elif
         [ "$sar" == "false" ]
     then
 
         echo ".....Detected image not \"System as Root\""
-        contet #функция для не SAR
+        contet
     fi
     dir_avb=$local_dir/UnpackerSystem/erofs/config
     q="$(busybox basename $file)"

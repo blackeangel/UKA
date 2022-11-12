@@ -323,7 +323,7 @@ pre_extract() {
                return
             else
                echo
-               echo ".....$extract_error preloder'а!"
+               echo ".....$extract_error preloder!"
                echo
                return
             fi

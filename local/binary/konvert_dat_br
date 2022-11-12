@@ -6,7 +6,7 @@ eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.
 myk() {
     read b
     if [ "$b" -le "7" ]; then
-        echo ".....$convert_to "$file".br...Ждём..."
+        echo ".....$convert_to "$file".br...$waiting..."
         brotli -"$b"f ./"$file"
         echo
     else

@@ -116,7 +116,6 @@ if busybox test -s config/super_config.txt; then
       echo "lpmake --metadata-size="$meta_size" --super-name="$name_super" --metadata-slots="$meta_slot" --device=super:"$size_super":"$first_sector" --group="$group_table2":"$max_size_super2" --group="$group_table3":"$max_size_super3"" >config/pack_super.tmp
     fi
 
-    #переименование образов
     busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }' | busybox grep -E "_a$|_b$" | while read m; do
 
       if [ ! -z "$m" ]; then
@@ -127,7 +126,6 @@ if busybox test -s config/super_config.txt; then
         busybox find -name "${ta}.img" -maxdepth 1 -a ! -name "super*" -type f -exec busybox mv {} "${ta}_a.img" \;
       fi
     done
-    #конец переименования
 
     ttt_sort | while read a; do
 

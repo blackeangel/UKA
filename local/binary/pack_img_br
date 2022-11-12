@@ -72,7 +72,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
         g=$(busybox grep 'ro.build.version.sdk=.*.' $local_dir/UnpackerSystem/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null || g=$(busybox grep 'ro.build.version.sdk=.*.' "$pack_d"/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null
         if [ "$g" -ge "24" ]; then
             echo
-            echo "......$version_found АРI = $g $android_version: $a"
+            echo "......$version_found API = $g $android_version: $a"
             echo
             echo "......$convert_to .dat..."
             echo
@@ -93,7 +93,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
             fi
         elif [ "$g" -eq "21" ]; then
             echo
-            echo "......$version_found АРI = $g $android_version: $a"
+            echo "......$version_found API = $g $android_version: $a"
             echo
             echo "......$convert_to .dat..."
             echo
@@ -114,7 +114,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
             fi
         elif [ "$g" -eq "22" ]; then
             echo
-            echo "......$version_found АРI = $g $android_version: $a"
+            echo "......$version_found API = $g $android_version: $a"
             echo
             echo "......$convert_to .dat..."
             echo
@@ -135,7 +135,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
             fi
         elif [ "$g" -eq "23" ]; then
             echo
-            echo "......$version_found АРI = $g $android_version: $a"
+            echo "......$version_found API = $g $android_version: $a"
             echo
             echo "......$convert_to .dat..."
             echo

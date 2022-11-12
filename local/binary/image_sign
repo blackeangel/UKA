@@ -107,7 +107,7 @@ aik_pack() {
         fi
     else
         size_sign="$size_sign"
-        part_num #Функция
+        part_num
     fi
     size_footer="$(avbtool add_hash_footer --partition_size "$size_sign" --calc_max_image_size)"
     truncate -s "$size_footer" "$file_real"
@@ -158,7 +158,7 @@ search_key() {
             check_alg="$(busybox cat "$avb_dir"/avb.img 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
             if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
                 echo
-                echo ".....Алгоритм: $check_alg"
+                echo ".....$algorithm: $check_alg"
             fi
             echo
             echo ".....$select_key:"

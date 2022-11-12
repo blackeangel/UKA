@@ -21,7 +21,7 @@ myk() {
     echo "$print_size_free"
     busybox rm -f "$file"
   else
-    echo ".....$convert_error_in в .br!"
+    echo ".....$convert_error_in $in1 .br!"
     echo
   fi
   return
@@ -82,7 +82,7 @@ END {print a*b}')"
   elif [ ! -z "$(busybox hexdump -C -n 2000 "$file" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 20000 "$file" | busybox grep -o "30 50 4c 41")" -o ! -z "$(busybox hexdump -C -n 2000 "$file" | busybox awk '/00000400/ { print $2$3$4$5 }' | busybox grep -o "e2e1f5e0")" ]; then
     if busybox test -s "$file"; then
       size_out="$(busybox stat -c %s "$file")"
-      print_size_out="$(echo ".....Размер raw == $size_out байт")"
+      print_size_out="$(echo ".....$size1 raw == $size_out $byte")"
       size_free="$(busybox expr "$(tune2fs -l "$file" 2>/dev/null | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024 2>/dev/null)"
       if [ $(echo $?) -eq 0 ]; then
         print_size_free=$(echo ".....$free_space: $size_free mb")

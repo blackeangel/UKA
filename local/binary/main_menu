@@ -2392,7 +2392,7 @@ main_menu() {
       my_br
       break
       ;;
-    7) #Сборка .img начало +++++++++++++++++
+    7)
 
       dir=$binary_dir
       cd $local_dir/UnpackerSystem
@@ -3347,7 +3347,6 @@ main_menu() {
       my5
       break
       ;;
-      #Конец функции сборка .img
 
     8)
       clear

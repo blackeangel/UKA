@@ -434,7 +434,7 @@ s_atr() {
             if busybox test -s "$config"/"$xx"_d_fff.txt -o -s "$config"/"$xx"_f_fff.txt; then
                   clear
                   echo
-                  echo ".....Добавленное в $xxx:"
+                  echo ".....$added_in $xxx:"
                   echo "                -------             "
                   if [ "$sar" == "true" -a "$xxx" == "$vv" ]; then
                         cat "$config"/"$xx"_d_fff.txt | grep -v "$vv/system"
