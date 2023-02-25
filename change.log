@@ -1,3 +1,14 @@
+✓Тестовая версия 5.17:
+Добавлен пункт замены публичного ключа в boot/recovery/vbmeta(11 -> 1 -> 5).
+Т.е можно,, извлечь публичный ключ AVB, например, из стокового boot.img, это будет стоковый ключ.
+Потом, используя пункт замены ключа, можно внедрить в ранее перепакованный boot.img, этот стоковый ключ.
+Будет актуально для тех образов, у которых в vbmeta проверяется только public key.
+Также при перепаковке boot/recovery автоматически будет сохранятся тот публичный ключ, который был в образе на момент распаковки.
+
+✓Тестовая версия 5.16:
+Добавлена распаковка super.img сжатого в .zst.
+Исправил найденные ошибки.
+
 ✓Изменения в версии 5.15:
 В пункт "Распаковка .img" добавлена распаковка из папки /data/local/UnpackerQfil.
 В пункт "Собрать .img с размером папки для сборки" добавлена сборка всех образов. Введённое свободное место примениться ко всем образам.
@@ -194,6 +205,17 @@ AIK-mobile можно полностью удалить с телефона пр
 
 ===============================================================================================
 
+
+✓Test version 5.17:
+Added item to replace public key in boot/recovery/vbmeta(11 -> 1 -> 5).
+That is, you can extract the AVB public key, for example, from the stock boot.img, this will be the stock key.
+Then, using the key replacement item, you can embed this stock key into the previously repackaged boot.img.
+It will be relevant for those images for which only the public key is checked in vbmeta.
+Also, when repacking boot / recovery, the public key that was in the image at the time of unpacking will be automatically saved.
+
+✓Test version 5.16:
+Added unpacking super.img compressed to .zst.
+Fixed found errors.
 
 ✓ Changes in version 5.15:
 Unpacking from the /data/local/UnpackerQfil folder has been added to the "Unpacking .img" item.

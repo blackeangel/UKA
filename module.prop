@@ -1,7 +1,7 @@
 id=UKA
 name=Unpacker Kitchen for Android (UKA)
-version=V5.15
-versionCode=515
+version=V5.17
+versionCode=517
 author=kory-vadim
 description=Kitchen for unpacking, assembling and converting ROM files
 updateJson=https://raw.githubusercontent.com/blackeangel/UKA/main/update.json
