@@ -15,6 +15,7 @@ exten=${r##*.}
 
 super_dir=$local_dir/UnpackerSuper
 opla=$(busybox hexdump -C -n 20000 "$file" | busybox grep -o "30 50 4c 41")
+zst=$(busybox hexdump -C -n 2000 "$file" | busybox grep -o "28 b5 2f fd")
 erofs="$(busybox hexdump -C -n 2000 "$file" | busybox grep -o 'e2 e1 f5 e0')"
 sparse_super=$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")
 
@@ -37,7 +38,7 @@ erfs() {
       if [ $(echo $?) -eq 0 ]; then
         busybox tar -xf erofs.tar -C $local_dir/UnpackerSystem
         echo
-        echo "\033[33;1m.....$successfully_unpacked! \033[0m"
+        echo -e "\033[33;1m.....$successfully_unpacked! \033[0m"
         echo
       else
         echo
@@ -150,12 +151,12 @@ super() {
     if [ $(echo $?) -eq 0 ]; then
       mkdir "$super_dir"/config 2>/dev/null
       lpdump --slot=0 "$super_dir"/super.raw.img >"$super_dir"/config/super_config.txt
-      lpdump --slot=1 "$file" >"$super_dir"/config/super_config1.txt
+      lpdump --slot=1 "$super_dir"/super.raw.img >"$super_dir"/config/super_config1.txt
 
       super_space
 
       echo
-      echo "\033[33;1m.....$images_successfully_extracted_to_folder: $super_dir \033[0m"
+      echo -e "\033[33;1m.....$images_successfully_extracted_to_folder: $super_dir \033[0m"
       echo
     else
       echo
@@ -200,7 +201,7 @@ super() {
       super_space
 
       echo
-      echo "\033[33;1m.....$images_successfully_extracted_to_folder: $super_dir \033[0m"
+      echo -e "\033[33;1m.....$images_successfully_extracted_to_folder: $super_dir \033[0m"
       echo
 
     else
@@ -210,6 +211,46 @@ super() {
       unset real_slot
     fi
     return
+  fi
+  return
+}
+
+zst_my() {
+  if [ ! -z "$zst" ]; then
+    echo
+    echo ".....$image_defined_as .zst"
+    echo
+    echo ".....$converting $file(zst) -> $super_dir/super.tmp.img..."
+    echo
+
+    for clean_file in $(busybox find /data/local/UnpackerSuper/* -maxdepth 1 ! -name "super*" -a ! -name "output" 2>/dev/null); do
+      opla_file=$(busybox hexdump -C -n 20000 "$clean_file" 2>/dev/null | busybox grep -o "30 50 4c 41")
+      if [ -z "$opla_file" ]; then
+        busybox rm -rf $clean_file
+      fi
+    done
+
+    busybox mv "$file" ${file}.zst && file=${file}.zst
+    if [ -z "$(getprop ro.product.cpu.abilist64)" ]; then
+      echo
+      zstd32 -df "$file" -o "$super_dir"/super.tmp.img
+    else
+      zstd64 -df "$file" -o "$super_dir"/super.tmp.img
+    fi
+
+    if [ $(echo $?) -eq 0 ]; then
+      file_orig="$(echo "$file" | busybox sed 's!.zst!!')"
+      busybox mv "$file" "$file_orig"
+
+      file="$super_dir"/super.tmp.img
+      opla=$(busybox hexdump -C -n 20000 "$file" | busybox grep -o "30 50 4c 41")
+      sparse_super=$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")
+    fi
+
+  else
+    echo
+    echo ".....$convert_error!"
+    echo
   fi
   return
 }
@@ -251,24 +292,26 @@ gg() {
   busybox find "$r_name" -type l | busybox sed 's!$!_l!' >>"$config"/"$r_name"_f.txt
   busybox find "$r_name" -type l | busybox xargs busybox tar -cf "$config"/"$r_name"_sim.tar
 }
-
-if [ ! -z "$opla" ]; then
+if [ ! -z "$zst" ]; then
+  zst_my
+  super
+elif [ ! -z "$opla" ]; then
   super
 elif [ ! -z "$erofs" -a -z "$sparse_super" ]; then
   if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
     echo
-    echo "\033[33;1m.....$file $has_file_system erofs!\033[0m"
+    echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
 
     . unpack_img_erofs
   else
     echo
-    echo "\033[33;1m.....$file $has_file_system erofs!\033[0m"
+    echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
     erfs
   fi
 elif [ ! -z "$erofs" -a ! -z "$sparse_super" ]; then
   file_raw="/$nd"/"$r_name".raw.img
   echo
-  echo "\033[33;1m.....$file $has_file_system erofs!\033[0m"
+  echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
   echo
   echo ".....$converting "$file" -> "$file_raw"..."
 
@@ -423,9 +466,7 @@ else
 
           echo ".....Detected image \"System as Root\""
 
-        elif
-          [ "$sar" == "false" ]
-        then
+        elif [ "$sar" == "false" ]; then
 
           echo ".....Detected image not \"System as Root\""
           contet
@@ -482,7 +523,7 @@ else
 
       if [ ! -z "$h" ]; then
         echo
-        echo "\033[33;1m.....$successfully_unpacked! \033[0m"
+        echo -e "\033[33;1m.....$successfully_unpacked! \033[0m"
         echo
         echo "...$in_image "${file}" $there_files_with_spaces_fix..."
         echo "$h" >"$config"/"$r_name"_space.txt
@@ -500,13 +541,13 @@ else
         fi
       else
         echo
-        echo "\033[33;1m.....$successfully_unpacked! \033[0m"
+        echo -e "\033[33;1m.....$successfully_unpacked! \033[0m"
         echo
       fi
 
     else
       echo
-      echo "\033[31;47;1m   .....$unpacking_error!              \033[0m"
+      echo -e "\033[31;47;1m   .....$unpacking_error!              \033[0m"
       echo
       busybox rm -f "$config"/"$r_name"
     fi

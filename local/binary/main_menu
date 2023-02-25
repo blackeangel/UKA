@@ -1,5 +1,5 @@
 #!/system/bin/sh
-program_version="5.15"
+program_version="5.17"
 clear
 local_dir="/data/local"
 binary_dir="$local_dir/binary"
@@ -317,7 +317,8 @@ check_size_img() {
 
 ext_check() {
   file_ext="$1"
-  if [ ! -z "$(busybox hexdump -C -n 20000 "$file_ext" | busybox grep -Eo '3a ff 26 ed|30 50 4c 41|4d 4f 54 4f|e2 e1 f5 e0' 2>/dev/null)" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox grep -o "[.]cms" 2>/dev/null)" ]; then
+
+  if [ ! -z "$(busybox hexdump -C -n 20000 "$file_ext" | busybox grep -Eo '3a ff 26 ed|30 50 4c 41|4d 4f 54 4f|e2 e1 f5 e0|28 b5 2f fd' 2>/dev/null)" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 2000 "$file_ext" | busybox grep -o "[.]cms" 2>/dev/null)" ]; then
     return 0
   else
     return 1
@@ -865,9 +866,7 @@ main_menu() {
                           lz4 -df "$file"
                           ./unpackimg.sh "$outfile" && aik_avb "$outfile"
 
-                        elif
-                          [ ! -z "$(echo "$file" | busybox grep ".sin$")" ]
-                        then
+                        elif [ ! -z "$(echo "$file" | busybox grep ".sin$")" ]; then
                           name_sin="$(echo "$file" | busybox sed 's!\.sin$!!')"
                           sony_dump "$PWD" "$file" | tee "$name_sin"_sin.log
 
@@ -879,7 +878,7 @@ main_menu() {
                           fi
 
                         else
-                          ./unpackimg.sh "$file" && aik_avb "$file"
+                          ./unpackimg.sh "$file" && aik_avb "$file" && . $binary_dir/extract_key "$file"
                         fi
                         main_menu
                         return
@@ -922,7 +921,8 @@ main_menu() {
             2)
               clear
               aik_pack() {
-                pack_file="$1"
+                pack_file="$(echo "$1" | busybox sed 's!./!!')"
+
                 avb_dir=$local_dir/AIK-mobile/split_img
                 if busybox test -s "$avb_dir"/avb.img; then
                   size_orig="$(busybox cat "$avb_dir"/avb_size.txt)"
@@ -947,10 +947,14 @@ main_menu() {
                     esac
                   fi
                   echo "avbtool add_hash_footer --image "$pack_file" --partition_size "$size_orig" "$prop_avb"--partition_name "$part_name" "$sign_print" "$sign_file"" >"$avb_dir"/avb.sh
-                  chmod 755 "$avb_dir"/avb.sh && "$avb_dir"/avb.sh && busybox rm -f "$avb_dir"/avb.sh
+                  chmod 755 "$avb_dir"/avb.sh && "$avb_dir"/avb.sh
                   if [ $(echo $?) -eq 0 ]; then
                     echo
                     echo ".....$created_min_structure AVB!"
+                    r="$(busybox realpath "$pack_file")"
+                    nd=${r%/*}
+
+                    . $binary_dir/remove_key "$pack_file" "$avb_dir"/*_pubkey.pem
                   else
                     echo
                     echo ".....$error_creating_structure AVB!"
@@ -961,7 +965,7 @@ main_menu() {
 
                     size_mb="$(busybox expr "$size_img" / 1024 / 1024)"
                   fi
-                  if [ ! -z "$(echo "$size_mb" | busybox grep -Eo "6|16|32|35|40|54|64|96|128")" ]; then
+                  if [ ! -z "$(echo "$size_mb" | busybox grep -Eow "6|16|32|35|40|54|64|96|128")" ]; then
                     size_orig="$(busybox expr "$size_mb" \* 1024 \* 1024)"
                     busybox truncate -s "$size_orig" "$pack_file" 2>/dev/null
                   fi
@@ -1357,9 +1361,9 @@ main_menu() {
       qqq() {
         free_space="$(busybox df -h "$PWD" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
         free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-        echo "\033[33;1m...$in /${nd} $free: $free_space \033[0m"
+        echo -e "\033[33;1m...$in /${nd} $free: $free_space \033[0m"
         if [ "$free_space" != "$free_data" ]; then
-          echo "\033[33;1m...$in /data $free: $free_data \033[0m"
+          echo -e "\033[33;1m...$in /data $free: $free_data \033[0m"
         fi
         return
       }
@@ -1382,7 +1386,7 @@ main_menu() {
 
         echo
         echo ".....$image_search..."
-        v=$(busybox find . -maxdepth 1 -name '*.img' -o -name '*.PARTITION' -type f -o -name '*.sin' -type f | busybox sed 's!./!!' | while read a; do
+        v=$(busybox find . -maxdepth 1 -name '*.img' -o -name '*.zst' -o -name '*.PARTITION' -type f -o -name '*.sin' -type f | busybox sed 's!./!!' | while read a; do
 
           ext_check $a
 
@@ -1429,7 +1433,7 @@ main_menu() {
                 for bin in "$@"; do
                   if [ ! -z "$(busybox hexdump -C -n 20000 /"$nd"/"$bin" | busybox grep -o "30 50 4c 41")" -a "$nd" == "$local_dir/UnpackerSuper" ]; then
                     echo
-                    echo "\033[33;1m.....$missed_unboxing "$bin" \033[0m"
+                    echo -e "\033[33;1m.....$missed_unboxing "$bin" \033[0m"
                     unset file
                     continue
                   else
@@ -1487,7 +1491,7 @@ main_menu() {
 
           dir_dat=$binary_dir
           nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!') && echo "$nd" >$binary_dir/last.txt
-          v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -o -name '*.sin' -o -name '*.PARTITION' -type f -o -iname "*super" -type l | busybox sed 's!./!!'); do
+          v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -o -name '*.zst' -o -name '*.sin' -o -name '*.PARTITION' -type f -o -iname "*super" -type l | busybox sed 's!./!!'); do
 
             ext_check $a
 
@@ -1534,7 +1538,7 @@ main_menu() {
                   for bin in "$@"; do
                     if [ ! -z "$(busybox hexdump -C -n 20000 /"$nd"/"$bin" | busybox grep -o "30 50 4c 41")" -a "$nd" == "$local_dir/UnpackerSuper" ]; then
                       echo
-                      echo "\033[33;1m.....$missed_unboxing "$bin" \033[0m"
+                      echo -e "\033[33;1m.....$missed_unboxing "$bin" \033[0m"
                       unset file
                       continue
                     else
@@ -2409,9 +2413,9 @@ main_menu() {
       qqq_space() {
         free_space="$(busybox df -h "$outdir" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
         free_data="$(busybox df -h /data | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
-        echo "\033[33;1m...$in $outdir $free: $free_space \033[0m"
+        echo -e "\033[33;1m...$in $outdir $free: $free_space \033[0m"
         if [ "$free_space" != "$free_data" ]; then
-          echo "\033[33;1m...$in /data $free: $free_data \033[0m"
+          echo -e "\033[33;1m...$in /data $free: $free_data \033[0m"
         fi
         return
       }
@@ -2990,10 +2994,10 @@ main_menu() {
                       nn
                       mkdir $local_dir/UnpackerSystem/erofs 2>/dev/null
                       cd $local_dir/UnpackerSystem/erofs
-                      pack_img_raw_new
+                      pack_img_new
                     else
                       echo
-                      echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4\" $not_supported_on_32bit_firmware!"
+                      echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4)\" $not_supported_on_32bit_firmware!"
                       echo
                       main_menu
                     fi
@@ -3024,7 +3028,7 @@ main_menu() {
               clear
               raw_s() {
                 echo
-                select img in "$build .img(sparse) $with_original_size" "$build .img(sparse) $with_image_size_input" "$build .img(sparse) $with_build_folder_size" "$build .img(sparse)(erofs $in1 ext4)" "$exit_main_menu" "$close_program"; do
+                select img in "$build .img(raw) $with_original_size" "$build .img(raw) $with_image_size_input" "$build .img(raw) $with_build_folder_size" "$build .img(raw)(erofs $in1 ext4)" "$exit_main_menu" "$close_program"; do
                   case $REPLY in
                   1)
                     clear
@@ -3062,7 +3066,7 @@ main_menu() {
                       pack_img_new
                     else
                       echo
-                      echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4\" $not_supported_on_32bit_firmware!"
+                      echo ".....$menu_item_operation: \"$build .img(raw)(erofs $in1 ext4)\" $not_supported_on_32bit_firmware!"
                       echo
                       main_menu
                     fi
@@ -3856,9 +3860,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ....."$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 konv_img
                 return
@@ -3900,7 +3904,7 @@ main_menu() {
             clear
             read_avb() {
               echo
-              select img in "$patch vbmeta" "$viewing_structure AVB $file1" "$extracting_public_key AVB" "$create_your_signature_key AVB" "$signature boot(recovery).img $with_choice_key" "$exit_main_menu" "$close_program"; do
+              select img in "$patch vbmeta" "$viewing_structure AVB $file1" "$extracting_public_key AVB" "$create_your_signature_key AVB" "$replace_pablic_key boot/recovery/vbmeta" "$signature boot(recovery).img $with_choice_key" "$exit_main_menu" "$close_program"; do
                 case $REPLY in
                 1)
                   clear
@@ -4234,23 +4238,24 @@ main_menu() {
                           rs="$(echo "$file" | busybox sed 's!RSA!!')"
                           out_gen_key=$local_dir/UnpackerSystem/gen_keys
                           mkdir "$out_gen_key" 2>/dev/null
+                          time="$(busybox date +%H_%M_%S)"
                           clear
                           echo
-                          echo ".....$creating_keys ${file}_private.pem $and "$file"_pubkey.pem..."
+                          echo ".....$creating_keys ${file}_${time}_private.pem $and ${file}_${time}_pubkey.pem..."
 
-                          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:"$rs" -outform PEM -out "$out_gen_key"/"$file"_private.pem &>/dev/null
+                          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:"$rs" -outform PEM -out "$out_gen_key"/"$file"_${time}_private.pem &>/dev/null
                           if [ $(echo $?) -eq 0 ]; then
 
                             echo
-                            echo ".....$successfully_created "$file"_private.pem "
-                            echo ".....$saved: "$out_gen_key"/"$file"_private.pem"
+                            echo ".....$successfully_created "$file"_${time}_private.pem "
+                            echo ".....$saved: "$out_gen_key"/"$file"_${time}_private.pem"
 
-                            avbtool extract_public_key --key "$out_gen_key"/"$file"_private.pem --output "$out_gen_key"/"$file"_pubkey.pem
+                            avbtool extract_public_key --key "$out_gen_key"/"$file"_${time}_private.pem --output "$out_gen_key"/"$file"_${time}_pubkey.pem
                             if [ $(echo $?) -eq 0 ]; then
                               sleep 1
                               echo
-                              echo ".....$successfully_created "$file"_pubkey.pem"
-                              echo ".....$saved: "$out_gen_key"/"$file"_pubkey.pem"
+                              echo ".....$successfully_created "$file"_${time}_pubkey.pem"
+                              echo ".....$saved: "$out_gen_key"/"$file"_${time}_pubkey.pem"
                               echo
                             fi
                           fi
@@ -4286,15 +4291,20 @@ main_menu() {
                   ;;
                 5)
                   clear
-                  . image_sign
+                  . $binary_dir/rem_key
                   break
                   ;;
                 6)
                   clear
-                  main_menu
+                  . image_sign
                   break
                   ;;
                 7)
+                  clear
+                  main_menu
+                  break
+                  ;;
+                8)
                   clear
                   break
                   ;;
@@ -5355,9 +5365,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 rokchip_extract
                 return

@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
-err() {
-	echo ""
+err(){
+  echo ""
 	echo "sdat2img - for android"
 	echo ""
 	echo "Usage: go to the folder [path][dir] where the <system.new.dat> and <system.transfer.list> is located.
@@ -12,14 +12,14 @@ err() {
 }
 
 if [ "$1" = "" ]; then
-	err
-	exit
+err
+exit
 elif [ "$2" = "" ]; then
-	err
-	exit
+err
+exit
 elif [ "$3" = "" ]; then
-	err
-	exit
+err
+exit
 fi
 
 python39 /data/local/python39/sdat2img.py "$1" "$2" "$3"

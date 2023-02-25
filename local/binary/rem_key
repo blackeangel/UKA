@@ -1,0 +1,283 @@
+#!/system/bin/sh
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
+key_r() {
+    file="$1"
+    file_key="$2"
+
+    out_extract_key=$local_dir/UnpackerSystem
+
+    if busybox test -s "$file"; then
+        check_alg="$(avbtool info_image --image "$file" 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+
+        if busybox test "$check_alg" != "NONE" -a ! -z "$check_alg"; then
+
+            echo
+            echo ".....$replacing_key..."
+            echo
+
+            r="$(busybox basename $file)"
+
+            f_name=${r%.*}
+
+            offset_avb="$(python39 $local_dir/binary/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
+
+            if busybox test "$offset_avb" != "None"; then
+
+                size_magic="$(avbtool info_image --image "$file" | busybox awk '/Header Block:/ { print $3 }')"
+
+                size_ayten="$(avbtool info_image --image "$file" | busybox awk '/Authentication Block:/ { print $3 }')"
+
+                xxx="$(busybox expr "$offset_avb" \+ 64)"
+                offset_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+
+                xxx="$(busybox expr "$offset_avb" \+ 72)"
+
+                size_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+                size_new_key="$(busybox stat -c %s "$file_key")"
+                real_offset_key="$(busybox expr "$offset_avb" \+ "$size_magic" \+ "$size_ayten" \+ "$offset_key")"
+
+                real_size_key="$(busybox expr "$real_offset_key" \+ "$size_key")"
+
+                if busybox test "$size_key" == "$size_new_key"; then
+
+                    busybox dd if="$file" of="$out_extract_key"/boot_1.tmp bs="$real_offset_key" count=1 &>/dev/null
+
+                    busybox dd if="$file" of="$out_extract_key"/boot_2.tmp bs="$real_size_key" skip=1 &>/dev/null
+
+                    busybox cat "$out_extract_key"/boot_1.tmp "$file_key" "$out_extract_key"/boot_2.tmp >/"$nds"/"$f_name"_key.img
+
+                    check_new_alg="$(avbtool info_image --image /"$nds"/"$f_name"_key.img 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+
+                    sha11="$(avbtool info_image --image "$file" | busybox awk '/^Public key \(sha1\):/ { print $4}')"
+
+                    sha12="$(avbtool info_image --image /"$nds"/"$f_name"_key.img | busybox awk '/^Public key \(sha1\):/ { print $4}')"
+
+                    if [ ! -z "$sha11" -a ! -z "$sha12" ]; then
+
+                        echo ".....$successfully_created /"$nds"/"$f_name"_key.img $with_public_key: $file_key"
+                        echo
+                        echo ".....Algorithm: $check_new_alg"
+
+                        echo ".....sha1 public key: $sha12"
+                        echo
+                    else
+                        echo ".....$error_change_key!"
+                        echo
+                    fi
+                else
+                    echo
+                    echo ".....$error_key_sizes_dont_match!"
+                    echo
+                fi
+            else
+                echo
+                echo ".....$error_not_found offset AVB0"
+                echo
+            fi
+        else
+            echo
+            echo ".....$file $file $not_signed!"
+            echo
+        fi
+    else
+        echo
+        echo ".....$no_file_to_process!"
+        echo
+    fi
+    busybox rm -f "$out_extract_key"/boot_1.tmp "$out_extract_key"/boot_2.tmp "$out_extract_key"/avb.img
+    return
+}
+
+search_key() {
+    echo
+    echo ".....Algorithm: $(avbtool info_image --image "$file" 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+    echo
+    echo ".....$go_folder_where_public_key_located: cd /sdcard"
+    read b && $b
+    if [ $(echo $?) -eq 0 ]; then
+        clear
+        nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
+        echo
+        echo ".....$finding_keys..."
+
+        v=$(for a in $(busybox find -maxdepth 1 -name "*.pem" -size -8k -type f); do
+            echo "$a"
+        done)
+
+        set -- $v
+
+        if [ ! -z "$v" ]; then
+            clear
+            check_alg="$(busybox cat "$avb_dir"/avb.img 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+            if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+                echo
+                echo ".....Algorithm: $check_alg"
+            fi
+            echo
+            echo ".....$select_key:"
+            echo
+            select menu in $v "$exit_main_menu"; do
+                case $REPLY in
+                [1-9]*)
+                    i="$#"
+                    j="$#"
+                    let i=i+1
+                    let j=j+2
+                    file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+                    if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                        clear
+                        name_key="$(echo "$file" | busybox sed 's!^\./!!')"
+                        file_key=/"$nd"/"$name_key"
+
+                        key_r "$file_real" "$file_key"
+                        return
+                        break
+                    elif [ "$REPLY" == "$i" ]; then
+                        clear
+                        return
+                        break
+                    else
+                        clear
+                        echo
+                        echo "      $anykey."
+                        search_key
+                        return
+                        break
+                    fi
+                    break
+                    ;;
+                *)
+                    clear
+                    echo
+                    echo "      $anykey"
+                    search_key
+                    return
+                    break
+                    ;;
+                esac
+            done
+        else
+            clear
+            echo
+            echo ....."$in_folder1 \"/$nd\" $no_matching_keys_to_sign."
+            echo
+            return
+        fi
+        echo
+    else
+        echo
+        echo ".....$error_enter_dir!"
+        echo
+        echo ".....$enter_directory_correctly!"
+        echo
+        search_key
+        return
+    fi
+    return
+}
+
+sel_img() {
+    echo
+    echo "         $public_key_replacement     "
+
+    echo
+    echo "..$go_folder_where_files_located \".img\" $for_replacement, $for_example: cd /sdcard"
+    read b && $b
+    if [ $(echo $?) -eq 0 ]; then
+        clear
+        nds=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
+        echo
+        echo ".....$file_search..."
+
+        v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -type f | busybox sed 's!./!!'); do
+            if [ ! -z "$(busybox hexdump -C -n 4500 "$a" 2>/dev/null | busybox grep -Eo '41 4e 44 52 4f 49 44 21|41 56 42 30 ')" ]; then
+                echo "$a"
+            fi
+        done)
+
+        set -- $v
+
+        if [ ! -z "$v" ]; then
+            clear
+            echo
+            echo ".....$select_file:"
+            echo
+            select menu in $v "$exit_main_menu" "$close_program"; do
+                case $REPLY in
+                [1-9]*)
+                    i="$#"
+                    j="$#"
+                    let i=i+1
+                    let j=j+2
+                    file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+                    if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                        clear
+                        file=/"$nds"/"$file"
+                        file_real="$file"
+                        avb_dir=$local_dir/UnpackerSystem
+                        if busybox test "$(avbtool info_image --image "$file" 2>/dev/null)"; then
+
+                            avbtool info_image --image "$file" >"$avb_dir"/avb.img
+
+                        fi
+                        search_key
+                        busybox rm -f $local_dir/UnpackerSystem/avb.img
+                        main_menu
+                        return
+                        break
+                    elif [ "$REPLY" == "$i" ]; then
+                        clear
+                        main_menu
+                        return
+                        break
+                    elif [ "$REPLY" == "$j" ]; then
+                        clear
+                        return
+                        break
+                    else
+                        clear
+                        echo
+                        echo "      $anykey."
+                        sel_img
+                        return
+                        break
+                    fi
+                    break
+                    ;;
+                *)
+                    clear
+                    echo
+                    echo "      $anykey."
+                    sel_img
+                    return
+                    break
+                    ;;
+                esac
+            done
+        else
+            clear
+            echo
+            echo ....."$in_folder1 \"/$nd\" $no_files \".img\" $for_signature."
+            echo
+            main_menu
+            return
+        fi
+        echo
+    else
+        echo
+        echo ".....$error_enter_dir"
+        echo
+        echo ".....$enter_directory_correctly!"
+        echo
+        sel_img
+        return
+    fi
+    return
+}
+sel_img
+
+busybox rm -f "$out_extract_key"/boot_1.tmp "$out_extract_key"/boot_2.tmp "$out_extract_key"/avb.img
+unset xxx

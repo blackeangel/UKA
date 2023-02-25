@@ -1,3 +1,4 @@
 #!/system/bin/sh
-python39 /data/local/python39/usr/bin/sefparse "$@"
+
+ python39 /data/local/python39/usr/bin/sefparse "$@"
 

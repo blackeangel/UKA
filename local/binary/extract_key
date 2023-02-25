@@ -3,17 +3,23 @@
 local_dir="/data/local"
 eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
 #############################
-out_extract_key=$local_dir/UnpackerSystem/extract_keys
-busybox mkdir "$out_extract_key" 2>/dev/null
+
+if [ "$aik_mob" == "1" ]; then
+    out_extract_key=$local_dir/AIK-mobile/split_img
+else
+    out_extract_key=$local_dir/UnpackerSystem/extract_keys
+    busybox mkdir "$out_extract_key" 2>/dev/null
+fi
 
 if busybox test -s "$file"; then
     check_alg="$(avbtool info_image --image "$file" 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
     if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
         echo
         echo ".....Algorithm: $check_alg"
-        f_name="$(echo "$file" | busybox awk -F"." '{ print $1 }')"
+        r="$(busybox basename $file)"
+        f_name=${r%.*}
         offset_avb="$(python39 $local_dir/binary/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
-          if [ "$offset_avb" != "None" ]; then
+        if [ "$offset_avb" != "None" ]; then
             size_magic="$(avbtool info_image --image "$file" | busybox awk '/Header Block:/ { print $3 }')"
             size_ayten="$(avbtool info_image --image "$file" | busybox awk '/Authentication Block:/ { print $3 }')"
             xxx="$(busybox expr "$offset_avb" \+ 64)"
@@ -24,15 +30,22 @@ if busybox test -s "$file"; then
             of_hex="$(printf "%x\n" "$real_offset_key")"
             xxd -ps -s 0x"$of_hex" -l "$size_key" "$file" | xxd -r -ps >"$out_extract_key"/"$f_name"_pubkey.pem
             if [ $(echo $?) -eq 0 -a -s "$out_extract_key"/"$f_name"_pubkey.pem ]; then
-                echo
-                echo ".....$key_successfully_extracted!"
-                echo ".....$saved: "$out_extract_key"/"$f_name"_pubkey.pem"
-                sha_sum="$(busybox sha1sum "$out_extract_key"/"$f_name"_pubkey.pem | busybox awk '{ print $1 }')"
-                echo ".....sha1:  $sha_sum"
-                echo
+                if [ "$aik_mob" != "1" ]; then
+                    echo
+                    echo ".....$key_successfully_extracted!"
+                    echo ".....$saved: "$out_extract_key"/"$f_name"_pubkey.pem"
+                    sha_sum="$(busybox sha1sum "$out_extract_key"/"$f_name"_pubkey.pem | busybox awk '{ print $1 }')"
+                    echo ".....sha1:  $sha_sum"
+                    echo
+                else
+                    sha_sum="$(busybox sha1sum "$out_extract_key"/"$f_name"_pubkey.pem | busybox awk '{ print $1 }')"
+                    echo ".....sha1 public key:  $sha_sum"
+                    echo
+                fi
             else
                 echo ".....$key_extraction_error!"
                 echo
+
             fi
         else
             echo
@@ -40,9 +53,18 @@ if busybox test -s "$file"; then
             echo
         fi
     else
-        echo
-        echo ".....$file /$nd/$file $not_signed!"
-        echo
+        if busybox test "$aik_mob" != "1"; then
+            echo
+            echo ".....$file /$nd/$file $not_signed!"
+            echo
+        else
+            if busybox test ! -z "$(avbtool info_image --image "$file" 2>/dev/null | busybox grep -o "Image size")"; then
+                r="$(busybox realpath "$file")"
+                echo
+                echo ".....$file $r $not_signed!"
+                echo
+            fi
+        fi
     fi
 else
     echo
@@ -51,3 +73,4 @@ else
 fi
 
 unset xxx
+unset aik_mob

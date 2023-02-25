@@ -8,7 +8,7 @@ clear
 size_output_sparse() {
   if busybox test -s "$outdir"/"$pack_d".new.img; then
     echo
-    echo "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"
+    echo -e "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"
     echo
     size_out="$(xxd -e -s 0xC -l 8 "$outdir"/"$pack_d".new.img | busybox awk '{a="0x"$2; b="0x"$3} {print a*b}')"
     xxd -ps -s 0x28 -l 65536 "$outdir"/"$pack_d".new.img | xxd -r -ps >"$pack_d".size.img
@@ -16,8 +16,8 @@ size_output_sparse() {
     busybox rm -f "$pack_d".tmp.img "$pack_d".size.img
     echo "$size_out" >"$config"/"$pack_d"_size_out.txt
     if [ "$check_dat" != "222" ]; then
-      echo "\033[33;1m.....$size1 raw == $size_out $byte\033[0m"
-      echo "\033[33;1m.....$free_space: $size_free mb\033[0m"
+      echo -e "\033[33;1m.....$size1 raw == $size_out $byte\033[0m"
+      echo -e "\033[33;1m.....$free_space: $size_free mb\033[0m"
       echo
     fi
   fi
@@ -89,7 +89,7 @@ my_pack() {
         if [ $(echo $?) -eq 0 ]; then
           echo
           echo ".....$structure_creation AVB..."
-          #echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
           echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
           chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
           if [ $(echo $?) -eq 0 ]; then
@@ -121,7 +121,6 @@ my_pack() {
         if [ $(echo $?) -eq 0 ]; then
           echo
           echo ".....$structure_creation AVB..."
-          #echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
           echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
           chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
           if [ $(echo $?) -eq 0 ]; then
@@ -175,7 +174,6 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           if [ $(echo $?) -eq 0 ]; then
             echo
             echo ".....$structure_creation AVB..."
-            #echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
             echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
             if [ $(echo $?) -eq 0 ]; then
@@ -207,7 +205,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           if [ $(echo $?) -eq 0 ]; then
             echo
             echo ".....$structure_creation AVB..."
-            #echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" --partition_name "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
             echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
             if [ $(echo $?) -eq 0 ]; then
@@ -250,5 +248,4 @@ else
   echo ".....$no_folder \""$pack_d"\" $for_building_image_or_file_missing *_pack_sparse.sh."
   echo
 fi
-#unset erof
 busybox rm -f ./file_contexts ./fs_config

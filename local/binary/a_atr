@@ -276,138 +276,6 @@ ff_files() {
       fi
       return
 }
-
-my_enter() {
-      echo
-      select img in "$entering_attributes" "$back_entering_folders" "$exit_main_menu"; do
-            case $REPLY in
-            1)
-                  clear
-
-                  if [ "$sar" == "true" -a "$xxx" == "$vv" ]; then
-                        if [ ! -z "$(cat "$config"/"$xx"_d_fff.txt | busybox grep -v "$vv/system" | busybox grep '_d$')" ]; then
-                              ff_dirs
-                              return
-                        else
-                              attr
-                              ff_files
-                              return
-                        fi
-                  else
-                        if [ ! -z "$(cat "$config"/"$xx"_d_fff.txt | busybox grep '_d$')" ]; then
-                              ff_dirs
-                              return
-                        else
-                              attr
-                              ff_files
-                              return
-                        fi
-                        return
-                  fi
-                  return
-
-                  break
-                  ;;
-            2)
-                  clear
-                  s_atr
-                  return
-                  break
-                  ;;
-            3)
-                  clear
-                  main_menu
-                  return
-                  break
-                  ;;
-            *)
-                  clear
-                  echo
-                  echo "      $anykey"
-                  echo
-                  my_enter
-                  break
-                  ;;
-            esac
-      done
-      echo
-      return
-}
-
-my_read() {
-      echo
-      echo ".....$write_to "$xx"_fs_config?"
-      echo
-      select img in "$write_and_continue" "$write_delete_temporary_file_and_exit" "$dont_write_continue" "$dont_write_delete_temporary_file_and_exit"; do
-            case $REPLY in
-            1)
-                  clear
-
-                  cat "$config"/"$xx"_ffff.txt >>"$config"/"$xx"_fs_config
-
-                  cat "$config"/"$xx"_ffff.txt | while read a b c d; do
-                        busybox grep "$a " "$config"/"$xx"_fs_config | while read real_fs; do
-                              if [ ! -z "$real_fs" ]; then
-                                    busybox sed -i "s!$real_fs!$a $b $c $d!" "$config"/"$xx"_fs_config
-                              fi
-                        done
-                  done
-
-                  busybox awk '!($0 in a) {a[$0];print}' "$config"/"$xx"_fs_config >"$config"/"$xx"_conf.tmp && busybox mv -f "$config"/"$xx"_conf.tmp "$config"/"$xx"_fs_config
-
-                  busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
-                  echo
-                  echo ".....$written_in "$config"/"$xx"_fs_config."
-                  echo
-                  ttt
-                  break
-                  ;;
-            2)
-                  clear
-
-                  cat "$config"/"$xx"_ffff.txt >>"$config"/"$xx"_fs_config
-
-                  cat "$config"/"$xx"_ffff.txt | while read a b c d; do
-                        busybox grep "$a " "$config"/"$xx"_fs_config | while read real_fs; do
-                              if [ ! -z "$real_fs" ]; then
-                                    busybox sed -i "s!$real_fs!$a $b $c $d!" "$config"/"$xx"_fs_config
-                              fi
-                        done
-                  done
-
-                  busybox awk '!($0 in a) {a[$0];print}' "$config"/"$xx"_fs_config >"$config"/"$xx"_conf.tmp && busybox mv -f "$config"/"$xx"_conf.tmp "$config"/"$xx"_fs_config
-
-                  busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
-                  rm -f "$config"/"$xx"_ffff.txt
-                  echo
-                  echo ".....$written_in "$config"/"$xx"_fs_config."
-                  echo
-                  main_menu
-                  break
-                  ;;
-            3)
-                  clear
-                  ttt
-                  break
-                  ;;
-            4)
-                  clear
-                  rm -f "$config"/"$xx"_ffff.txt
-                  main_menu
-                  break
-                  ;;
-            *)
-                  clear
-                  echo
-                  echo "      $anykey"
-                  my_read
-                  break
-                  ;;
-            esac
-      done
-      return
-}
-
 read_fs() {
       clear
       busybox sort -u "$config"/"$xx"_ffff.txt >"$config"/"$xx"_ffff.tmp && rm -f "$config"/"$xx"_ffff.txt
@@ -418,12 +286,87 @@ read_fs() {
       echo "...$received_following_lines_to_write:"
       echo
       cat "$config"/"$xx"_ffff.txt
+      my_read() {
+            echo
+            echo ".....$write_to "$xx"_fs_config?"
+            echo
+            select img in "$write_and_continue" "$write_delete_temporary_file_and_exit" "$dont_write_continue" "$dont_write_delete_temporary_file_and_exit"; do
+                  case $REPLY in
+                  1)
+                        clear
+
+                        cat "$config"/"$xx"_ffff.txt >>"$config"/"$xx"_fs_config
+
+                        cat "$config"/"$xx"_ffff.txt | while read a b c d; do
+                              busybox grep "$a " "$config"/"$xx"_fs_config | while read real_fs; do
+                                    if [ ! -z "$real_fs" ]; then
+                                          busybox sed -i "s!$real_fs!$a $b $c $d!" "$config"/"$xx"_fs_config
+                                    fi
+                              done
+                        done
+
+                        busybox awk '!($0 in a) {a[$0];print}' "$config"/"$xx"_fs_config >"$config"/"$xx"_conf.tmp && busybox mv -f "$config"/"$xx"_conf.tmp "$config"/"$xx"_fs_config
+
+                        busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
+                        echo
+                        echo ".....$written_in "$config"/"$xx"_fs_config."
+                        echo
+                        ttt
+                        break
+                        ;;
+                  2)
+                        clear
+
+                        cat "$config"/"$xx"_ffff.txt >>"$config"/"$xx"_fs_config
+
+                        cat "$config"/"$xx"_ffff.txt | while read a b c d; do
+                              busybox grep "$a " "$config"/"$xx"_fs_config | while read real_fs; do
+                                    if [ ! -z "$real_fs" ]; then
+                                          busybox sed -i "s!$real_fs!$a $b $c $d!" "$config"/"$xx"_fs_config
+                                    fi
+                              done
+                        done
+
+                        busybox awk '!($0 in a) {a[$0];print}' "$config"/"$xx"_fs_config >"$config"/"$xx"_conf.tmp && busybox mv -f "$config"/"$xx"_conf.tmp "$config"/"$xx"_fs_config
+
+                        busybox sed -i '/^$/d' "$config"/"$xx"_fs_config
+                        rm -f "$config"/"$xx"_ffff.txt
+                        echo
+                        echo ".....$written_in "$config"/"$xx"_fs_config."
+                        echo
+                        main_menu
+                        break
+                        ;;
+                  3)
+                        clear
+                        ttt
+                        break
+                        ;;
+                  4)
+                        clear
+                        rm -f "$config"/"$xx"_ffff.txt
+                        main_menu
+                        break
+                        ;;
+                  *)
+                        clear
+                        echo
+                        echo "      $anykey"
+                        my_read
+                        break
+                        ;;
+                  esac
+            done
+            return
+      }
+
       my_read
 }
 
 s_atr() {
       my_d
       t=$(echo $xxx | busybox sed 's!^/!!')
+
       find "$t" -type d | busybox sed 's!$!_d!' >"$config"/"$xx"_ff.txt
       find "$t" -type f | busybox sed 's!$!_f!' >>"$config"/"$xx"_ff.txt
       find "$t" -type l | busybox sed 's!$!_l!' >>"$config"/"$xx"_ff.txt
@@ -444,6 +387,62 @@ s_atr() {
                         cat "$config"/"$xx"_f_fff.txt
                   fi
 
+                  my_enter() {
+                        echo
+                        select img in "$entering_attributes" "$back_entering_folders" "$exit_main_menu"; do
+                              case $REPLY in
+                              1)
+                                    clear
+
+                                    if [ "$sar" == "true" -a "$xxx" == "$vv" ]; then
+                                          if [ ! -z "$(cat "$config"/"$xx"_d_fff.txt | busybox grep -v "$vv/system" | busybox grep '_d$')" ]; then
+                                                ff_dirs
+                                                return
+                                          else
+                                                attr
+                                                ff_files
+                                                return
+                                          fi
+                                    else
+                                          if [ ! -z "$(cat "$config"/"$xx"_d_fff.txt | busybox grep '_d$')" ]; then
+                                                ff_dirs
+                                                return
+                                          else
+                                                attr
+                                                ff_files
+                                                return
+                                          fi
+                                          return
+                                    fi
+                                    return
+
+                                    break
+                                    ;;
+                              2)
+                                    clear
+                                    s_atr
+                                    return
+                                    break
+                                    ;;
+                              3)
+                                    clear
+                                    main_menu
+                                    return
+                                    break
+                                    ;;
+                              *)
+                                    clear
+                                    echo
+                                    echo "      $anykey"
+                                    echo
+                                    my_enter
+                                    break
+                                    ;;
+                              esac
+                        done
+                        echo
+                        return
+                  }
                   my_enter
             else
                   echo

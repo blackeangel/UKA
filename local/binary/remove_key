@@ -1,0 +1,83 @@
+#!/system/bin/sh
+#############################
+local_dir="/data/local"
+eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+#############################
+file="$1"
+file_key="$2"
+
+if busybox test -s "$file"; then
+    check_alg="$(avbtool info_image --image "$file" 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+
+    if busybox test "$check_alg" != "NONE" -a ! -z "$check_alg"; then
+
+        r="$(busybox basename $file)"
+
+        f_name=${r%.*}
+
+        offset_avb="$(python39 $local_dir/binary/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
+
+        if busybox test "$offset_avb" != "None"; then
+
+            size_magic="$(avbtool info_image --image "$file" | busybox awk '/Header Block:/ { print $3 }')"
+
+            size_ayten="$(avbtool info_image --image "$file" | busybox awk '/Authentication Block:/ { print $3 }')"
+
+            xxx="$(busybox expr "$offset_avb" \+ 64)"
+            offset_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+
+            xxx="$(busybox expr "$offset_avb" \+ 72)"
+
+            size_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+            size_new_key="$(busybox stat -c %s "$file_key")"
+            real_offset_key="$(busybox expr "$offset_avb" \+ "$size_magic" \+ "$size_ayten" \+ "$offset_key")"
+
+            real_size_key="$(busybox expr "$real_offset_key" \+ "$size_key")"
+
+            if busybox test "$size_key" == "$size_new_key"; then
+
+                busybox dd if="$file" of=boot_1.tmp bs="$real_offset_key" count=1 &>/dev/null
+
+                busybox dd if="$file" of=boot_2.tmp bs="$real_size_key" skip=1 &>/dev/null
+
+                busybox cat boot_1.tmp "$file_key" boot_2.tmp >"$f_name"_key.img
+
+                check_new_alg="$(avbtool info_image --image "$f_name"_key.img 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
+
+                sha11="$(avbtool info_image --image "$file" | busybox awk '/^Public key \(sha1\):/ { print $4}')"
+
+                sha12="$(avbtool info_image --image "$f_name"_key.img | busybox awk '/^Public key \(sha1\):/ { print $4}')"
+
+                if [ ! -z "$sha11" -a ! -z "$sha12" ]; then
+                    busybox mv -f "$f_name"_key.img "$f_name".img
+                    echo
+
+                    echo ".....Algorithm: $check_new_alg"
+                    echo ".....sha1 public key: $sha12"
+                    echo
+                else
+                    echo ".....$error_change_key!"
+                    echo
+                fi
+            else
+                echo
+                echo ".....$error_key_sizes_dont_match!"
+                echo
+            fi
+        else
+            echo
+            echo ".....$error_not_found offset AVB0"
+            echo
+        fi
+    else
+        echo
+        echo ".....$file $nd/$file $not_signed!"
+        echo
+    fi
+else
+    echo
+    echo ".....$no_file_to_process!"
+    echo
+fi
+busybox rm -f boot_1.tmp boot_2.tmp
+unset xxx
