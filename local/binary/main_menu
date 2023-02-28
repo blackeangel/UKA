@@ -967,7 +967,9 @@ main_menu() {
                   fi
                   if [ ! -z "$(echo "$size_mb" | busybox grep -Eow "6|16|32|35|40|54|64|96|128")" ]; then
                     size_orig="$(busybox expr "$size_mb" \* 1024 \* 1024)"
-                    busybox truncate -s "$size_orig" "$pack_file" 2>/dev/null
+                    if [ "$size_img" -lt "$size_orig" ]; then
+                      busybox truncate -s "$size_orig" "$pack_file" 2>/dev/null
+                    fi
                   fi
                 fi
                 return
@@ -3455,9 +3457,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 my_k
                 return
@@ -4139,6 +4141,7 @@ main_menu() {
                   ;;
                 3)
                   clear
+                  unset aik_mob
                   extract_key() {
                     echo
                     echo "..$go_folder_where_files_located \"*.img\", $for_example: cd /sdcard"
@@ -4692,7 +4695,7 @@ main_menu() {
                   clear
                   cd $local_dir/UnpackerQfil
                   >qfil.log
-                  if [ ! -z "$(busybox ls | busybox grep -E "system_|vendor_|userdata_|.xml|chunk")" ]; then
+                  if [ ! -z "$(busybox ls | busybox grep -E "super.img.*[0-9]|system_|vendor_|userdata_|.xml|chunk")" ]; then
 
                     if [ ! -z "$(busybox ls *chunk* 2>/dev/null)" ]; then
 
@@ -4707,6 +4710,33 @@ main_menu() {
                           echo ".....$gluing ${name}_chunk.raw.img..."
                           simg2img ${name1} ${name2} ./output/${name}_chunk.raw.img
                           if [ "$?" -eq "0" ]; then
+                            echo ".....$file_created_successfully ${name}_chunk.raw.img"
+                            echo ".....$saved_in $local_dir/UnpackerQfil/output"
+                            echo
+                          else
+                            echo
+                            echo ".....$gluing_error ${name}_chunk.raw.img!"
+                            echo
+                          fi
+                        fi
+                      done
+
+                    elif [ ! -z "$(busybox ls super.img*[0-9] 2>/dev/null)" ]; then
+
+                      echo
+                      echo ".....$files_found \"*sparsechunk*\""
+                      echo
+                      for name in "super"; do
+
+                        name1=$(find . -maxdepth 1 -name "super.img*[0-9]" | sort -n | busybox grep -v "[0-9][0-9]")
+
+                        name2=$(find . -maxdepth 1 -name "super.img*[0-9]" | sort -n | busybox grep "[0-9][0-9]")
+                        if [ ! -z "${name1}" ]; then
+                          mkdir ./output 2>/dev/null
+                            echo ".....$gluing_error ${name}_chunk.raw.img!"
+                          simg2img ${name1} ${name2} ./output/${name}_chunk.raw.img
+                          if [ "$?" -eq "0" ]; then
+                            #echo
                             echo ".....$file_created_successfully ${name}_chunk.raw.img"
                             echo ".....$saved_in $local_dir/UnpackerQfil/output"
                             echo
@@ -5758,9 +5788,9 @@ main_menu() {
                 echo
               else
                 echo
-                echo .....$error_enter_dir!
+                echo ".....$error_enter_dir!"
                 echo
-                echo $enter_directory_correctly!
+                echo "$enter_directory_correctly!"
                 echo
                 ofp_extract
                 return
