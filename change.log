@@ -1,9 +1,16 @@
+✓Тестовая версия 5.18:
+Исправлены ошибки, найденные в версии 5.17.
+Добавлена поддержка форматов .lzma, .xz, .zst к пункту 11 -> 3 (Конвертация .lz4)
+
 ✓Тестовая версия 5.17:
 Добавлен пункт замены публичного ключа в boot/recovery/vbmeta(11 -> 1 -> 5).
 Т.е можно,, извлечь публичный ключ AVB, например, из стокового boot.img, это будет стоковый ключ.
 Потом, используя пункт замены ключа, можно внедрить в ранее перепакованный boot.img, этот стоковый ключ.
 Будет актуально для тех образов, у которых в vbmeta проверяется только public key.
 Также при перепаковке boot/recovery автоматически будет сохранятся тот публичный ключ, который был в образе на момент распаковки.
+Добавил поддержку склейки super img из частей формата: "super.img.xx"
+Исправил срезание размера(в некоторых случаях) при сборке boot/recovery.
+Исправил удаление исходного файла сжатого в .zst, при распаковке из папки /data/local/UnpackerSuper.
 
 ✓Тестовая версия 5.16:
 Добавлена распаковка super.img сжатого в .zst.
@@ -205,6 +212,9 @@ AIK-mobile можно полностью удалить с телефона пр
 
 ===============================================================================================
 
+✓Test version 5.18:
+Fixed bugs found in version 5.17.
+Added support for .lzma, .xz, .zst formats to item 11 -> 3 (.lz4 conversion)
 
 ✓Test version 5.17:
 Added item to replace public key in boot/recovery/vbmeta(11 -> 1 -> 5).
@@ -212,6 +222,9 @@ That is, you can extract the AVB public key, for example, from the stock boot.im
 Then, using the key replacement item, you can embed this stock key into the previously repackaged boot.img.
 It will be relevant for those images for which only the public key is checked in vbmeta.
 Also, when repacking boot / recovery, the public key that was in the image at the time of unpacking will be automatically saved.
+Added support for merging super img from parts of the format: "super.img.xx"
+Fixed size cutting (in some cases) when building boot/recovery.
+Fixed deletion of source file compressed in .zst when unpacking from /data/local/UnpackerSuper folder.
 
 ✓Test version 5.16:
 Added unpacking super.img compressed to .zst.
