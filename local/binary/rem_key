@@ -1,8 +1,5 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 key_r() {
     file="$1"
     file_key="$2"
@@ -22,7 +19,7 @@ key_r() {
 
             f_name=${r%.*}
 
-            offset_avb="$(python39 $local_dir/binary/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
+            offset_avb="$(python39 $binary_dir/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
 
             if busybox test "$offset_avb" != "None"; then
 

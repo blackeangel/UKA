@@ -1,10 +1,7 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-binary_dir="$local_dir/binary"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
+
 cd $local_dir/UnpackerSystem
-#############################
+
 my_d() {
       echo
       echo ".....$enter_path_folder_with_files_example: system/app"

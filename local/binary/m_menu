@@ -1,8 +1,8 @@
 #!/system/bin/sh
 program_version="5.18"
 clear
-local_dir="/data/local"
-binary_dir="$local_dir/binary"
+local_dir="$(dirname $(dirname $0))"
+binary_dir="$(dirname $0)"
 export PATH=$binary_dir:$PATH
 #############################
 # create_work_folders -->
@@ -1426,7 +1426,7 @@ main_menu() {
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
         elif [ "$nd" == "$local_dir/UnpackerSystem/uka_backup" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
-        elif [ "$nd" == "data/local/UnpackerQfil" -a -d /"$nd" ]; then
+        elif [ "$nd" == "$local_dir/UnpackerQfil" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
         elif [ "$nd" == "$(busybox cat "$dir_dat"/last.txt 2>/dev/null)" -a -d /"$nd" ]; then
           cd /"$nd" && echo "$nd" >"$dir_dat"/last.txt
@@ -1653,7 +1653,7 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-        select menu in "$unpacking .img $from_folder: $local_dir/UnpackerSystem" "$unpacking .img $from_folder: $local_dir/UnpackerSuper" "$unpacking .img $from_folder: $local_dir/UnpackerPayload" "$unpacking .img $from_folder: $local_dir/UnpackerSystem/uka_backup" "$unpacking .img $from_folder: /data/local/UnpackerQfil" "$unpacking .img $from_last_used_folder" "$enter_path_folder_with_image .img" "$exit_main_menu" "$close_program"; do
+        select menu in "$unpacking .img $from_folder: $local_dir/UnpackerSystem" "$unpacking .img $from_folder: $local_dir/UnpackerSuper" "$unpacking .img $from_folder: $local_dir/UnpackerPayload" "$unpacking .img $from_folder: $local_dir/UnpackerSystem/uka_backup" "$unpacking .img $from_folder: $local_dir/UnpackerQfil" "$unpacking .img $from_last_used_folder" "$enter_path_folder_with_image .img" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -1694,7 +1694,7 @@ main_menu() {
             ;;
           5)
             clear
-            nd=data/local/UnpackerQfil
+            nd=$local_dir/UnpackerQfil
             my_super
             return
             main_menu
@@ -2096,7 +2096,7 @@ main_menu() {
                       if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                         clear
 
-                        . ${dir}/unpack_dat
+                        . ${binary_dir}/unpack_dat
                         main_menu
                         return
                         break
@@ -2177,7 +2177,7 @@ main_menu() {
                     if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                       clear
 
-                      . ${dir}/unpack_dat
+                      . ${binary_dir}/unpack_dat
                       main_menu
                       return
                       break
@@ -2301,7 +2301,7 @@ main_menu() {
                       if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                         clear
 
-                        . ${dir}/unpack_br
+                        . ${binary_dir}/unpack_br
                         main_menu
                         return
                         break
@@ -2383,7 +2383,7 @@ main_menu() {
                     if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                       clear
 
-                      . ${dir}/unpack_br
+                      . ${binary_dir}/unpack_br
                       main_menu
                       return
                       break
@@ -2510,7 +2510,7 @@ main_menu() {
 
                 size=111
                 set -- $size
-                file_size=${dir}/pack_img
+                file_size=${binary_dir}/pack_img
                 if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
                   file_sh=./"$config"/"$pack_d"*_pack_avb_sparse.sh
                 else
@@ -2586,7 +2586,7 @@ main_menu() {
                 config="config/$pack_d"
 
                 size=100
-                . ${dir}/pack_img
+                . ${binary_dir}/pack_img
                 main_menu
                 return
                 break
@@ -2650,7 +2650,7 @@ main_menu() {
                 config="config/$pack_d"
 
                 size=100
-                . ${dir}/pack_img_raw
+                . ${binary_dir}/pack_img_raw
                 main_menu
                 return
                 break
@@ -2715,7 +2715,7 @@ main_menu() {
 
                 size=111
                 set -- $size
-                file_size=${dir}/pack_img_raw
+                file_size=${binary_dir}/pack_img_raw
                 if [ -f ./"$config"/"$pack_d"_avb.img ]; then
                   file_sh=./"$config"/"$pack_d"_pack_avb.sh
                 else
@@ -2810,7 +2810,7 @@ main_menu() {
                 set -- $size
                 r_size="$size_new"
                 set -- $r_size
-                file_size=${dir}/pack_img_raw
+                file_size=${binary_dir}/pack_img_raw
                 if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
                   file_sh=./"$config"/"$pack_d"*_pack_avb.sh
                 else
@@ -2845,7 +2845,7 @@ main_menu() {
                   set -- $size
                   r_size="$size_new"
                   set -- $r_size
-                  file_size=${dir}/pack_img_raw
+                  file_size=${binary_dir}/pack_img_raw
                   if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
                     file_sh=./"$config"/"$pack_d"*_pack_avb.sh
                   else
@@ -2937,7 +2937,7 @@ main_menu() {
                 set -- $size
                 r_size="$size_new"
                 set -- $r_size
-                file_size=${dir}/pack_img
+                file_size=${binary_dir}/pack_img
                 if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
                   file_sh=./"$config"/"$pack_d"*_pack_avb_sparse.sh
                 else
@@ -2975,7 +2975,7 @@ main_menu() {
                   set -- $size
                   r_size="$size_new"
                   set -- $r_size
-                  file_size=${dir}/pack_img
+                  file_size=${binary_dir}/pack_img
                   if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
                     file_sh=./"$config"/"$pack_d"*_pack_avb_sparse.sh
                   else
@@ -3432,7 +3432,7 @@ main_menu() {
     8)
       clear
       my6() {
-        file_size=${dir}/pack_img_dat
+        file_size=${binary_dir}/pack_img_dat
         check_dat="222"
         echo -en "\E[32;1m"
         echo
@@ -3564,7 +3564,7 @@ main_menu() {
     9)
       clear
       my7() {
-        file_size=${dir}/pack_img_br
+        file_size=${binary_dir}/pack_img_br
         check_dat="222"
         echo -en "\E[32;1m"
         echo

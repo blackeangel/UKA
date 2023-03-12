@@ -1,8 +1,4 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
 myk() {
   read b
   if [ "$b" -le "7" ]; then
@@ -63,7 +59,7 @@ END {print a*b}')"
     echo
     echo ".....$enter_number_version_android_for_built:"
     echo
-    python39 /data/local/binary/bin_system/img2sdat-master/img2sdat.py ./"$file"
+    python39 $binary_dir/bin_system/img2sdat-master/img2sdat.py ./"$file"
     if [ $(echo $?) -eq 0 ]; then
       echo
       echo ".....$convert_to .dat $successfully_completed!"
@@ -103,7 +99,7 @@ END {print a*b}')"
         echo
         echo ".....$enter_number_version_android_for_built:"
         echo
-        python39 /data/local/binary/bin_system/img2sdat-master/img2sdat.py ./"$img_name".sparse.img
+        python39 $binary_dir/bin_system/img2sdat-master/img2sdat.py ./"$img_name".sparse.img
         if [ $(echo $?) -eq 0 ]; then
           busybox mv -f ./"$img_name".sparse.new.dat ./"$img_name".new.dat
           busybox mv -f ./"$img_name".sparse.patch.dat ./"$img_name".patch.dat
@@ -138,7 +134,7 @@ else
   echo
   echo ".....$no_image_in_folder \""$file"\" $for_conversion"
 fi
-busybox rm -f /data/local/python39/tmp* tmp* "$img_name".sparse.img
+busybox rm -f $local_dir/python39/tmp* tmp* "$img_name".sparse.img
 
 unset size_out
 unset size_free

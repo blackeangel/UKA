@@ -1,8 +1,5 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 nd=$nd
 
 cd $local_dir/UnpackerSystem
@@ -223,7 +220,7 @@ zst_my() {
     echo ".....$converting $file(zst) -> $super_dir/super.tmp.img..."
     echo
 
-    for clean_file in $(busybox find /data/local/UnpackerSuper/* -maxdepth 1 ! -name "super*" -a ! -name "output" 2>/dev/null); do
+    for clean_file in $(busybox find $local_dir/UnpackerSuper/* -maxdepth 1 ! -name "super*" -a ! -name "output" 2>/dev/null); do
       opla_file=$(busybox hexdump -C -n 20000 "$clean_file" 2>/dev/null | busybox grep -o "30 50 4c 41")
       if [ -z "$opla_file" -a -z "$zst" ]; then
         busybox rm -rf $clean_file
@@ -354,7 +351,7 @@ else
 
     echo ".....$unpacking ${file}..."
 
-    python39 $local_dir/binary/bin_system/imgextractor1.py "$file" "$PWD"
+    python39 $binary_dir/bin_system/imgextractor1.py "$file" "$PWD"
     if [ $(echo $?) -eq 0 ]; then
       if [ -d ./"$r_name" -a -s "$config"/"$r_name"_fs_config ]; then
         busybox sed -i '/logd / s!0x4000040000040!0x440000040!' "$config"/"$r_name"_fs_config

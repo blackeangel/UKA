@@ -1,8 +1,5 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 size_output_raw() {
     if busybox test -s "$r_name".raw.img; then
         size_out="$(busybox stat -c %s "$r_name".raw.img)"

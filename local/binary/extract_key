@@ -1,8 +1,5 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 
 if [ "$aik_mob" == "1" ]; then
     out_extract_key=$local_dir/AIK-mobile/split_img
@@ -18,7 +15,7 @@ if busybox test -s "$file"; then
         echo ".....Algorithm: $check_alg"
         r="$(busybox basename $file)"
         f_name=${r%.*}
-        offset_avb="$(python39 $local_dir/binary/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
+        offset_avb="$(python39 $binary_dir/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
         if [ "$offset_avb" != "None" ]; then
             size_magic="$(avbtool info_image --image "$file" | busybox awk '/Header Block:/ { print $3 }')"
             size_ayten="$(avbtool info_image --image "$file" | busybox awk '/Authentication Block:/ { print $3 }')"

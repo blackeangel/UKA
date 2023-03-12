@@ -1,10 +1,6 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
 cap_name=$(cat config/"$pack_d"*_name.txt)
-dir_bb=$local_dir/binary
+dir_bb=$binary_dir
 
 if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/busybox grep '3a ff 26 ed')" ]; then
       dir_loop=$local_dir/"$pack_d".new

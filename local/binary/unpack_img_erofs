@@ -1,8 +1,5 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 nd=$nd
 file="$file"
 mkdir -p erofs/config 2>/dev/null

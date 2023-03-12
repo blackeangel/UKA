@@ -1,13 +1,10 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 setenforce 0
 busybox mount -o rw,remount /
 busybox mount -o rw,remount /system
 dirboot="$local_dir/UnpackerContexts"
-dirbin="$local_dir/binary/bin_contexts"
+dirbin="$binary_dir/bin_contexts"
 file="file_contexts"
 file_b="file_contexts.bin"
 workdir="./unpack_boot"

@@ -1,9 +1,6 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
-dir=$local_dir/binary
+
+dir=$binary_dir
 export PATH="$dir":$PATH
 
 cd
@@ -107,10 +104,10 @@ nnn() {
 }
 
 inf() {
-   dir=$local_dir/binary
+   dir=$binary_dir
    export PATH="$dir":$PATH
    cd
-   name=$(busybox cat $local_dir/binary/ddd.txt | busybox awk '{ print $1 }')
+   name=$(busybox cat $binary_dir/ddd.txt | busybox awk '{ print $1 }')
    set -- $name
    if [ ! -z "$name" ]; then
       clear
@@ -376,7 +373,7 @@ selekt() {
                real_slot="1"
                set -- $real_slot
             fi
-            . $local_dir/binary/unpack_img
+            . $binary_dir/unpack_img
          else
             echo
             echo ".....$partition_not_found_in_current_firmware super!"

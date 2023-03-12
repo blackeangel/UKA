@@ -1,8 +1,4 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
 
 br_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F".new.dat.br" '{ print $1 }')
 
@@ -22,7 +18,7 @@ if [ -f ./"$br_name".transfer.list ]; then
             rm -f $PWD/"$br_name".new.dat
             file=/"$nb"/"$br_name".img
             nd="$nb"
-            . $local_dir/binary/unpack_img
+            . $binary_dir/unpack_img
         else
             echo
             echo ".....$convert_error "$br_name".new.dat"

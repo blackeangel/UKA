@@ -1,12 +1,9 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 clear
 pack_d="$pack_d"
 
-. $local_dir/binary/pack_img
+. $binary_dir/pack_img
 
 mv_dat() {
     busybox test -s "$outdir"/"$pack_d".new.new.dat && busybox mv -f "$outdir"/"$pack_d".new.new.dat "$outdir"/"$pack_d".new.dat
@@ -16,7 +13,7 @@ mv_dat() {
 
 if busybox test -s "$outdir"/"$pack_d".new.img; then
 
-    b="python39 $local_dir/binary/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
+    b="python39 $binary_dir/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
     if [ -d ./"$pack_d" ]; then
         a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2>/dev/null) || a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/system/build.prop 2>/dev/null)
         g=$(busybox grep 'ro.build.version.sdk=.*.' $local_dir/UnpackerSystem/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null || g=$(busybox grep 'ro.build.version.sdk=.*.' "$pack_d"/system/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null

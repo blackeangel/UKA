@@ -1,8 +1,5 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 clear
 
 size_output_sparse() {
@@ -36,7 +33,7 @@ elif [ "$erof" == "0" ]; then
   config="config/$pack_d"
   img_name=$(busybox cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
 fi
-. $local_dir/binary/perm_fs
+. $binary_dir/perm_fs
 size_obraz="$(busybox cat "$dir_avb"/"$pack_d"_size.txt)"
 if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
   prop_avb="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"

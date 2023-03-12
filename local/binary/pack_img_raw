@@ -1,8 +1,5 @@
 #!/system/bin/shcalting_image
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 size_output_raw() {
     if busybox test -s "$outdir"/"$pack_d".new.img; then
         echo
@@ -30,7 +27,7 @@ elif [ "$erof" == "0" ]; then
     img_name=$(cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
 fi
 
-. $local_dir/binary/perm_fs
+. $binary_dir/perm_fs
 
 size_obraz="$(busybox cat "$dir_avb"/"$pack_d"_size.txt)"
 if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then

@@ -1,14 +1,12 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
+
 if [ ! -z "$nd" ]; then
   cd /"$nd"
 fi
 dir_base=$local_dir/UnpackerSystem
 cap_name=$(cat "$dir_base"/config/"$r_name"*_name.txt)
-dir_bb=$local_dir/binary
+dir_bb=$binary_dir
+
 if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$cap_name".img | "$dir_bb"/busybox grep '3a ff 26 ed')" ]; then
   dir_loop=$local_dir/"$cap_name"
   loops=$("$dir_bb"/busybox mount | cut -d" " -f1,3 | "$dir_bb"/busybox grep "$dir_loop$" | cut -d" " -f1)

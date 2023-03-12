@@ -1,10 +1,7 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
-dir_bb="/data/local/binary/lib"
-dir_loop="/data/local/$a"
+
+dir_bb="$binary_dir/lib"
+dir_loop="$local_dir/$a"
 
 if [ -z "$("$dir_bb"/busybox mount | "$dir_bb"/busybox cut -d" " -f3 | "$dir_bb"/busybox grep "$dir_loop$")" ]; then
 

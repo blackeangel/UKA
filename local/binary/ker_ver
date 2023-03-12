@@ -1,9 +1,6 @@
 #!/system/bin/sh
-#############################
-local_dir="/data/local"
-eval "$(cat "$local_dir/Unpacker_lang/$(cat "$local_dir/Unpacker_lang/selection.txt").lang")"
-#############################
-dir_ver=$local_dir/binary
+
+dir_ver=$binary_dir
 file="$1"
 kernel_ver="$(busybox strings "$file" | busybox awk '/Linux version/  { print $3 }' | busybox head -1 | busybox awk -F"-" '{ print $1 }')" 2>/dev/null
 kernel_bit="$(busybox strings "$file" | busybox grep -Eo "arch/arm.." | busybox head -1 | busybox sed 's!/.!!2')" 2>/dev/null
