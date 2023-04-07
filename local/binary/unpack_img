@@ -3,12 +3,18 @@
 nd=$nd
 
 cd $local_dir/UnpackerSystem
+#r_name=$(echo $file | grep -Eo "system|vendor")
+
+#r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|[+]|[.]|[{]|[(]" '{ print $1 }')
 
 r="$(busybox basename $file)"
 r_name=${r%.*}
 config="config/$r_name"
 parts="$(echo "$r" | busybox grep -o "PARTITION")"
 exten=${r##*.}
+#echo "$parts"
+#echo "$r"
+#echo "$exten"
 
 super_dir=$local_dir/UnpackerSuper
 opla=$(busybox hexdump -C -n 20000 "$file" | busybox grep -o "30 50 4c 41")
@@ -125,6 +131,7 @@ END {print a*b}')"
 }
 
 super() {
+
   if [ ! -z "$opla" -a ! -z "$sparse_super" ]; then
     echo
     echo ".....$image_defined_as super.img(sparse)"
@@ -165,6 +172,7 @@ super() {
     echo ".....$image_defined_as super.img(raw)"
     echo
     echo ".....$extracting_images_from "$file"..."
+    #echo
 
     for clean_file in $(busybox find $local_dir/UnpackerSuper/* -maxdepth 1 ! -name "super*" -a ! -name "output" 2>/dev/null); do
       opla_file=$(busybox hexdump -C -n 20000 "$clean_file" 2>/dev/null | busybox grep -o "30 50 4c 41")
@@ -182,6 +190,9 @@ super() {
       echo
       lpunpack "$file" "$super_dir" && sss="0" || sss="1"
     fi
+    #unset real_slot
+
+    #lpunpack "$file" "$super_dir"
 
     if [ $(echo $sss) -eq 0 ]; then
       mkdir "$super_dir"/config 2>/dev/null
@@ -287,7 +298,9 @@ gg() {
   busybox find "$r_name" -type d | busybox sed 's!$!_d!' >"$config"/"$r_name"_f.txt
   busybox find "$r_name" -type f | busybox sed 's!$!_f!' >>"$config"/"$r_name"_f.txt
   busybox find "$r_name" -type l | busybox sed 's!$!_l!' >>"$config"/"$r_name"_f.txt
+
   busybox find "$r_name" -type l | busybox xargs busybox tar -cf "$config"/"$r_name"_sim.tar
+
 }
 if [ ! -z "$zst" ]; then
   zst_my
@@ -295,16 +308,16 @@ if [ ! -z "$zst" ]; then
 elif [ ! -z "$opla" ]; then
   super
 elif [ ! -z "$erofs" -a -z "$sparse_super" ]; then
-  if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
-    echo
+  #if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
+  echo
     echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
 
-    . unpack_img_erofs
-  else
-    echo
-    echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
-    erfs
-  fi
+  . unpack_img_erofs
+  #else
+  #echo
+  #  echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
+  #erfs
+#fi
 elif [ ! -z "$erofs" -a ! -z "$sparse_super" ]; then
   file_raw="/$nd"/"$r_name".raw.img
   echo
@@ -340,6 +353,14 @@ else
 
     check_obraz() {
       mkdir -p "$config" 2>/dev/null
+      #ld_path="$(echo "$LD_LIBRARY_PATH" | busybox grep -o "/data/local/binary/lib")"
+      #if [ -z "$LD_LIBRARY_PATH" ]; then
+      #export LD_LIBRARY_PATH="/data/local/binary/lib"
+      #else
+      #if [ -z "$ld_path" ]; then
+      #export LD_LIBRARY_PATH="/data/local/binary/lib:$LD_LIBRARY_PATH"
+      #fi
+      #fi
       if [ -z "$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")" ]; then
         echo
         echo ".....$image_verification..."
@@ -349,6 +370,7 @@ else
     }
     check_obraz
 
+    #echo
     echo ".....$unpacking ${file}..."
 
     python39 $binary_dir/bin_system/imgextractor1.py "$file" "$PWD"
@@ -372,10 +394,16 @@ else
       fi
 
       h=$(busybox find "$r_name" | busybox grep [[:space:]])
+
+      #if [ -d "$r_name"/"$r_name" -a "$r_name" == "system" ]; then
+      #vv="$r_name"/"$r_name"
+      #elif [ -d "$r_name" ]; then
       vv="$r_name"
+      #fi
 
       check_sar() {
         if [ -f "$vv/system/build.prop" ]; then
+          #echo "$sar"
           sar=true
           return 0
         else
@@ -398,6 +426,7 @@ else
       done >>"$config"/"$r_name"_tmp_f.txt
       cat "$config"/"$r_name"_tmp_f.txt | busybox awk '!($0 in a) {a[$0];print}' >"$config"/"$r_name"_gg_f.txt && rm -f "$config"/"$r_name"_tmp_f.txt
 
+      #new
       contet() {
         >"$config"/"$r_name".txt
         busybox find ./"$r_name" -maxdepth 1 -type d | sed 's!\.!!' | while read a; do
@@ -455,30 +484,39 @@ else
         busybox awk '!($0 in a) {a[$0];print}' "$base_dir"/"$config"/"$r_name"_file_contexts >"$base_dir"/"$config"/"$r_name"_file_contexts.tmp && busybox mv -f "$base_dir"/"$config"/"$r_name"_file_contexts.tmp "$base_dir"/"$config"/"$r_name"_file_contexts
 
         if [ "$sar" == "true" ]; then
+          #echo "/system/ u:object_r:rootfs:s0" >> "$base_dir"/"$config"/${r_name}_file_contexts
           if [ -f "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts ]; then
             busybox cp "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts "$base_dir"/"$config"/${r_name}_file_contexts_orig && sed -i "s!^/!/${r_name}/!" "$base_dir"/"$config"/${r_name}_file_contexts_orig
           fi
 
-          con_sar
+          con_sar #функция для SAR
 
           echo ".....Detected image \"System as Root\""
 
         elif [ "$sar" == "false" ]; then
 
           echo ".....Detected image not \"System as Root\""
-          contet
+          contet #функция для не SAR
         fi
 
+        #file_avb="/$nd"/"$img_name".img
         dir_avb=$local_dir/UnpackerSystem/config
 
         q="$(busybox basename $file)"
+        #echo "$q"
         file_exten_raw="$(echo "$img_name" | busybox grep -o "raw$")"
         file_exten_avb=${q##*.}
         if [ "$file_exten_avb" == "PARTITION" -a -z "$file_exten_raw" ]; then
           file_avb="/$nd"/"$img_name".PARTITION
+        elif [ "$file_exten_avb" == "win" -a -z "$file_exten_raw" ]; then
+          file_avb="/$nd"/"$img_name".win
         else
           file_avb="/$nd"/"$img_name".img
         fi
+        #echo "$file_avb"
+        #echo "$file_exten_avb"
+
+        #python39 /data/local/binary/bin_system/find_avb.py "$file_avb" "41564230000000" "$dir_avb"
 
         full_avb="$(avbtool info_image --image "$file_avb" 2>"$dir_avb"/"$r_name"/"$r_name"_avb.log)"
 
@@ -490,6 +528,10 @@ else
           echo ".....$find_struct AVB!"
 
           if busybox test -s "$dir_avb"/"$r_name"/"$r_name"_avb.img; then
+
+            aik_mob="2"
+
+            . $binary_dir/extract_key "$file_avb"
 
             echo 'make_ext4fs -J -T -1 -S ./file_contexts -C ./fs_config -l "$size_avb" -a /"$pack_d" "$outdir"/"$pack_d".new.img $pack_d' >"$dir_avb"/"$r_name"/"$r_name"_pack_avb.sh
 
@@ -507,10 +549,13 @@ else
           echo ".....$discovery_error AVB!"
           echo
 
+        #return
         fi
         return
       }
       str_avb
+
+      #. "$dir"/cap_unpak
 
       if busybox test -s "$config"/"$r_name"*_space.txt]; then
         echo
@@ -525,6 +570,7 @@ else
         echo "...$in_image "${file}" $there_files_with_spaces_fix..."
         echo "$h" >"$config"/"$r_name"_space.txt
         gg
+        #. "$dir"/cap_unpak
 
         if [ $(echo $?) -eq 0 ]; then
 
@@ -542,6 +588,9 @@ else
         echo
       fi
 
+    #echo
+    #echo -e "\033[33;1m.....Успешно распаковано! \033[0m"
+    #echo
     else
       echo
       echo -e "\033[31;47;1m   .....$unpacking_error!              \033[0m"

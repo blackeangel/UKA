@@ -66,6 +66,7 @@ key_algoritm() {
                 break
             elif [ "$REPLY" == "$i" ]; then
                 clear
+        #main_menu
                 return
                 break
             else
@@ -91,7 +92,9 @@ key_algoritm() {
     return
 }
 
-aik_pack() {
+aik_pack()
+ {
+ #avb_dir=/data/local/UnpackerSystem
     if busybox test "$(avbtool info_image --image "$file_real" 2>/dev/null)"; then
         size_sign="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Image size:/ { print $3 }')"
         part_name="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Partition Name:/ { print $3 }')"
@@ -104,7 +107,8 @@ aik_pack() {
         fi
     else
         size_sign="$size_sign"
-        part_num
+part_num        #Функция
+
     fi
     size_footer="$(avbtool add_hash_footer --partition_size "$size_sign" --calc_max_image_size)"
     truncate -s "$size_footer" "$file_real"
@@ -137,7 +141,9 @@ aik_pack() {
     return
 }
 
-search_key() {
+search_key()
+{
+          #clear
     echo
     echo ".....$go_folder_where_private_key_located: cd /sdcard"
     read b && $b
@@ -178,6 +184,7 @@ search_key() {
                         break
                     elif [ "$REPLY" == "$i" ]; then
                         clear
+        #main_menu
                         return
                         break
                     else
@@ -220,7 +227,8 @@ search_key() {
     return
 }
 
-my_size_sign() {
+my_size_sign()
+{
     echo
     echo ".....$enter_size_stock_image_in mb"
     echo
@@ -248,7 +256,9 @@ my_size_sign() {
     return
 }
 
-sign_image() {
+sign_image()
+{     
+              #clear
     echo
     echo "         $image_signature     "
     echo

@@ -1,8 +1,12 @@
 #!/system/bin/sh
 
+cd /"$nb"
+
+#br_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|[+]|[.]|[{]|[(]" '{ print $1 }')
+
 br_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F".new.dat.br" '{ print $1 }')
 
-if [ -f ./"$br_name".transfer.list ]; then
+if busybox test -s "$br_name".transfer.list; then
     echo
     echo ".....$converting "$br_name".new.dat.br..."
     brotli -df "$br_name".new.dat.br -o "$br_name".new.dat 2>/dev/null

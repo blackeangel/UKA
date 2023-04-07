@@ -1,6 +1,8 @@
 #!/system/bin/sh
 
-size_output_raw() {
+
+ size_output_raw()
+{
     if busybox test -s "$file"; then
         size_out="$(busybox stat -c %s "$file")"
         size_free="$(busybox expr "$(tune2fs -l "$file" | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024)"
@@ -10,9 +12,10 @@ size_output_raw() {
     fi
     return
 }
+ #r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|_|[+]|[.]|[{]|[(]" '{ print $1 }')
 
-r="$(busybox basename $file)"
-r_name=${r%.*}
+ r="$(busybox basename $file)"
+ r_name=${r%.*}
 
 if [ -f ./"$file" ]; then
     if [ -z "$(busybox hexdump -C -n 4 ./"$file" | grep '3a ff 26 ed')" ]; then

@@ -16,12 +16,16 @@ if [ ! -z "$kernel_ver" ]; then
   echo
   echo "...$kernel_version: $kernel_ver"
 else
+ #python39 "$dir_ver"/bin_system/find_gz.py "$file" "1f8b08"
+ #if [ -f "kernel.gz" ]; then
+ #busybox gunzip -f kernel.gz
   if [ -f "kernel" ]; then
     kernel_ver1="$(busybox strings kernel | busybox awk '/Linux version/  { print $3 }' | busybox head -1 | busybox awk -F"-" '{ print $1 }')"
     echo
     echo "...$kernel_version: $kernel_ver1"
   fi
 fi
+ #fi
 if [ ! -z "$kernel_bit" ]; then
   if [ "$kernel_bit" == "arch/arm64" ]; then
     echo "...$kernel_bitness: 64 bit"

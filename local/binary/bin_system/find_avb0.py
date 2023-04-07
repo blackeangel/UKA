@@ -1,7 +1,4 @@
-import sys
-import os
-import mmap
-
+import sys, os, re, mmap
 def reversefinder(file, whatfind):
     whatfind=bytes.fromhex(whatfind)
     size=os.stat(file).st_size

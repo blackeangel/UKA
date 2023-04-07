@@ -1,12 +1,14 @@
 #!/system/bin/sh
 
 dir=$binary_dir
-export PATH="$dir":$PATH
+  export PATH="$dir":$PATH
 
-cd
-
-n() {
-   echo
+ cd
+ 
+ n()
+{
+ #clear
+ echo
    echo "     $entering_image_save_folder    "
    echo "     -----------------------------    "
    echo
@@ -38,13 +40,15 @@ n() {
    return
 }
 
-inf_space_mmm() {
-   free_space="$(busybox df -h "$dir_b" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
+inf_space_mmm()
+{
+free_space="$(busybox df -h "$dir_b" | busybox tail -1 |  busybox awk '{ print $(NF-2) }')"
    echo "    $free_in_folder: "$free_space""
    return
 }
 
-nnn() {
+nnn()
+{
 
    echo
    echo "     $selecting_image_save_folder    "
@@ -57,6 +61,7 @@ nnn() {
       dir_b=$local_dir/UnpackerSystem/uka_backup
       mkdir "$dir_b" 2>/dev/null
       set -- $dir_b
+ 
       clear
       echo
       echo "    $output_image_save_folder_set:"
@@ -103,7 +108,8 @@ nnn() {
    return
 }
 
-inf() {
+ inf()
+{
    dir=$binary_dir
    export PATH="$dir":$PATH
    cd
@@ -164,7 +170,8 @@ inf() {
    return
 }
 
-pre_work() {
+ pre_work()
+{
 
    bs_size="$(busybox printf "%d\n" "$(busybox hexdump -C -n 20000 "$file" | busybox awk '/4d 4d 4d 01 38/ { print "0x"$1}' | busybox head -1)")"
    if [ "$bs_size" -gt "0" ]; then
@@ -181,6 +188,7 @@ pre_work() {
       if [ ! -z "$name_pre" -a ! -z "$size_pre" ]; then
          busybox dd if=pre.img of=preloader.tmp bs="$size_pre" count=1 &>>output/pre.log && busybox rm -rf pre.img
          if [ "$?" -eq "0" ]; then
+#busybox mkdir -p output
             busybox mv -f preloader.tmp output/"${name_pre}"
             echo
             echo ".....$successfully_retrieved $name_pre!"
@@ -201,7 +209,8 @@ pre_work() {
    return
 }
 
-pre_extract_file() {
+ pre_extract_file()
+{
    echo
    echo "   $put_file_in_folder: $local_dir/UnpackerPreloader"
    echo
@@ -289,7 +298,10 @@ pre_extract_file() {
    return
 }
 
-pre_extract() {
+
+ pre_extract()
+{
+
    dir_pre="$dir_b/preload"
    if [ -d "$dir_pre" ]; then
       busybox rm -rf "$dir_pre"
@@ -306,6 +318,8 @@ pre_extract() {
       mtk="$(busybox strings pre.img | busybox grep -o "MTK_BLOADER_INFO")"
       if [ ! -z "$mtk" ]; then
          name_pre="$(busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1)"
+ #busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1 > name.txt
+ #name_pre="$(busybox cat name.txt)"
          size_pre=$(busybox printf "%d\n" "$(busybox hexdump -n 35 pre.img | busybox awk '/0000020/ { print "0x"$3$2 }')")
          if [ ! -z "$name_pre" -a ! -z "$size_pre" ]; then
             busybox dd if=pre.img of=preloader.img bs="$size_pre" count=1 &>>pre.log && busybox rm -f pre.img
@@ -341,7 +355,8 @@ pre_extract() {
    return
 }
 
-selekt() {
+  selekt()
+{
    echo
    select img in "$select_partition_to_save" "$size_info_and_section_block_number" "$search_partitions" "$extract_images_from_super_partition_current_firmware" "$extract_preloader_from_current_firmware_mtk" "$extract_preloader_from_file_mtk" "$exit_main_menu" "$close_program"; do
       case $REPLY in
@@ -420,7 +435,9 @@ selekt() {
    return
 }
 
-becap() {
+ becap()
+{
+  #clear
    echo
    echo ".....$search_partitions..."
    busybox find /dev/block ! -iname 'userdata' -type l | busybox grep 'by-name' | while read p; do
@@ -431,12 +448,18 @@ becap() {
       if [ -z "$ff" ]; then
          ff=system
       fi
-      echo "$ff" = "$a" = $(busybox blockdev --getsize64 "$a")
-   done | busybox sort -u >>"$dir"/ddd.txt
-   return
+mapper_dir="$(busybox find /dev/block  -name 'mapper' -type d 2> /dev/null | busybox head -1)"
+if [ ! -z "$(busybox find "$mapper_dir" ! -iname 'userdata' -type l | busybox grep "$ff")" ]; then
+echo "${ff}(super)" = "$a" = $(busybox blockdev --getsize64 "$a")
+fi
+done | busybox sort -u >> "$dir"/ddd.txt
+ 
+ return
 }
 
-bek() {
+ bek()
+{
+ #clear
    name="$(busybox cat "$dir"/ddd.txt | busybox awk '{ print $1 }')"
    set -- $name
    if [ ! -z "$name" ]; then
@@ -453,15 +476,16 @@ bek() {
                clear
                ext=$(busybox cat "$dir"/ddd.txt | grep "^$file " | busybox awk '{ print $3 }')
                opla=$(busybox hexdump -C -n 20000 "$ext" | busybox grep -o "30 50 4c 41")
+      #sparse_super=$(busybox hexdump -C -n 2000 "$ext" | grep -o "3a ff 26 ed")
                ext_file="$(busybox hexdump -C -n 2000 "$ext" | busybox awk '/00000430/ { print $10$11 }' | grep "53ef")"
                [ -z "$opla" -a -z "$ext_file" ] && fs=false || fs=true
                if [ "$fs" == "false" ]; then
                   echo
                   echo ".....$creating_backup $file.img..."
                   echo
-                  busybox cat "$dir"/ddd.txt | grep "^$file "
+        busybox cat "$dir"/ddd.txt | busybox grep "^$file "
                   echo
-                  $(busybox cat "$dir"/ddd.txt | busybox awk -v a="$dir_b" '{ print "busybox dd if="$3" ""of="a"/"$1".img bs=64M" }' | busybox grep "/$file".img) 2>"$dir"/ll.txt
+         $(busybox cat "$dir"/ddd.txt | busybox grep "^$file " | busybox awk -v a="$dir_b" '{ print "busybox dd if="$3" ""of="a"/"$1".img bs=64M" }') 2> "$dir"/ll.txt
                   if [ "$?" -eq "0" ]; then
                      busybox cat "$dir"/ll.txt | busybox grep -v "records"
                      echo
@@ -476,21 +500,23 @@ bek() {
                      echo
                   fi
                elif [ "$fs" == "true" ]; then
+    file_save_raw="$(echo "$file" | busybox awk -F"(" '{ print $1 }')"
+    file_save_spars="$(echo "$file" | busybox awk -F"(" '{ print $1 }')"
                   echo
                   select img in "$save $file.img(raw)" "$save $file.img(sparse)" "$back_section_selection" "$exit_main_menu"; do
                      case $REPLY in
                      1)
                         clear
                         echo
-                        echo ".....$creating_backup $file.img..."
+                        echo ".....$creating_backup ${file_save_raw}.img..."
                         echo
-                        busybox cat "$dir"/ddd.txt | grep "^$file "
+        busybox cat "$dir"/ddd.txt | busybox grep "^$file "
                         echo
-                        $(busybox cat "$dir"/ddd.txt | busybox awk -v a="$dir_b" '{ print "busybox dd if="$3" ""of="a"/"$1".img bs=64M" }' | busybox grep "/$file".img) 2>"$dir"/ll.txt
+         $(busybox cat "$dir"/ddd.txt | busybox grep "^$file " | busybox awk -v a="$dir_b" -v b="$file_save_raw" '{ print "busybox dd if="$3" ""of="a"/"b".img bs=64M" }') 2> "$dir"/ll.txt
                         if [ "$?" -eq "0" ]; then
                            busybox cat "$dir"/ll.txt | busybox grep -v "records"
                            echo
-                           echo ".....$successfully_created $file.img!"
+                           echo ".....$successfully_created ${file_save_raw}.img!"
                            echo ".....$saved_in_folder: $dir_b."
                            echo
                            selekt
@@ -505,11 +531,11 @@ bek() {
                      2)
                         clear
                         echo
-                        echo ".....$creating_backup $file.sparse.img..."
+                        echo ".....$creating_backup ${file_save_spars}.sparse.img..."
                         echo
-                        busybox cat "$dir"/ddd.txt | grep "^$file "
+        busybox cat "$dir"/ddd.txt | busybox grep "^$file "
                         echo
-                        $(busybox cat "$dir"/ddd.txt | busybox awk -v a="$dir_b" '{ print "img2simg"" "$3" "a"/"$1".sparse.img" }' | busybox grep "/$file".sparse.img)
+         $(busybox cat "$dir"/ddd.txt | busybox grep "^$file " | busybox awk -v a="$dir_b" -v b="$file_save_spars" '{ print "img2simg"" "$3" "a"/"b".sparse.img" }')
                         if [ "$?" -eq "0" ]; then
                            echo
                            echo ".....$successfully_created $file.sparse.img!"

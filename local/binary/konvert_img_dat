@@ -1,4 +1,10 @@
 #!/system/bin/sh
+
+ 
+ #img_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|_|[+]|[.]|[{]|[(]" '{ print $1 }')
+
+ #img_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F".img" '{ print $1 }')
+
 myk() {
   read b
   if [ "$b" -le "7" ]; then
@@ -12,18 +18,22 @@ myk() {
     echo
   fi
   if [ $(echo $?) -eq 0 ]; then
+ #echo
     echo ".....$convert_to .br $successfully_completed!"
     echo "$print_size_out"
     echo "$print_size_free"
+ #echo
     busybox rm -f "$file"
   else
+ #echo
     echo ".....$convert_error_in $in1 .br!"
     echo
   fi
   return
 }
 
-br_conv() {
+br_conv()
+{
   if [ -f ./"$file" ]; then
     echo
     echo ".....$convert_to .br..."
@@ -63,12 +73,14 @@ END {print a*b}')"
     if [ $(echo $?) -eq 0 ]; then
       echo
       echo ".....$convert_to .dat $successfully_completed!"
+#echo
       if [ "$br_check" == "true" ]; then
         file=./"$img_name".new.dat
         br_conv
       else
         echo "$print_size_out"
         echo "$print_size_free"
+ #echo
       fi
     else
       echo
@@ -88,12 +100,14 @@ END {print a*b}')"
     fi
     echo
     echo ".....$converting "$img_name".img -> "$img_name".sparse.img..."
+#echo
     img2simg ./"$file" ./"$img_name".sparse.img 2>/dev/nul
     if [ $(echo $?) -eq 0 ]; then
       echo
       echo ".....$convert_to sparse $successfully_completed!"
       echo
       if [ ! -z "$(busybox hexdump -C -n 4 ./"$img_name".sparse.img | busybox grep '3a ff 26 ed')" ]; then
+ #clear
         echo
         echo ".....$converting "$img_name".sparse.img -> "$img_name".new.dat..."
         echo
@@ -106,12 +120,14 @@ END {print a*b}')"
           busybox mv -f ./"$img_name".sparse.transfer.list ./"$img_name".transfer.list
           echo
           echo ".....$convert_to .dat $successfully_completed!"
+#echo
           if [ "$br_check" == "true" ]; then
             file=./"$img_name".new.dat
             br_conv
           else
             echo "$print_size_out"
             echo "$print_size_free"
+ #echo
           fi
         else
           echo

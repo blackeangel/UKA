@@ -2,13 +2,15 @@
 
 cd $local_dir/UnpackerSystem
 
-my_d() {
+my_d()
+{
       echo
       echo ".....$enter_path_folder_with_files_example: system/app"
       read cc && xxx=$(echo "$cc" | busybox sed 's!$local_dir/UnpackerSystem!!; s!^/!!')
       if [ $(echo $?) -eq 0 ]; then
             vv=$(echo $xxx | busybox awk -F"/" '{ print $1}')
-            check_sar() {
+ check_sar()
+{
                   if [ -f "$vv/system/build.prop" ]; then
                         sar=true
                         return 0
@@ -35,17 +37,19 @@ my_d() {
       return
 }
 
-replace_perm() {
-      cat "$config"/"$xx"_ffff.txt | while read a b c d; do
-            busybox grep "$a " "$config"/"$xx"_ffff.txt | while read real_con; do
-                  if [ ! -z "$real_con" ]; then
-                        busybox sed -i "s!$real_con!$a $b $c $d!" "$config"/"$xx"_ffff.txt
-                  else
-                        echo "$a" "$b" "$c" "$d" >>"$config"/"$xx"_ffff.txt
-                  fi
-            done
-      done
-      return
+
+ replace_perm()
+{
+cat "$config"/"$xx"_ffff.txt | while read a b c d; do
+ busybox grep "$a " "$config"/"$xx"_ffff.txt | while read real_con; do
+ if [ ! -z "$real_con" ]; then
+ busybox sed -i "s!$real_con!$a $b $c $d!" "$config"/"$xx"_ffff.txt
+else
+ echo "$a" "$b" "$c" "$d" >> "$config"/"$xx"_ffff.txt
+ fi
+ done
+ done
+ return
 }
 
 ttt() {
@@ -107,7 +111,8 @@ ttt() {
       return
 }
 
-ff_dirs() {
+ff_dirs()
+{
       clear
       echo
       echo "...$attributes_for_folders_in \"$xxx\" $when_unpacking:"
@@ -202,11 +207,13 @@ attr() {
             cat "$config"/"$xx"_gg_f.txt | busybox grep "$k" | busybox awk -F"/" '!($1 $2 $3 in a) {a[$1 $2 $3];print}'
       else
             cat "$config"/"$xx"_gg_f.txt | busybox grep "$k" | busybox awk -F"/" '!($1 $2 in a) {a[$1 $2];print}'
+ #return
       fi
       return
 }
 
-ff_files() {
+ff_files()
+{
       echo
       echo "..$enter_attributes_for_files_added_to \""$xxx"\", $which_recorded_in fs_config, $for_example: 0 0 644:"
       echo
@@ -273,7 +280,9 @@ ff_files() {
       fi
       return
 }
-read_fs() {
+
+read_fs()
+{
       clear
       busybox sort -u "$config"/"$xx"_ffff.txt >"$config"/"$xx"_ffff.tmp && rm -f "$config"/"$xx"_ffff.txt
       busybox grep -E '( [0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$' "$config"/"$xx"_ffff.tmp >"$config"/"$xx"_ffff.txt && rm -f "$config"/"$xx"_ffff.tmp
@@ -283,7 +292,9 @@ read_fs() {
       echo "...$received_following_lines_to_write:"
       echo
       cat "$config"/"$xx"_ffff.txt
-      my_read() {
+
+my_read()
+{
             echo
             echo ".....$write_to "$xx"_fs_config?"
             echo
@@ -360,9 +371,10 @@ read_fs() {
       my_read
 }
 
-s_atr() {
-      my_d
-      t=$(echo $xxx | busybox sed 's!^/!!')
+s_atr()
+{
+my_d
+ t=`echo $xxx | busybox sed 's!^/!!'`
 
       find "$t" -type d | busybox sed 's!$!_d!' >"$config"/"$xx"_ff.txt
       find "$t" -type f | busybox sed 's!$!_f!' >>"$config"/"$xx"_ff.txt
@@ -384,7 +396,8 @@ s_atr() {
                         cat "$config"/"$xx"_f_fff.txt
                   fi
 
-                  my_enter() {
+my_enter()
+{
                         echo
                         select img in "$entering_attributes" "$back_entering_folders" "$exit_main_menu"; do
                               case $REPLY in
@@ -457,7 +470,9 @@ s_atr() {
       return
 }
 
-check_d() {
+check_d()
+{
+ #cd /data/local/UnpackerSystem
       for a in $(busybox find -maxdepth 1 ! -name "." -type d | sed 's!./!!'); do
             if [ -f "config/"$a"/"$a"_file_contexts" ]; then
                   return 0
@@ -465,6 +480,7 @@ check_d() {
       done
       return
 }
+ 
 
 if [ check_d -eq "0" ]; then
       s_atr

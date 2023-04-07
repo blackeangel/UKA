@@ -4,47 +4,49 @@ clear
 pack_d="$pack_d"
 . $binary_dir/pack_img
 
-myk() {
-    read n
-    if busybox test "$(busybox expr "$n" \* 1 2>/dev/null)"; then
-        n="$n"
-    else
-        echo
+my_br() {
+    myk() {
+        read n
+        if busybox test "$(busybox expr "$n" \* 1 2>/dev/null)"; then
+            n="$n"
+        else
+            echo
         echo ".....$compression_ratio_not_entered"
         echo ".....$by_default: 0"
-        echo
-        n="0"
-    fi
-    if busybox test "$n" -le "7"; then
-        echo
+            echo
+            n="0"
+        fi
+        if busybox test "$n" -le "7"; then
+            echo
         echo ".....$convert_to "$pack_d".new.dat.br"
         echo ".....$compression_ratio: $n"
         echo ".....$waiting..."
-        brotli -"$n"f "$outdir"/"$pack_d".new.dat
-        echo
-    else
-        echo
+            brotli -"$n"f "$outdir"/"$pack_d".new.dat
+            echo
+        else
+            echo
         echo ".....$enter_number $from 0 $to1 7:"
-        myk
-        echo
-    fi
-    if [ $(echo $?) -eq 0 ]; then
+            myk
+            echo
+        fi
+        if [ $(echo $?) -eq 0 ]; then
         echo ".....$deliting "$pack_d".new.dat"
-        rm -f "$outdir"/"$pack_d".new.dat
-        echo
+            rm -f "$outdir"/"$pack_d".new.dat
+            echo
         echo ".....$conversion_completed_successfully!"
-        echo
-        echo ".....$size1 raw == $size_out $byte"
-        echo ".....$free_space: $size_free mb"
-        echo
-    else
-        echo
+            echo
+        #echo ".....$size1 raw == $size_out $byte"
+        #echo ".....$free_space: $size_free mb"
+            echo -e "\033[33;1m.....$size1 raw == $size_out $byte\033[0m"
+            echo -e "\033[33;1m.....$free_space: $size_free mb\033[0m"
+            echo
+        else
+            echo
         echo ".....$convert_error!"
-        echo
-    fi
-}
+            echo
+        fi
+    }
 
-my_br() {
     if busybox test -s "$outdir"/"$pack_d".new.dat; then
         echo
         echo ".....$to_convert_to "$pack_d".new.dat.br $enter_compression_ratio_0_7:"
@@ -56,16 +58,20 @@ my_br() {
     fi
 }
 
-mv_br() {
-    busybox test -s "$outdir"/"$pack_d".new.new.dat && busybox mv -f "$outdir"/"$pack_d".new.new.dat "$outdir"/"$pack_d".new.dat
-    busybox test -f "$outdir"/"$pack_d".new.patch.dat && busybox mv -f "$outdir"/"$pack_d".new.patch.dat "$outdir"/"$pack_d".patch.dat
-    busybox test -s "$outdir"/"$pack_d".new.transfer.list && busybox mv -f "$outdir"/"$pack_d".new.transfer.list "$outdir"/"$pack_d".transfer.list
-}
+#----------------------------finish pack
 
 if busybox test -s "$outdir"/"$pack_d".new.img; then
+
+    mv_br() {
+        busybox test -s "$outdir"/"$pack_d".new.new.dat && busybox mv -f "$outdir"/"$pack_d".new.new.dat "$outdir"/"$pack_d".new.dat
+        busybox test -f "$outdir"/"$pack_d".new.patch.dat && busybox mv -f "$outdir"/"$pack_d".new.patch.dat "$outdir"/"$pack_d".patch.dat
+        busybox test -s "$outdir"/"$pack_d".new.transfer.list && busybox mv -f "$outdir"/"$pack_d".new.transfer.list "$outdir"/"$pack_d".transfer.list
+    }
+
     b="python39 $binary_dir/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
     if [ -d ./"$pack_d" ]; then
         a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2>/dev/null) || a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/"$pack_d"/build.prop 2>/dev/null)
+
         g=$(busybox grep 'ro.build.version.sdk=.*.' $local_dir/UnpackerSystem/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null || g=$(busybox grep 'ro.build.version.sdk=.*.' "$pack_d"/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null
         if [ "$g" -ge "24" ]; then
             echo
@@ -88,6 +94,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
+
         elif [ "$g" -eq "21" ]; then
             echo
             echo "......$version_found API = $g $android_version: $a"
@@ -109,6 +116,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
+
         elif [ "$g" -eq "22" ]; then
             echo
             echo "......$version_found API = $g $android_version: $a"
@@ -130,6 +138,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
+
         elif [ "$g" -eq "23" ]; then
             echo
             echo "......$version_found API = $g $android_version: $a"
@@ -151,6 +160,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
                 echo ".....$convert_error!"
                 echo
             fi
+
         else
             echo ".....$version_not_found SDK."
             echo

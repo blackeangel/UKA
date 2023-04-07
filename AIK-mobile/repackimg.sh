@@ -156,7 +156,7 @@ case $imgtype in
       recoverydtbo=`ls *-recovery_dtbo`;  echo "recovery_dtbo = $recoverydtbo";
       recoverydtbo=(--recovery_dtbo "split_img/$recoverydtbo");
     fi;
-    if [ -f *-cmdline ]; then
+    if [ -f *-cmdline -o -f *_cmdline ]; then
       cmdname=`ls *-*cmdline`;
       cmdline=`cat *-*cmdline`;           echo "${vendor}cmdline = $cmdline";
       cmd=("split_img/$cmdname"@cmdline);

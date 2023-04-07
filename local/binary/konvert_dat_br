@@ -13,9 +13,11 @@ myk() {
         echo
     fi
     if [ $(echo $?) -eq 0 ]; then
+ #echo
         echo ".....$conversion_completed_successfully!"
         echo
     else
+ #echo
         echo ".....$convert_error."
         echo
     fi

@@ -4,11 +4,23 @@ clear
 
 size_output_sparse() {
   if busybox test -s "$outdir"/"$pack_d".new.img; then
+    if busybox test -s "$dir_avb"/*_pubkey.pem; then
+      . remove_key "$pack_d".new.img "$dir_avb"/*_pubkey.pem
+    fi
     echo
     echo -e "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"
     echo
+    #size_out="$(busybox hexdump -C -n 50 "$outdir"/"$pack_d".new.img | busybox awk '{if($1==00000000) {b="0x"$17$16$15$14}} {if($1==00000010) {a="0x"$5$4$3$2}}
+    #END {print a*b}')"
+
     size_out="$(xxd -e -s 0xC -l 8 "$outdir"/"$pack_d".new.img | busybox awk '{a="0x"$2; b="0x"$3} {print a*b}')"
+
+    # busybox dd if="$outdir"/"$pack_d".new.img of="$pack_d".tmp.img bs=65536 count=1 &> /dev/null
+    # busybox dd if="$pack_d".tmp.img of="$pack_d".size.img bs=40 skip=1 &> /dev/null
+
     xxd -ps -s 0x28 -l 65536 "$outdir"/"$pack_d".new.img | xxd -r -ps >"$pack_d".size.img
+
+    #busybox dd if="$outdir"/"$pack_d".new.img ibs=1 skip=40 of="$pack_d".size.img bs=1 count=65536 &> /dev/null
     size_free="$(busybox expr "$(tune2fs -l "$pack_d".size.img | busybox awk '/Free blocks:/ { print $3 }')" \* 4096 / 1024 / 1024)"
     busybox rm -f "$pack_d".tmp.img "$pack_d".size.img
     echo "$size_out" >"$config"/"$pack_d"_size_out.txt
@@ -22,6 +34,12 @@ size_output_sparse() {
   return
 }
 
+#baze_dir=/data/local/UnpackerSystem
+#dir_avb=/data/local/UnpackerSystem/config/"$pack_d"
+#img_name=$(busybox cat "$dir_avb"/"$pack_d"*_name.txt)
+
+#config="config/$pack_d"
+
 if [ "$erof" == "1" ]; then
   baze_dir=$local_dir/UnpackerSystem/erofs
   dir_avb=$local_dir/UnpackerSystem/erofs/config/"$pack_d"
@@ -34,9 +52,31 @@ elif [ "$erof" == "0" ]; then
   img_name=$(busybox cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
 fi
 . $binary_dir/perm_fs
+
+unset check_alg
+unset sign_print
+unset sign_file
 size_obraz="$(busybox cat "$dir_avb"/"$pack_d"_size.txt)"
 if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
   prop_avb="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
+  check_alg="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/^Algorithm:/ { print $2 }')"
+  if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+    case "$check_alg" in
+    "SHA256_RSA2048")
+      sign_file="--key /data/local/binary/testkey_rsa2048.pem"
+      sign_print="--algorithm $check_alg"
+      ;;
+    "SHA256_RSA4096")
+      sign_file="--key /data/local/binary/testkey_rsa4096.pem"
+      sign_print="--algorithm $check_alg"
+      ;;
+
+    "SHA256_RSA8192")
+      sign_file="--key /data/local/binary/testkey_rsa8192.pem"
+      sign_print="--algorithm $check_alg"
+      ;;
+    esac
+  fi
   part_name_tmp="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt)"
   if busybox test ! -z "$part_name_tmp"; then
     part_name="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt | busybox awk '{ print "--partition_name"" "$0 }')"
@@ -44,11 +84,15 @@ if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
     part_name=""
   fi
 fi
+
+#cd /data/local/UnpackerSystem
 sed -i '/^$/d' "$config"/"$pack_d"_fs_config 2>/dev/null
+#pack_d="$pack_d"
 
 my_sparse() {
   if [ -f ./"$pack_d".new.img ]; then
     if [ -z "$(busybox hexdump -C -n 4 ./"$pack_d".new.img | busybox grep '3a ff 26 ed')" ]; then
+      #. ${dir}/cap_pak
       echo
       echo ".....$convert_to sparse..."
       echo
@@ -80,16 +124,24 @@ my_pack() {
     echo ".....$creating_image "$pack_d".new.img..."
     echo
     if [ "$size" = "111" ]; then
+
       if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
+
         size_avb="$(avbtool add_hashtree_footer --partition_size "$r_size" --do_not_generate_fec --calc_max_image_size)"
+
         chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
         if [ $(echo $?) -eq 0 ]; then
           echo
           echo ".....$structure_creation AVB..."
 
-          echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
+          echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
           chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
+
           if [ $(echo $?) -eq 0 ]; then
+            #echo
+            #echo ".....Успешно создан "$pack_d".new.img!"
+            #echo
             size_output_sparse
           else
             echo
@@ -101,9 +153,13 @@ my_pack() {
           echo ".....$build_error!"
           echo
         fi
+
       else
         chmod 755 ./"$config"/"$pack_d"_gsize.sh && . ./"$config"/"$pack_d"_gsize.sh
         if [ $(echo $?) -eq 0 ]; then
+          #echo
+          #echo ".....Успешно создан "$pack_d".new.img!"
+          #echo
           size_output_sparse
         else
           echo
@@ -113,14 +169,21 @@ my_pack() {
       fi
     else
       if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
+
         size_avb="$(avbtool add_hashtree_footer --partition_size "$size_obraz" --do_not_generate_fec --calc_max_image_size)"
+
         chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
         if [ $(echo $?) -eq 0 ]; then
           echo
           echo ".....$structure_creation AVB..."
-          echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
+          echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
           chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
           if [ $(echo $?) -eq 0 ]; then
+            #echo
+            #echo ".....Успешно создан "$pack_d".new.img!"
+            #echo
             size_output_sparse
           else
             echo
@@ -129,6 +192,9 @@ my_pack() {
           fi
         else
           if [ $(echo $?) -eq 0 ]; then
+            #echo
+            #echo ".....$successfully_created "$pack_d".new.img!"
+            #echo
             size_output_sparse
           else
             echo
@@ -139,6 +205,9 @@ my_pack() {
       else
         chmod 755 ./"$config"/"$pack_d"*_pack_sparse.sh && . ./"$config"/"$pack_d"*_pack_sparse.sh
         if [ $(echo $?) -eq 0 ]; then
+          #echo
+          #echo ".....$successfully_created "$pack_d".new.img!"
+          #echo
           size_output_sparse
         else
           echo
@@ -155,6 +224,7 @@ my_pack() {
 }
 
 if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
+
   if [ ! -f ./file_contexts ]; then
     echo
     echo ".....$not_found_other file_contexts, $assemble_with_image_obtained_when_unpacking..."
@@ -165,15 +235,24 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
       echo ".....$creating_image "$pack_d".new.img..."
       echo
       if [ "$size" = "111" ]; then
+
         if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
+
           size_avb="$(avbtool add_hashtree_footer --partition_size "$r_size" --do_not_generate_fec --calc_max_image_size)"
+
           chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
           if [ $(echo $?) -eq 0 ]; then
             echo
             echo ".....$structure_creation AVB..."
-            echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
+	    
+            echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
+
             if [ $(echo $?) -eq 0 ]; then
+              #echo
+              #echo ".....$successfully_created "$pack_d".new.img!"
+              #echo
               size_output_sparse
             else
               echo
@@ -188,6 +267,9 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
         else
           chmod 755 ./"$config"/"$pack_d"_gsize.sh && . ./"$config"/"$pack_d"_gsize.sh
           if [ $(echo $?) -eq 0 ]; then
+            #echo
+            #echo ".....$successfully_created "$pack_d".new.img!"
+            #echo
             size_output_sparse
           else
             echo
@@ -197,15 +279,21 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
         fi
       else
         if [ -f ./"$config"/"$pack_d"*_avb.img ]; then
+
           size_avb="$(avbtool add_hashtree_footer --partition_size "$size_obraz" --do_not_generate_fec --calc_max_image_size)"
+
           chmod 755 ./"$config"/"$pack_d"_pack_avb_sparse.sh && . ./"$config"/"$pack_d"_pack_avb_sparse.sh
           if [ $(echo $?) -eq 0 ]; then
             echo
             echo ".....$structure_creation AVB..."
 
-            echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" "$part_name" --do_not_generate_fec "$prop_avb"" >./"$config"/"$pack_d"_pack_avb_str.sh
+            echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$size_obraz" "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" >./"$config"/"$pack_d"_pack_avb_str.sh
+
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
             if [ $(echo $?) -eq 0 ]; then
+              #echo
+              #echo ".....”спешно создан "$pack_d".new.img!"
+              #echo
               size_output_sparse
             else
               echo
@@ -214,6 +302,9 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
             fi
           else
             if [ $(echo $?) -eq 0 ]; then
+              #echo
+              #echo ".....”спешно создан "$pack_d".new.img!"
+              #echo
               size_output_sparse
             else
               echo
@@ -224,6 +315,9 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
         else
           chmod 755 ./"$config"/"$pack_d"*_pack_sparse.sh && . ./"$config"/"$pack_d"*_pack_sparse.sh
           if [ $(echo $?) -eq 0 ]; then
+            #echo
+            #echo ".....”спешно создан "$pack_d".new.img!"
+            #echo
             size_output_sparse
           else
             echo
@@ -245,4 +339,5 @@ else
   echo ".....$no_folder \""$pack_d"\" $for_building_image_or_file_missing *_pack_sparse.sh."
   echo
 fi
+#unset erof
 busybox rm -f ./file_contexts ./fs_config
