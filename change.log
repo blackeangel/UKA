@@ -1,3 +1,12 @@
+✓Версия 5.19:
+В пункт "Распаковка .br", добавлено "Распаковать все образы"
+В пункт "Собрать .img с размером папки для сборки -> .br", добавлено "Собрать все образы"
+Исправлена сборка vendor_boot.img.
+Добавлена возможность замены публичного ключа в любом образе со структурой AVB, если он был подписан.
+При сборке .img будет сохраняться, тот публичный ключ, которым был подписан образ на момент распаковки.
+Добавлена возможность сборки erofs -> ext4 на 32 битных прошивках.
+Добавлена возможность распаковки образов с расширением .win.
+
 ✓Тестовая версия 5.18:
 Исправлены ошибки, найденные в версии 5.17.
 Добавлена поддержка форматов .lzma, .xz, .zst к пункту 11 -> 3 (Конвертация .lz4)
@@ -211,6 +220,14 @@ AIK-mobile можно полностью удалить с телефона пр
 Добавлено меню.
 
 ===============================================================================================
+✓Version 5.19:
+In the item "Unpacking .br", added "Unpack all images"
+In the item "Build .img with build folder size -> .br", added "Build all images"
+Fixed assembly vendor_boot.img.
+Added the ability to replace the public key in any image with the AVB structure, if it has been signed.
+When assembling .img, the public key that was used to sign the image at the time of unpacking will be saved.
+Added ability to build erofs -> ext4 on 32 bit firmware.
+Added the ability to unpack images with the .win extension.
 
 ✓Test version 5.18:
 Fixed bugs found in version 5.17.
