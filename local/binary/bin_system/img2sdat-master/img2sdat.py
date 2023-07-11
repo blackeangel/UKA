@@ -87,7 +87,7 @@ def __convertApi2ver(versionApi):
         ver=3
     elif versionApi =="24" or versionApi =="25" or versionApi =="26" or versionApi =="27" or versionApi =="28" or versionApi =="29":
         ver=4
-    return
+    return ver
 
 def main(argv):
     global input
