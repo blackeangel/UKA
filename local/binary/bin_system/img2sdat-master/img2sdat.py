@@ -45,7 +45,7 @@ def __AndroidVersion():
         print('''1. Android Lollipop 5.0
 2. Android Lollipop 5.1
 3. Android Marshmallow 6.0
-4. Android 7.x/8.x/9.x/10.x/11.x
+4. Android 7.0+
 ''')
         try:
             input = raw_input
@@ -85,7 +85,7 @@ def __convertApi2ver(versionApi):
         ver=2
     elif versionApi =="23":
         ver=3
-    elif versionApi =="24" or versionApi =="25" or versionApi =="26" or versionApi =="27" or versionApi =="28" or versionApi =="29":
+    elif int(versionApi) >=24:
         ver=4
     return ver
 

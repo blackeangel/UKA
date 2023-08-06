@@ -13,7 +13,7 @@ else
 fi
 
 if busybox test -s "$file"; then
-    if busybox test ! -z "$(avbtool info_image --image "$file" 2>/dev/null | busybox grep -o "Image size")"; then
+    if busybox test ! -z "$(avbtool info_image --image "$file" 2>/dev/null | busybox grep -o "Minimum libavb version:")"; then
         check_alg="$(avbtool info_image --image "$file" 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
 
         if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
@@ -25,32 +25,25 @@ if busybox test -s "$file"; then
             r="$(busybox basename $file)"
             f_name=${r%.*}
 
-            #offset_avb="$(avbtool info_image --image "$file" | busybox awk '/VBMeta offset:/ { print $3 }')"
-            #if [ ! -z "$offset_avb" ]; then
-            #offset_avb="$offset_avb"
-            #else
-            offset_avb="$(python39 $binary_dir/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
-            #fi
-            if [ "$offset_avb" != "None" ]; then
+            offset_avb="$(bin_utils foffset "$file" "41564230" -1 true)"
+
+            if busybox test ! -z "$offset_avb"; then
 
                 size_magic="$(avbtool info_image --image "$file" | busybox awk '/Header Block:/ { print $3 }')"
 
                 size_ayten="$(avbtool info_image --image "$file" | busybox awk '/Authentication Block:/ { print $3 }')"
 
                 xxx="$(busybox expr "$offset_avb" \+ 64)"
-                offset_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+
+                offset_key="$(busybox printf "%d\n" "0x""$(xxd -ps -s "$xxx" -l 8 "$file")")"
 
                 xxx="$(busybox expr "$offset_avb" \+ 72)"
 
-                size_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+                size_key="$(busybox printf "%d\n" "0x""$(xxd -ps -s "$xxx" -l 8 "$file")")"
 
                 real_offset_key="$(busybox expr "$offset_avb" \+ "$size_magic" \+ "$size_ayten" \+ "$offset_key")"
 
-                #busybox dd if="$file" ibs=1 skip="$real_offset_key" of="$out_extract_key"/"$f_name"_pubkey.pem bs=1 count="$size_key" &>/dev/null
-
-                of_hex="$(printf "%x\n" "$real_offset_key")"
-
-                xxd -ps -s 0x"$of_hex" -l "$size_key" "$file" | xxd -r -ps >"$out_extract_key"/"$f_name"_pubkey.pem
+                xxd -ps -s "$real_offset_key" -l "$size_key" "$file" | xxd -r -ps >"$out_extract_key"/"$f_name"_pubkey.pem
 
                 if [ $(echo $?) -eq 0 -a -s "$out_extract_key"/"$f_name"_pubkey.pem ]; then
                     if [ "$aik_mob" != "1" ]; then
@@ -80,13 +73,6 @@ if busybox test -s "$file"; then
                 echo
             echo ".....$f_i_l_e /$nd/$file $not_signed!"
                 echo
-                #else
-                #if busybox test ! -z "$(avbtool info_image --image "$file" 2> /dev/null | busybox grep -o "Image size")"; then
-                #r="$(busybox realpath "$file")"
-                #echo
-                #echo ".....Файл $r не подписан!"
-                #echo
-            #fi
             fi
         fi
     else

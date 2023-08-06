@@ -1,5 +1,5 @@
 #!/system/bin/sh
 
- cd /data/local/python39/sefcontext-parser
- python39 setup.py install
+ cd /data/local/python31/sefcontext-parser
+ python31 setup.py install
 

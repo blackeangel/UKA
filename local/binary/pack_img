@@ -5,7 +5,7 @@ clear
 size_output_sparse() {
   if busybox test -s "$outdir"/"$pack_d".new.img; then
     if busybox test -s "$dir_avb"/*_pubkey.pem; then
-      . remove_key "$pack_d".new.img "$dir_avb"/*_pubkey.pem
+      . remove_key "$outdir"/"$pack_d".new.img "$dir_avb"/*_pubkey.pem
     fi
     echo
     echo -e "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"
@@ -193,7 +193,7 @@ my_pack() {
         else
           if [ $(echo $?) -eq 0 ]; then
             #echo
-            #echo ".....$successfully_created "$pack_d".new.img!"
+            #echo ".....Успешно создан "$pack_d".new.img!"
             #echo
             size_output_sparse
           else
@@ -206,7 +206,7 @@ my_pack() {
         chmod 755 ./"$config"/"$pack_d"*_pack_sparse.sh && . ./"$config"/"$pack_d"*_pack_sparse.sh
         if [ $(echo $?) -eq 0 ]; then
           #echo
-          #echo ".....$successfully_created "$pack_d".new.img!"
+          #echo ".....Успешно создан "$pack_d".new.img!"
           #echo
           size_output_sparse
         else
@@ -244,14 +244,14 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           if [ $(echo $?) -eq 0 ]; then
             echo
             echo ".....$structure_creation AVB..."
-	    
+
             echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size "$r_size" "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" >./"$config"/"$pack_d"_pack_avb_str.sh
 
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
 
             if [ $(echo $?) -eq 0 ]; then
               #echo
-              #echo ".....$successfully_created "$pack_d".new.img!"
+              #echo ".....Успешно создан "$pack_d".new.img!"
               #echo
               size_output_sparse
             else
@@ -264,11 +264,12 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
             echo ".....$build_error!"
             echo
           fi
+
         else
           chmod 755 ./"$config"/"$pack_d"_gsize.sh && . ./"$config"/"$pack_d"_gsize.sh
           if [ $(echo $?) -eq 0 ]; then
             #echo
-            #echo ".....$successfully_created "$pack_d".new.img!"
+            #echo ".....Успешно создан "$pack_d".new.img!"
             #echo
             size_output_sparse
           else
@@ -292,7 +293,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
             chmod 755 ./"$config"/"$pack_d"_pack_avb_str.sh && . ./"$config"/"$pack_d"*_pack_avb_str.sh
             if [ $(echo $?) -eq 0 ]; then
               #echo
-              #echo ".....”спешно создан "$pack_d".new.img!"
+              #echo ".....Успешно создан "$pack_d".new.img!"
               #echo
               size_output_sparse
             else
@@ -303,7 +304,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           else
             if [ $(echo $?) -eq 0 ]; then
               #echo
-              #echo ".....”спешно создан "$pack_d".new.img!"
+              #echo ".....Успешно создан "$pack_d".new.img!"
               #echo
               size_output_sparse
             else
@@ -316,7 +317,7 @@ if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_sparse.sh ]; then
           chmod 755 ./"$config"/"$pack_d"*_pack_sparse.sh && . ./"$config"/"$pack_d"*_pack_sparse.sh
           if [ $(echo $?) -eq 0 ]; then
             #echo
-            #echo ".....”спешно создан "$pack_d".new.img!"
+            #echo ".....Успешно создан "$pack_d".new.img!"
             #echo
             size_output_sparse
           else

@@ -18,20 +18,26 @@ key_r() {
 
     f_name=${r%.*}
 
-            offset_avb="$(python39 $binary_dir/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
+    #offset_avb="$(python39 /data/local/binary/bin_system/find_avb0.py "$file" "41564230" | busybox head -1)"
 
-    if busybox test "$offset_avb" != "None"; then
+    #offset_avb="$(printf "%d\n" "$(bin_utils foffset "$file" "41564230" -1)")"
+
+    offset_avb="$(bin_utils foffset "$file" "41564230" -1 true)"
+
+    if busybox test ! -z "$offset_avb"; then
 
       size_magic="$(avbtool info_image --image "$file" | busybox awk '/Header Block:/ { print $3 }')"
 
       size_ayten="$(avbtool info_image --image "$file" | busybox awk '/Authentication Block:/ { print $3 }')"
 
       xxx="$(busybox expr "$offset_avb" \+ 64)"
-      offset_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+
+      offset_key="$(busybox printf "%d\n" "0x""$(xxd -ps -s "$xxx" -l 8 "$file")")"
 
       xxx="$(busybox expr "$offset_avb" \+ 72)"
 
-      size_key="$(busybox printf "%d\n" $(busybox hexdump -C -s "$xxx" -n 8 "$file" | busybox awk 'NR==1 { print "0x"$2$3$4$5$6$7$8$9 }'))"
+      size_key="$(busybox printf "%d\n" "0x""$(xxd -ps -s "$xxx" -l 8 "$file")")"
+
       size_new_key="$(busybox stat -c %s "$file_key")"
       real_offset_key_dec="$(busybox expr "$offset_avb" \+ "$size_magic" \+ "$size_ayten" \+ "$offset_key")"
 
@@ -43,7 +49,7 @@ key_r() {
 
         sha11="$(avbtool info_image --image "$file" | busybox awk '/^Public key \(sha1\):/ { print $4}')"
 
-        bin_writekey "$file" "$real_offset_key" "$file_key"
+        bin_utils writekey "$file" "$real_offset_key" -f "$file_key" &>/dev/null
 
         if [ $(echo $?) -eq 0 ]; then
           check_new_alg="$(avbtool info_image --image "$file" 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
@@ -86,7 +92,7 @@ key_r() {
 
 search_key() {
   #clear
-    echo
+  echo
     echo ".....Algorithm: $check_alg"
   echo
     echo ".....$go_folder_where_public_key_located: cd /sdcard"

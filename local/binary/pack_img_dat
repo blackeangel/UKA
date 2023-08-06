@@ -2,42 +2,38 @@
 
 clear
 #cd /data/local/UnpackerSystem
- pack_d="$pack_d"
+pack_d="$pack_d"
 
- 
 . $binary_dir/pack_img
 
 #----------------------------finish pack
 
 if busybox test -s "$outdir"/"$pack_d".new.img; then
 
- mv_dat()
-{
- busybox test -s "$outdir"/"$pack_d".new.new.dat && busybox mv -f "$outdir"/"$pack_d".new.new.dat "$outdir"/"$pack_d".new.dat
- busybox test -f "$outdir"/"$pack_d".new.patch.dat && busybox mv -f "$outdir"/"$pack_d".new.patch.dat "$outdir"/"$pack_d".patch.dat
- busybox test -s "$outdir"/"$pack_d".new.transfer.list && busybox mv -f "$outdir"/"$pack_d".new.transfer.list "$outdir"/"$pack_d".transfer.list
-}
+    mv_dat() {
+        busybox test -s "$outdir"/"$pack_d".new.new.dat && busybox mv -f "$outdir"/"$pack_d".new.new.dat "$outdir"/"$pack_d".new.dat
+        busybox test -f "$outdir"/"$pack_d".new.patch.dat && busybox mv -f "$outdir"/"$pack_d".new.patch.dat "$outdir"/"$pack_d".patch.dat
+        busybox test -s "$outdir"/"$pack_d".new.transfer.list && busybox mv -f "$outdir"/"$pack_d".new.transfer.list "$outdir"/"$pack_d".transfer.list
+    }
 
-    b="python39 $binary_dir/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
+    b="python31 $binary_dir/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
     if [ -d ./"$pack_d" ]; then
-#a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2> /dev/null)
+        #a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2> /dev/null)
 
-#a1=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/"$pack_d"/build.prop 2> /dev/null)
-#if [ -z "$a" ]; then
-#a="$a1"
-#else
-#a="$a"
-#fi
+        #a1=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/"$pack_d"/build.prop 2> /dev/null)
+        #if [ -z "$a" ]; then
+        #a="$a1"
+        #else
+        #a="$a"
+        #fi
 
-
-a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2> /dev/null) || a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/system/build.prop 2> /dev/null)
-
+        a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2>/dev/null) || a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/system/build.prop 2>/dev/null)
 
         g=$(busybox grep 'ro.build.version.sdk=.*.' $local_dir/UnpackerSystem/"$pack_d"/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null || g=$(busybox grep 'ro.build.version.sdk=.*.' "$pack_d"/system/build.prop | busybox grep -Eo '.{2}$') 2>/dev/null
-if [ "$g" -ge "24" ]; then
-echo
+        if [ "$g" -ge "24" ]; then
+            echo
             echo "......$version_found API = $g $android_version: $a"
-echo
+            echo
             echo "......$convert_to .dat..."
             echo
             $b 4
@@ -49,14 +45,15 @@ echo
                 echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
-#echo ".....Удаление "$pack_d".new.img..."
+                #echo ".....Удаление "$pack_d".new.img..."
                 rm -f "$outdir"/"$pack_d".new.img
-#echo
+            #echo
             else
                 echo
                 echo ".....$convert_error!"
                 echo
             fi
+
         elif [ "$g" -eq "21" ]; then
             echo
             echo "......$version_found API = $g $android_version: $a"
@@ -72,14 +69,15 @@ echo
                 echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
-#echo ".....Удаление "$pack_d".new.img..."
+                #echo ".....Удаление "$pack_d".new.img..."
                 rm -f "$outdir"/"$pack_d".new.img
-#echo
+            #echo
             else
                 echo
                 echo ".....$convert_error!"
                 echo
             fi
+
         elif [ "$g" -eq "22" ]; then
             echo
             echo "......$version_found API = $g $android_version: $a"
@@ -95,14 +93,15 @@ echo
                 echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
-#echo ".....Удаление "$pack_d".new.img..."
+                #echo ".....Удаление "$pack_d".new.img..."
                 rm -f "$outdir"/"$pack_d".new.img
-#echo
+            #echo
             else
                 echo
                 echo ".....$convert_error!"
                 echo
             fi
+
         elif [ "$g" -eq "23" ]; then
             echo
             echo "......$version_found API = $g $android_version: $a"
@@ -118,14 +117,15 @@ echo
                 echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
-#echo ".....Удаление "$pack_d".new.img..."
+                #echo ".....Удаление "$pack_d".new.img..."
                 rm -f "$outdir"/"$pack_d".new.img
-#echo
+            #echo
             else
                 echo
                 echo ".....$convert_error!"
                 echo
             fi
+
         else
             echo ".....$version_not_found SDK."
             echo
@@ -140,9 +140,9 @@ echo
                 echo ".....$size1 raw == $size_out $byte"
                 echo ".....$free_space: $size_free mb"
                 echo
-#echo ".....Удаление "$pack_d".new.img..."
+                #echo ".....Удаление "$pack_d".new.img..."
                 rm -f "$outdir"/"$pack_d".new.img
-#echo
+            #echo
             else
                 echo
                 echo ".....$convert_error!"
@@ -153,8 +153,4 @@ echo
 else
     echo ".....$no_image \""$pack_d".new.img\" $for_conversion"
 fi
-rm -f $local_dir/python39/tmp* tmp*
-
-
-
-
+rm -f $local_dir/python31/tmp* tmp*

@@ -23,6 +23,7 @@ erofs="$(busybox hexdump -C -n 2000 "$file" | busybox grep -o 'e2 e1 f5 e0')"
 sparse_super=$(busybox hexdump -C -n 20000 "$file" | grep -o "3a ff 26 ed")
 
 erfs() {
+
   if [ -d erofs/"$r_name" ]; then
 
     echo
@@ -30,6 +31,7 @@ erfs() {
     umount erofs/"$r_name" 2>/dev/null
     busybox rm -rf erofs/"$r_name" 2>/dev/null
   fi
+
   mkdir -p erofs/"$r_name" 2>/dev/null
   erofsfuse "$file" erofs/"$r_name" &>/dev/null
   if [ $(echo $?) -eq 0 ]; then
@@ -308,16 +310,12 @@ if [ ! -z "$zst" ]; then
 elif [ ! -z "$opla" ]; then
   super
 elif [ ! -z "$erofs" -a -z "$sparse_super" ]; then
-  #if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
+
   echo
     echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
 
   . unpack_img_erofs
-  #else
-  #echo
-  #  echo -e "\033[33;1m.....$file $has_file_system erofs!\033[0m"
-  #erfs
-#fi
+
 elif [ ! -z "$erofs" -a ! -z "$sparse_super" ]; then
   file_raw="/$nd"/"$r_name".raw.img
   echo
@@ -326,12 +324,14 @@ elif [ ! -z "$erofs" -a ! -z "$sparse_super" ]; then
   echo ".....$converting "$file" -> "$file_raw"..."
 
   simg2img "$file" "$file_raw" && file="$file_raw"
-  if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
+  if [ $(echo $?) -eq 0 ]; then
 
     . unpack_img_erofs
 
   else
-    erfs
+    echo
+    echo ".....$convert_error!"
+    echo
   fi
 else
   echo
@@ -373,7 +373,7 @@ else
     #echo
     echo ".....$unpacking ${file}..."
 
-    python39 $binary_dir/bin_system/imgextractor1.py "$file" "$PWD"
+    python31 $binary_dir/bin_system/imgextractor1.py "$file" "$PWD"
     if [ $(echo $?) -eq 0 ]; then
       if [ -d ./"$r_name" -a -s "$config"/"$r_name"_fs_config ]; then
         busybox sed -i '/logd / s!0x4000040000040!0x440000040!' "$config"/"$r_name"_fs_config

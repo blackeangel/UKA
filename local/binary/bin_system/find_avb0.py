@@ -2,7 +2,7 @@ import sys, os, re, mmap
 def reversefinder(file, whatfind):
     whatfind=bytes.fromhex(whatfind)
     size=os.stat(file).st_size
-    read_dump=64000000
+    read_dump=128000000
     with open(file, "rb") as f:
         if size>read_dump:
             f.seek(size-read_dump)

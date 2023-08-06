@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
 clear
-program_version="5.19"
+program_version="5.22"
 local_dir="$(dirname $(dirname $0))"
 binary_dir="$(dirname $0)"
 dir="$binary_dir"
@@ -127,7 +127,9 @@ nn1() {
   echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSuper/output"
   echo ".....$when_you_enter 1, $save_folder: $local_dir/UnpackerSuper"
   echo ".....$enter 0, 1, $or_your_path_to_image_save_folder..."
-
+  #echo "  например: 0"
+  #echo "  например: /sdcard/test"
+  #echo "  пример ввода: /storage/F960-18E7"
   echo
   read h && if [ "$h" = "0" ]; then
     outdir=$local_dir/UnpackerSystem
@@ -1244,7 +1246,7 @@ main_menu() {
                         file1="$ker_name"_path.img
                         busybox cp -f "$file" "$file1"
                         echo
-                        python39 $binary_dir/bin_system/main.py "$file1" 2>ker.txt
+                        python31 $binary_dir/bin_system/main.py "$file1" 2>ker.txt
                         if [ $(echo $?) -eq 0 ]; then
                           echo
                           echo ".....$successfully_patched $file -> $file1"
@@ -4128,7 +4130,7 @@ main_menu() {
         echo "---------------------------------------------------------"
         echo
         echo -en "\E[37;1m"
-        select img in "$actions_with_structure AVB" "$convert .sin -> .img" "$convert .lz4|.zst|.xz|.lzma" "$glue_image_from_firmware_under Qfil" "$extracting_images_from payload.bin" "$extracting_images_from UPDATE.APP" "$creating_image_from_block" "$unpacking_conversion .ozip" "$creation tar.md5" "$firmware_unpacking .img" "$firmware_unpacking .ofp" "$exit_main_menu" "$close_program"; do
+        select img in "$actions_with_structure AVB" "$convert .sin -> .img" "$convert .lz4|.zst|.xz|.lzma" "$glue_image_from_firmware_under Qfil" "$extracting_images_from payload.bin" "$extracting_images_from UPDATE.APP" "$creating_image_from_block" "$unpacking_conversion .ozip" "$creation tar.md5" "$firmware_unpacking .img" "$firmware_unpacking .ofp|ops" "$exit_main_menu" "$close_program"; do
           case $REPLY in
           1)
             clear
@@ -4138,6 +4140,66 @@ main_menu() {
                 case $REPLY in
                 1)
                   clear
+
+                  pvbm() {
+                    clear
+                    echo
+                    echo ".....$looking_patch_values..."
+
+                    true_vb() {
+                      tru="$(avbtool info_image --image "$file" | busybox awk '/Flags:/ NR == 1 {if($2 == 3) { print $2 }}')"
+                      rolbak="$(avbtool info_image --image "$file" | busybox awk '/Rollback Index:/ NR == 1 {if($3 == 0) { print $3 }}')"
+                      return
+                    }
+                    #true_vb
+
+                    #if [ "$tru" != 3 -o "$rolbak" != 0 ]; then
+                    real_nd="$(echo /"$nd" | busybox grep -o "/dev/block")"
+                    if [ -z "$real_nd" ]; then
+
+                      file_name="$(echo "$file" | busybox sed 's!.img$!!')"
+                      file_orig="$file"
+                      file_path="${file_name}_path.img"
+                      busybox cp -f "$file_orig" "$file_path"
+                    #python31 $binary_dir/bin_system/int.py "$file" "7b" "03"
+                    #echo '7b: 03' | xxd -r - "$file"
+                    else
+                      file_orig="$file"
+                      file_path="$file"
+                    fi
+
+                    for vb in "78: $num_path" "74: 00000000" "7c: 00000000"; do
+                      echo "$vb" | $binary_dir/xxd -r - "$file_path"
+                    done
+
+                    if [ $(echo $?) -eq 0 ]; then
+                      file="$file_path"
+                      true_vb
+
+                      #if [ "$tru" == 3 -a "$rolbak" == 0 ]; then
+                      if [ -z "$real_nd" ]; then
+                        echo
+                        echo ".....$successfully_patched /"$nd"/"$file_orig" -> /"$nd"/"$file_path""
+                        echo ".....$State_patch:  $file_vbm"
+                        echo
+                      else
+                        echo
+                        echo ".....$successfully_patched /"$nd"/"$file_orig""
+                        echo ".....$State_patch:  $file_vbm"
+                        echo
+                      fi
+                    else
+                      echo
+                      echo ".....$patch_error /"$nd"/"$file""
+                      echo
+                    #fi
+                    fi
+                    #else
+                    #echo
+                    #$echo ".....$f_i_l_e /"$nd"/"$file" $already_patched!"
+                    #echo
+                    #fi
+                  }
                   vbmeta() {
                     echo
                     echo "..$go_folder_where_files_located \"vbmeta.img\", $for_example: cd /sdcard"
@@ -4166,62 +4228,61 @@ main_menu() {
                             let i=i+1
                             file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
                             if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
-                              clear
-                              echo
-                              echo ".....$looking_patch_values..."
+                              #clear
 
-                              true_vb() {
-                                tru="$(avbtool info_image --image "$file" | busybox awk '/Flags:/ NR == 1 {if($2 == 3) { print $2 }}')"
-                                rolbak="$(avbtool info_image --image "$file" | busybox awk '/Rollback Index:/ NR == 1 {if($3 == 0) { print $3 }}')"
+                              choice_vb() {
+                                clear
+                                v=$(echo "Disable_dm_verity" "Disable_dm_verification" "Disable_dm_verity+Disable_dm_verification")
+
+                                set -- $v
+                                echo
+                                echo ".....$select_patch_for vbmeta:"
+                                echo
+                                select menu in $v "$exit_main_menu"; do
+                                  case $REPLY in
+                                  [1-9]*)
+                                    i="$#"
+                                    let i=i+1
+                                    file_vbm=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+                                    if [ ! -z "$file_vbm" -a "$REPLY" -lt "$i" ]; then
+                                      if [ "$file_vbm" == "Disable_dm_verity" ]; then
+                                        num_path="00000001"
+                                        pvbm
+                                      elif [ "$file_vbm" == "Disable_dm_verification" ]; then
+                                        num_path="00000002"
+                                        pvbm
+                                      elif [ "$file_vbm" == "Disable_dm_verity+Disable_dm_verification" ]; then
+                                        num_path="00000003"
+                                        pvbm
+                                      fi
+                                      main_menu
+                                      return
+                                      break
+                                    elif [ "$REPLY" == "$i" ]; then
+                                      clear
+                                      main_menu
+                                      return
+                                      break
+                                    else
+                              	      error_select_menu 1
+                                      choice_vb
+                                      return
+                                      break
+                                    fi
+                                    break
+                                    ;;
+                                  *)
+                                    error_select_menu 1
+                                    choice_vb
+                                    return
+                                    break
+                                    ;;
+                                  esac
+                                done
                                 return
                               }
-                              true_vb
-
-                              if [ "$tru" != 3 -o "$rolbak" != 0 ]; then
-                                real_nd="$(echo /"$nd" | busybox grep -o "/dev/block")"
-                                if [ -z "$real_nd" ]; then
-
-                                  file_name="$(echo "$file" | busybox sed 's!.img$!!')"
-                                  file_orig="$file"
-                                  file_path="${file_name}_path.img"
-                                  busybox cp -f "$file_orig" "$file_path"
-                                #python39 /data/local/binary/bin_system/int.py "$file" "7b" "03"
-                                #echo '7b: 03' | xxd -r - "$file"
-                                else
-                                  file_orig="$file"
-                                  file_path="$file"
-                                fi
-
-                                for vb in "78: 00000003" "74: 00000000" "7c: 00000000"; do
-                                  echo "$vb" | $binary_dir/xxd -r - "$file_path"
-                                done
-
-                                if [ $(echo $?) -eq 0 ]; then
-                                  file="$file_path"
-                                  true_vb
-
-                                  if [ "$tru" == 3 -a "$rolbak" == 0 ]; then
-                                    if [ -z "$real_nd" ]; then
-                                      echo
-                                      echo ".....$successfully_patched /"$nd"/"$file_orig" -> /"$nd"/"$file_path""
-                                      echo
-                                    else
-                                      echo
-                                      echo ".....$successfully_patched /"$nd"/"$file_orig""
-                                      echo
-                                    fi
-                                  else
-                                    echo
-                                    echo ".....$patch_error /"$nd"/"$file""
-                                    echo
-                                  fi
-                                fi
-                              else
-                                echo
-                                echo ".....$file /"$nd"/"$file" $already_patched!"
-                                echo
-                              fi
-                              main_menu
+                              choice_vb
+                              #main_menu
                               return
                               break
                             elif [ "$REPLY" == "$i" ]; then
@@ -4389,9 +4450,9 @@ main_menu() {
 
                       v=$(for a in $(busybox find . -maxdepth 1 -name "*.img" -o -name "*.win" -type f | busybox sed 's!./!!'); do
 
-                        if [ ! -z "$(busybox hexdump -C -n 20 "$a" 2>/dev/null | busybox grep -o "41 56 42 30")" -o ! -z "$(busybox hexdump -C -n 2000 "$a" 2>/dev/null | busybox grep '3a ff 26 ed')" -o ! -z "$(busybox hexdump -C -n 2000 "$a" 2>/dev/null | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 2000 "$a" 2>/dev/null | busybox grep -o '41 4e 44 52 4f 49 44 21')" -o ! -z "$(busybox hexdump -C -n 2000 "$a" | busybox grep -o 'e2 e1 f5 e0')" -o ! -z "$(busybox hexdump -C -n 2000 "$a" | busybox grep -o '10 20 f5 f2 ')" ]; then
-                          echo "$a"
-                        fi
+                        #if [ ! -z "$(busybox hexdump -C -n 20 "$a" 2> /dev/null | busybox grep -o "41 56 42 30")" -o ! -z "$(busybox hexdump -C -n 2000 "$a" 2> /dev/null | busybox grep '3a ff 26 ed')" -o ! -z "$(busybox hexdump -C -n 2000 "$a" 2> /dev/null | busybox awk '/00000430/ { print $10$11 }' | busybox grep "53ef")" -o ! -z "$(busybox hexdump -C -n 2000 "$a" 2> /dev/null | busybox grep -o '41 4e 44 52 4f 49 44 21')" -o ! -z "$(busybox hexdump -C -n 2000 "$a" | busybox grep -o 'e2 e1 f5 e0')" -o ! -z "$(busybox hexdump -C -n 2000 "$a" | busybox grep -o '10 20 f5 f2 ')" ]; then
+                        echo "$a"
+                        #fi
                       done)
 
                       set -- $v
@@ -4674,7 +4735,7 @@ main_menu() {
 
                 decomp_lz4() {
                   echo
-                  echo "..$go_folder_where_files_located \".lz4\", $for_example: cd /sdcard"
+                  echo "..$go_folder_where_files_located .lz4|.zst||.xz|.lzma, $for_example: cd /sdcard"
                   read b && $b
                   if [ $(echo $?) -eq 0 ]; then
                     clear
@@ -5068,7 +5129,7 @@ main_menu() {
                           echo
                           echo ".....$file_found ${rab_file}"
                           echo ".....$gluing $obraz $using_file $rab_file..."
-                          python39 $binary_dir/bin_system/qfil1.py $local_dir/UnpackerQfil/"$rab_file" "$name"
+                          python31 $binary_dir/bin_system/qfil1.py $local_dir/UnpackerQfil/"$rab_file" "$name"
                           if [ "$?" -eq "0" ]; then
                             obraz_real="$local_dir/UnpackerQfil/$obraz"
                             opla_r=$(busybox hexdump -C -n 20000 "$obraz_real" | busybox grep -o "30 50 4c 41")
@@ -5164,12 +5225,22 @@ main_menu() {
                       if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                         clear
                         echo
+			echo ".....$clean $local_dir/UnpackerPayload..."
+                        #echo
+                        busybox find $local_dir/UnpackerPayload/* -maxdepth 1 ! -name "*.bin" -type f -exec busybox rm -f {} \; 2>/dev/null
+			echo
                         echo ".....$extract_from /$nd/$file..."
                         echo
-                        #python39 /data/local/binary/bin_payload/extract_payload-master/extract_payload.py ./payload.bin /data/local/UnpackerPayload
 
-                        payload-dumper -c 8 -o $local_dir/UnpackerPayload "$file"
+                        if [ -z "$(getprop ro.product.cpu.abilist64)" ]; then
+                          otadump="otadump7x32"
+                        else
+                          otadump="otadump7x64"
+                        fi
+
+                        "$otadump" -c 8 -o $local_dir/UnpackerPayload "$file"
                         if [ $(echo $?) -eq 0 ]; then
+                          clear
                           echo
                           echo ".....$images_retrieved_successfully!"
                           echo ".....$saved_in $local_dir/UnpackerPayload!"
@@ -5178,6 +5249,23 @@ main_menu() {
                           echo
                           echo ".....$extract_error!"
                           echo
+                          echo ".....$using_old_method_extract"
+                          echo ".....$extract_from /$nd/$file..."
+                          echo
+
+                          busybox find $local_dir/UnpackerPayload/* -maxdepth 1 ! -name "*.bin" -type f -exec busybox rm -f {} \; 2>/dev/null
+                          payload-dumper -c 8 -o $local_dir/UnpackerPayload "$file"
+                          if [ $(echo $?) -eq 0 ]; then
+                            clear
+                            echo
+                            echo ".....$images_retrieved_successfully!"
+                          echo ".....$saved_in $local_dir/UnpackerPayload!"
+                            echo
+                          else
+                            echo
+                            echo ".....$extract_error!"
+                            echo
+                          fi
                         fi
                         main_menu
                         return
@@ -5264,7 +5352,7 @@ main_menu() {
                         echo
                         echo ".....$extract_from /$nd/$file..."
                         echo
-                        python39 $binary_dir/bin_system/splitapp_v2.py -f "$file" -o $local_dir/UnpackerUpdateApp
+                        python31 $binary_dir/bin_system/splitapp_v2.py -f "$file" -o $local_dir/UnpackerUpdateApp
 
                         if [ $(echo $?) -eq 0 ]; then
                           cd $local_dir/UnpackerUpdateApp
@@ -5378,7 +5466,7 @@ main_menu() {
                         if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
                           clear
                           echo
-                          python39 $binary_dir/bin_system/ozipdecrypt.py "$file"
+                          python31 $binary_dir/bin_system/ozipdecrypt.py "$file"
                           if [ $(echo $?) -eq 0 ]; then
                             echo
                             echo ".....$complete!"
@@ -5955,7 +6043,7 @@ main_menu() {
 
             ofp() {
 
-              m_name="$(busybox basename "$file" | busybox sed 's!.ofp$!!')"
+              m_name="$(busybox basename "$file" | busybox sed -e 's!.ofp$!!; s!.ops$!!')"
 
               cd $local_dir/UnpackerSystem
               mkdir "$m_name" 2>/dev/null
@@ -5964,22 +6052,45 @@ main_menu() {
               echo ".....$extracting_images_from "$file""
               echo ".....$waiting..."
               echo
-              python39 $binary_dir/bin_oppo_decrypt/ofp_mtk_decrypt.py "$file" "$m_name" 1>log.txt
-              python39 $binary_dir/bin_oppo_decrypt/ofp_qc_decrypt.py "$file" /"$ofp_dir"/"$m_name" 1>>log.txt
-              busybox cp -f log.txt "$m_name"/log.txt
+              #python39 /data/local/binary/bin_oppo_decrypt/ofp_mtk_decrypt.py "$file" "$m_name" 1> log.txt
+              #python39 /data/local/binary/bin_oppo_decrypt/ofp_qc_decrypt.py "$file" /"$ofp_dir"/"$m_name" 1>> log.txt
+              #busybox cp -f log.txt "$m_name"/log.txt
 
-              if [ ! -z "$(busybox cat log.txt | busybox grep -E "Files successfully|Done. Extracted")" ]; then
+              python31  $binary_dir/OppoDecrypt-main -c mtk "$file" /"$ofp_dir"/"$m_name" 1>log.txt
+              if [ -z "$(busybox cat log.txt | busybox grep "ERROR")" ]; then
                 echo
                 echo ".....$images_retrieved_successfully $in $local_dir/UnpackerSystem/$m_name"
                 echo
+                ofp_exit="10"
               else
-                echo
-                echo ".....$extract_error!"
-                echo
+                python31 $binary_dir/OppoDecrypt-main -c qualcomm "$file" /"$ofp_dir"/"$m_name" 1>log.txt
+                if [ -z "$(busybox cat log.txt | busybox grep "ERROR")" ]; then
+                  echo
+                  echo ".....$images_retrieved_successfully $in $local_dir/UnpackerSystem/$m_name"
+                  echo
+                  ofp_exit="10"
+                else
+                  echo
+                  echo ".....$extract_error!"
+                  echo
+                fi
               fi
 
-              check_sup="$(busybox cat log.txt | busybox awk '/super.[0-9]/ { print $2 }' | busybox sed 's!"!!g')"
-              if [ ! -z "$check_sup" ]; then
+              busybox cp -f log.txt "$m_name"/log.txt
+
+              #if [ ! -z "$(busybox cat log.txt | busybox grep -E "Files successfully|Done. Extracted")" ]; then
+              #echo
+              #echo ".....Образы успешно извлечены в /data/local/UnpackerSystem/$m_name"
+              #echo
+              #ofp_exit="10"
+              #else
+              #echo
+              #echo ".....Ошибка при извлечении!"
+              #echo
+              #fi
+
+              check_sup="$(busybox cat log.txt | busybox awk '/super.[0-9]/ { print $5 }' | busybox sed 's!"!!g')"
+              if [ "$ofp_exit" == "10" -a ! -z "$check_sup" ]; then
                 #>super_simg
                 echo
                 echo ".....$found super.img, $broken_apart!"
@@ -6044,7 +6155,7 @@ main_menu() {
                 echo
                 echo ".....$file_search..."
 
-                v=$(for a in $(busybox find . -maxdepth 1 -name '*.ofp' -type f | busybox sed 's!./!!'); do
+                v=$(for a in $(busybox find . -maxdepth 1 -name '*.ofp' -o -name '*.ops' -type f | busybox sed 's!./!!'); do
                   echo "$a"
                 done)
 

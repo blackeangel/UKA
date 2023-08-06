@@ -6,7 +6,8 @@ mkdir -p erofs/config 2>/dev/null
 
 r="$(busybox basename $file)"
 #r_name=${r%.*}
-r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|[+]|[.]|[{]|[(]" '{ print $1 }')
+#r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"-|[+]|[.]|[{]|[(]" '{ print $1 }')
+r_name=$(echo $file | busybox sed 's!.*\/!!' | busybox awk -F"[.]" '{ print $1 }')
 config="config/$r_name"
 parts="$(echo "$r" | busybox grep -o "PARTITION")"
 exten=${r##*.}
@@ -59,6 +60,7 @@ gg() {
 cd $local_dir/UnpackerSystem/erofs
 echo
 echo ".....$deleting_old_folder \""$r_name"\" $and_configuration_files..."
+
 find -maxdepth 1 -name "$r_name" -type d | xargs rm -rf
 
 if [ -f "$r_name" ]; then
@@ -77,7 +79,11 @@ if [ -f "$file" ]; then
     echo ".....$unpacking ${file}..."
     echo
     rm -f config/exception.log
-    extract.erofs -x -f -i "$file" &>/dev/null
+    if [ ! -z "$(getprop ro.product.cpu.abilist64)" ]; then
+        extract.erofs64 -x -f -i "$file" 1>/dev/null
+    else
+        extract.erofs -x -f -i "$file" 1>/dev/null
+    fi
     if [ $(echo $?) -eq "0" -a ! -s config/exception.log ]; then
         mkdir -p "$config"
         busybox mv -f config/"$r_name"_file_contexts config/"$r_name"/"$r_name"_file_contexts
@@ -195,7 +201,13 @@ if [ -f "$file" ]; then
             base_dir=$local_dir/UnpackerSystem/erofs
             img_name=$(cat $local_dir/UnpackerSystem/erofs/"$config"/"$r_name"_name.txt)
 
-            busybox awk '!($0 in a) {a[$0];print}' "$base_dir"/"$config"/"$r_name"_file_contexts >"$base_dir"/"$config"/"$r_name"_file_contexts.tmp && busybox mv -f "$base_dir"/"$config"/"$r_name"_file_contexts.tmp "$base_dir"/"$config"/"$r_name"_file_contexts
+            #busybox awk '!($0 in a) {a[$0];print}' "$base_dir"/"$config"/"$r_name"_file_contexts > "$base_dir"/"$config"/"$r_name"_file_contexts.tmp && busybox mv -f "$base_dir"/"$config"/"$r_name"_file_contexts.tmp "$base_dir"/"$config"/"$r_name"_file_contexts
+
+            busybox cat "$base_dir"/"$config"/"$r_name"_f.txt | busybox grep "_d$" | busybox sed 's!_d$!!' | while read x; do
+                x="$(echo "$x" | busybox sed 's!\.!\\\\.!g')"
+                busybox cat "$base_dir"/"$config"/"$r_name"_file_contexts | busybox grep "^/$x " | busybox grep -v "/ " | busybox awk '{ print $1"(/.*)?"" "$2 }2'
+            done >>"$base_dir"/"$config"/"$r_name"_file_contexts
+            busybox cat "$base_dir"/"$config"/"$r_name"_file_contexts | busybox sort -u >"$base_dir"/"$config"/a.txt && busybox mv -f "$base_dir"/"$config"/a.txt "$base_dir"/"$config"/"$r_name"_file_contexts
 
             if [ "$sar" == "true" ]; then
                 if [ -f "$base_dir"/${r_name}/system/etc/selinux/plat_file_contexts ]; then

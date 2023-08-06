@@ -68,7 +68,7 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
         busybox test -s "$outdir"/"$pack_d".new.transfer.list && busybox mv -f "$outdir"/"$pack_d".new.transfer.list "$outdir"/"$pack_d".transfer.list
     }
 
-    b="python39 $binary_dir/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
+    b="python31 $binary_dir/bin_system/img2sdat-master/img2sdat.py "$outdir"/"$pack_d".new.img $outdir"
     if [ -d ./"$pack_d" ]; then
         a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/build.prop 2>/dev/null) || a=$(busybox awk -F"=" '/ro.build.version.release=/ { print $2 }' "$pack_d"/"$pack_d"/build.prop 2>/dev/null)
 
@@ -186,4 +186,4 @@ if busybox test -s "$outdir"/"$pack_d".new.img; then
 else
     echo ".....$no_image \""$pack_d".new.img\" $for_conversion"
 fi
-rm -f $local_dir/python39/tmp* tmp*
+rm -f $local_dir/python31/tmp* tmp*

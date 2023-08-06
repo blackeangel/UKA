@@ -5,6 +5,7 @@ clear
 part_num() {
     clear
     v=$(echo "boot" "recovery")
+
     set -- $v
     echo
     echo ".....$select partition name:"
@@ -21,6 +22,7 @@ part_num() {
                 break
             elif [ "$REPLY" == "$i" ]; then
                 clear
+                #main_menu
                 return
                 break
             else
@@ -66,7 +68,7 @@ key_algoritm() {
                 break
             elif [ "$REPLY" == "$i" ]; then
                 clear
-        #main_menu
+                #main_menu
                 return
                 break
             else
@@ -92,26 +94,31 @@ key_algoritm() {
     return
 }
 
-aik_pack()
- {
- #avb_dir=/data/local/UnpackerSystem
+aik_pack() {
+    #avb_dir=/data/local/UnpackerSystem
     if busybox test "$(avbtool info_image --image "$file_real" 2>/dev/null)"; then
         size_sign="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Image size:/ { print $3 }')"
         part_name="$(busybox cat "$avb_dir"/avb.img | busybox awk '/Partition Name:/ { print $3 }')"
         prop_avb="$(busybox cat "$avb_dir"/avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
+
         check_alg="$(busybox cat "$avb_dir"/avb.img | busybox awk '/^Algorithm:/ { print $2 }')"
+
         if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
             sign_print="--algorithm $check_alg"
         else
             key_algoritm
         fi
     else
+
         size_sign="$size_sign"
-part_num        #Функция
+        part_num #Функция
 
     fi
+
     size_footer="$(avbtool add_hash_footer --partition_size "$size_sign" --calc_max_image_size)"
+
     truncate -s "$size_footer" "$file_real"
+
     echo "avbtool add_hash_footer --image "$file_real" --partition_size "$size_sign" "$prop_avb"--partition_name "$part_name" "$sign_print" --key "$pack_file"" >"$avb_dir"/avb.sh
     clear
     echo
@@ -123,6 +130,7 @@ part_num        #Функция
         echo
         echo ".....$structure_successfully_created AVB"
         check_alg="$(avbtool info_image --image "$file_real" | busybox awk '/^Algorithm:/ { print $2 }' 2>/dev/null)"
+
         if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
             echo ".....$successfully_signed $file_real"
             return
@@ -141,9 +149,8 @@ part_num        #Функция
     return
 }
 
-search_key()
-{
-          #clear
+search_key() {
+    #clear
     echo
     echo ".....$go_folder_where_private_key_located: cd /sdcard"
     read b && $b
@@ -155,7 +162,9 @@ search_key()
         v=$(for a in $(busybox find -maxdepth 1 -size -10k -type f -exec busybox grep -rl "PRIVATE KEY" {} \;); do
             echo "$a"
         done)
+
         set -- $v
+
         if [ ! -z "$v" ]; then
             clear
             check_alg="$(busybox cat "$avb_dir"/avb.img 2>/dev/null | busybox awk '/^Algorithm:/ { print $2 }')"
@@ -184,7 +193,7 @@ search_key()
                         break
                     elif [ "$REPLY" == "$i" ]; then
                         clear
-        #main_menu
+                        #main_menu
                         return
                         break
                     else
@@ -227,8 +236,7 @@ search_key()
     return
 }
 
-my_size_sign()
-{
+my_size_sign() {
     echo
     echo ".....$enter_size_stock_image_in mb"
     echo
@@ -256,11 +264,11 @@ my_size_sign()
     return
 }
 
-sign_image()
-{     
-              #clear
+sign_image() {
+    #clear
     echo
     echo "         $image_signature     "
+
     echo
     echo "..$go_folder_where_files_located \".img\" $for_signature_example: cd /sdcard"
     read b && $b
@@ -269,12 +277,15 @@ sign_image()
         nd=$(echo $b | busybox awk '{ print $2 }' | busybox sed 's!^/!!')
         echo
         echo ".....$file_search..."
+
         v=$(for a in $(busybox find . -maxdepth 1 -name '*.img' -type f | busybox sed 's!./!!'); do
             if [ ! -z "$(busybox hexdump -C -n 4500 "$a" 2>/dev/null | busybox grep -o '41 4e 44 52 4f 49 44 21')" ]; then
                 echo "$a"
             fi
         done)
+
         set -- $v
+
         if [ ! -z "$v" ]; then
             clear
             echo
@@ -294,6 +305,7 @@ sign_image()
                         file_real="$file"
                         avb_dir=$local_dir/UnpackerSystem
                         if busybox test "$(avbtool info_image --image "$file" 2>/dev/null)"; then
+
                             avbtool info_image --image "$file" >"$avb_dir"/avb.img
                         else
                             my_size_sign

@@ -3,7 +3,7 @@
 size_output_raw() {
   if busybox test -s "$outdir"/"$pack_d".new.img; then
     if busybox test -s "$dir_avb"/*_pubkey.pem; then
-      . remove_key "$pack_d".new.img "$dir_avb"/*_pubkey.pem
+      . remove_key "$outdir"/"$pack_d".new.img "$dir_avb"/*_pubkey.pem
     fi
     echo
         echo -e "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"

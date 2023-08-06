@@ -22,4 +22,4 @@ err
 exit
 fi
 
-python39 /data/local/python39/sdat2img.py "$1" "$2" "$3"
+python31 /data/local/python31/sdat2img.py "$1" "$2" "$3"

@@ -1,3 +1,3 @@
 #!/system/bin/sh
 
-python39 /data/local/python39/usr/bin/ubireader_extract_files "$@"
+python31 /data/local/python31/usr/bin/ubireader_extract_files "$@"

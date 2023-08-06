@@ -1,5 +1,5 @@
 #!/system/bin/sh
 
- python39 /data/local/python39/usr/bin/binwalk "$@"
+ python31 /data/local/python31/usr/bin/binwalk "$@"
 
 
