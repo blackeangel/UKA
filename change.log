@@ -1,3 +1,16 @@
+✓Версия 5.22:
+Обновлён Python
+Исправлены ошибки при распаковке *.ofs и *.ops
+
+✓Версия 5.21:
+Извлечение payload.bin должно извлекаться быстрее.
+Если будет ошибка, и будет использоваться старый метод извлечения, то пишите на каком андроиде и прошивке это произошло.
+
+✓Версия 5.20:
+Исправлено создание бекапа разделов, находящихся в super.
+Добавлен выбор патча в пункте "Патч vbmeta"
+Добавлена возможность распаковки образов с расширением .PARTITION в AIK-mobile.
+
 ✓Версия 5.19:
 В пункт "Распаковка .br", добавлено "Распаковать все образы"
 В пункт "Собрать .img с размером папки для сборки -> .br", добавлено "Собрать все образы"
@@ -220,6 +233,19 @@ AIK-mobile можно полностью удалить с телефона пр
 Добавлено меню.
 
 ===============================================================================================
+✓Version 5.22:
+Updated Python
+Fixed bugs when unpacking *.ofs and *.ops
+
+✓Version 5.21:
+Extracting payload.bin should extract faster.
+If there is an error, and the old extraction method is used, then write on which android and firmware this happened.
+
+✓Version 5.20:
+Fixed backup of partitions in super.
+Added patch selection in "Patch vbmeta"
+Added the ability to unpack images with the .PARTITION extension in AIK-mobile.
+
 ✓Version 5.19:
 In the item "Unpacking .br", added "Unpack all images"
 In the item "Build .img with build folder size -> .br", added "Build all images"
