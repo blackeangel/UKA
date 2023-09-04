@@ -1,5 +1,4 @@
 #!/system/bin/sh
-
 clear
 program_version="5.22"
 local_dir="$(dirname $(dirname $0))"
