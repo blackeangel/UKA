@@ -127,7 +127,7 @@ ff_dirs() {
       echo
       echo "...$enter_attributes_for_folders_added_to \""$xxx"\", $which_recorded_in fs_config, $for_example: 0 0 755:"
       echo
-      read ab && aa=$(python39 $binary_dir/atrib.py "$ab")
+      read ab && aa=$(python31 $binary_dir/atrib.py "$ab")
       if [ ! -z "$(echo "$aa" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
             clear
             echo
@@ -219,7 +219,7 @@ ff_files() {
       echo
       echo "..$enter_attributes_for_files_added_to \""$xxx"\", $which_recorded_in fs_config, $for_example: 0 0 644:"
       echo
-      read ac && bb=$(python39 $binary_dir/atrib.py "$ac")
+      read ac && bb=$(python31 $binary_dir/atrib.py "$ac")
       if [ ! -z "$(echo "$bb" | busybox grep -E '([0-9]{1,4} [0-9]{1,4} [0-9]{1,4})$')" ]; then
             clear
             echo
