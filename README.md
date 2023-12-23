@@ -1,4 +1,4 @@
-﻿## Unpacker Kitchen for Android (UKA)
+## Unpacker Kitchen for Android (UKA)
 
  Unpacking, assembling and converting system(vendor){.img}{.new.dat}{.new.dat.br},
  mounting raw.images, gluing the system.img divided into parts into a single image (from the firmware for Qfil),

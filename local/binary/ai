@@ -1,0 +1,68 @@
+#!/system/bin/sh
+
+separ_img() {
+    size_sup="$(lpdump --slot=0 $local_dir/UnpackerQfil/"$file" | busybox awk '/Size:/ { print $2 }')"
+    piece_size="$(busybox expr "$(busybox expr "$(busybox expr "$size_sup" / 1024 / 1024)" \+ "$num" - 1)" / "$num")"
+
+    if busybox test "$(busybox expr "$size_sup" \* 1 2>/dev/null)"; then
+        if busybox test "$(busybox expr "$piece_size" \* 1 2>/dev/null)"; then
+            busybox find -maxdepth 1 -name "*.img.[0-9]*" -exec busybox rm -f {} \;
+            clear
+            echo
+            echo ".....$size1 $file: "$size_sup" $byte"
+            echo ".....$part_size: "$piece_size" Mb"
+            echo ".....$number_of_parts: $num"
+            echo
+            echo ".....$performing_the_division $file..."
+
+            chunk_split -s .%d -B 4K -C "$piece_size"M "$file"
+
+            if [ $(echo $?) -eq 0 ]; then
+                echo
+                echo ".....$complete"
+                echo ".....$saved_in $local_dir/UnpackerQfil"
+                echo
+                busybox find -maxdepth 1 -name "*.img.[0-9]" | busybox sort -n | while read a; do
+                    ss="$(expr "${a##*.}" - 1)"
+                    busybox mv "$a" super.img."$ss"
+                done
+                busybox find -maxdepth 1 -name "*.img.[0-9][0-9]" | busybox sort -n | while read a; do
+                    ss="$(expr "${a##*.}" - 1)"
+                    busybox mv "$a" super.img."$ss"
+                done
+                return
+            else
+                echo
+                echo ".....$error_during_execution!"
+                echo
+                busybox find -maxdepth 1 -name "*.img.[0-9]*" -exec busybox rm -f {} \;
+            fi
+        else
+            echo
+            echo ".....$error_number_of_parts_value!"
+            echo
+        fi
+    else
+        echo
+        echo ".....$error_definitions_size $file!"
+        echo
+    fi
+    return
+}
+
+input_piece() {
+    echo
+    echo ".....$enter_number_parts_to_divide_into $file:"
+    echo
+    read n
+    if busybox test "$(busybox expr "$n" \* 1 2>/dev/null)"; then
+        num="$n"
+        separ_img
+    else
+        echo
+        echo ".....$value_incorrect_enter_again..."
+        input_piece
+    fi
+    return
+}
+input_piece

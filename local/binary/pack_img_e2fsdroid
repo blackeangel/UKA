@@ -1,0 +1,149 @@
+#!/system/bin/sh
+
+size_output_raw() {
+  if busybox test -s "$outdir"/"$pack_d".new.img; then
+    echo
+    echo -e "\033[33;1m.....$successfully_created "$pack_d".new.img!\033[0m"
+    echo
+    #if [ "$sparse_e2fs" == "1" ]; then
+    #size_out="$size_out"
+    #else
+    #size_out="$(busybox stat -c %s "$outdir"/"$pack_d".new.img)"
+    #fi
+    echo "$size_out" >"$config"/"$pack_d"_size_out.txt
+    echo -e "\033[33;1m.....$size1 raw == $size_out $byte\033[0m"
+    echo
+  fi
+  return
+}
+
+gen_avb_key() {
+  if busybox test ! -f "$dir_avb"/"$pack_d"_"$rs"_new_private.pem; then
+    echo
+    echo ".....$key_generation AVB..."
+    #echo
+    openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:"$rs" -outform PEM -out "$dir_avb"/"$pack_d"_"$rs"_new_private.pem 2>/dev/null
+
+    avbtool extract_public_key --key "$dir_avb"/"$pack_d"_"$rs"_new_private.pem --output "$dir_avb"/"$pack_d"_"$rs"_new_pubkey.pem
+  fi
+  sign_file="--key "$dir_avb"/"$pack_d"_"$rs"_new_private.pem"
+  sign_print="--algorithm $check_alg"
+
+  return
+}
+
+baze_dir=$local_dir/UnpackerSystem
+dir_avb=$local_dir/UnpackerSystem/config/"$pack_d"
+config="config/$pack_d"
+img_name=$(cat $local_dir/UnpackerSystem/"$config"/"$pack_d"*_name.txt)
+
+razn="$(busybox expr "$(busybox du -s "$pack_d" | busybox awk '{ print $1 }')" \* 1024 - "$(busybox cat "$config"/"$pack_d"_size_papka.txt)")"
+
+size_tmp="$(busybox expr "$(busybox cat "$dir_avb"/"$pack_d"_size.txt)" \* 41 / 39 \+ "$razn")"
+
+size_obraz="$(busybox expr "$size_tmp" / 4096 \* 4096)"
+
+#size_avb="$(avbtool add_hashtree_footer --partition_size "$size_obraz" --do_not_generate_fec --calc_max_image_size)"
+
+. $binary_dir/perm_fs
+
+unset check_alg
+unset sign_file
+unset sign_print
+#size_obraz="$(busybox cat "$dir_avb"/"$pack_d"_size.txt)"
+if busybox test -s "$dir_avb"/"$pack_d"_avb.img; then
+  prop_avb="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/    Prop:/ { print "--prop"" "$2":"$4 }' | tr '\n' ' ')"
+  check_alg="$(busybox cat "$dir_avb"/"$pack_d"_avb.img | busybox awk '/^Algorithm:/ { print $2 }')"
+  if [ "$check_alg" != "NONE" -a ! -z "$check_alg" ]; then
+    case "$check_alg" in
+    "SHA256_RSA2048")
+      rs="2048"
+      gen_avb_key
+      ;;
+    "SHA256_RSA4096")
+      rs="4096"
+      gen_avb_key
+      ;;
+    "SHA256_RSA8192")
+      rs="8192"
+      gen_avb_key
+      ;;
+    esac
+  #else
+  #sign_print=""
+  #sign_file=""
+  fi
+  part_name_tmp="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt)"
+  if busybox test ! -z "$part_name_tmp"; then
+    part_name="$(busybox cat "$dir_avb"/"$pack_d"_part_name.txt | busybox awk '{ print "--partition_name"" "$0 }')"
+  else
+    part_name=""
+  fi
+fi
+
+if [ -d ./"$pack_d" -a -f ./"$config"/"$pack_d"*_pack_e2fsdroid.sh ]; then
+
+  if [ -f ./"$config"/"$pack_d"*_fs_config_e2fsdroid -a -f ./"$config"/"$pack_d"*_file_contexts ]; then
+
+    echo
+    echo
+    echo ".....$creating_image "$pack_d".new.img..."
+    echo
+    chmod 755 ./"$config"/"$pack_d"_pack_e2fsdroid.sh && . ./"$config"/"$pack_d"*_pack_e2fsdroid.sh
+    if [ $(echo $?) -eq 0 ]; then
+
+      busybox seq 3 | busybox xargs -I{} resize2fs -M "$outdir"/"$pack_d".new.img {} &>/dev/null
+
+      if [ "$sparse_e2fs" == "1" ]; then
+        echo
+        echo ".....$convert_to sparse..."
+        #echo
+        size_out="$(busybox stat -c %s "$outdir"/"$pack_d".new.img)"
+        img2simg "$outdir"/"$pack_d".new.img "$outdir"/"$pack_d".sparse.img
+        if [ $(echo $?) -eq 0 ]; then
+          busybox mv -f "$outdir"/"$pack_d".sparse.img "$outdir"/"$pack_d".new.img
+        else
+          echo
+          echo ".....$convert_error!"
+          echo
+        fi
+      else
+        size_out="$(busybox stat -c %s "$outdir"/"$pack_d".new.img)"
+      fi
+      if busybox test -s ./"$config"/"$pack_d"*_avb.img; then
+        echo
+        echo ".....$structure_creation AVB..."
+
+        #echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img --partition_size="$(busybox cat "$config"/"$pack_d"_size.txt)" "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" > ./"$config"/"$pack_d"_pack_avb_e2fsdroid.sh
+
+        echo "avbtool add_hashtree_footer --image "$outdir"/"$pack_d".new.img "$part_name" --do_not_generate_fec "$prop_avb" "$sign_print" "$sign_file"" >./"$config"/"$pack_d"_pack_avb_e2fsdroid.sh
+
+        chmod 755 ./"$config"/"$pack_d"_pack_avb_e2fsdroid.sh && . ./"$config"/"$pack_d"*_pack_avb_e2fsdroid.sh
+
+        if [ $(echo $?) -eq 0 ]; then
+          size_out="$(avbtool info_image --image "$outdir"/"$pack_d".new.img | busybox awk '/^Image size:/ { print $3 }')"
+          size_output_raw
+        else
+          echo
+          echo ".....error: $error_creating_structure AVB!"
+          echo
+        fi
+      else
+        size_output_raw
+      fi
+    else
+      echo
+      echo ".....error: $build_error!"
+      echo
+    fi
+  else
+    echo
+    echo ".....$error! $missing_config_files_in_folder!"
+    echo
+  fi
+else
+  echo
+  echo ".....$no_folder \""$pack_d"\" $for_building_image_or_file_missing *_pack_e2fsdroid.sh."
+  echo
+fi
+#busybox rm -f ./fs_config ./file_contexts

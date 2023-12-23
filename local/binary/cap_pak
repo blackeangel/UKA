@@ -1,0 +1,73 @@
+#!/system/bin/sh
+
+cap_name=$(cat config/"$pack_d"*_name.txt)
+dir_bb=$binary_dir
+
+if [ -z "$("$dir_bb"/busybox hexdump -C -n 20000 "$pack_d".new.img | "$dir_bb"/busybox grep '3a ff 26 ed')" ]; then
+
+      dir_loop=$local_dir/"$pack_d".new
+      loops=$("$dir_bb"/busybox mount | cut -d" " -f1,3 | "$dir_bb"/busybox grep "$dir_loop$" | cut -d" " -f1)
+
+      if [ ! -z "$("$dir_bb"/busybox mount | cut -d" " -f3 | "$dir_bb"/busybox grep "$dir_loop$")" ]; then
+            "$dir_bb"/busybox umount "$dir_loop" 2>/dev/null
+            losetup -d "$loops" 2>/dev/null
+      fi
+
+      mkdir "$dir_loop" 2>/dev/null
+      "$dir_bb"/busybox mount -t ext4 -o rw,loop "$pack_d".new.img "$dir_loop" 2>/dev/null
+      if [ "$?" -eq "0" ]; then
+            echo
+            echo "....."$pack_d".new.img $mount_in_folder: $dir_loop $for_write capabilities."
+            echo
+
+            cat $local_dir/UnpackerSystem/config/"$cap_name"_cap.txt | "$dir_bb"/busybox sed "s!$cap_name!$pack_d.new!" | while read a b c; do
+                  setcap "$c" "$a"
+                  echo "$c" "$a"
+            done
+
+            "$dir_bb"/busybox umount "$dir_loop"
+            if [ "$?" -eq "0" ]; then
+                  echo
+                  echo ".....$successfully_unmounted: "$dir_loop""
+                  echo
+                  losetup -d "$loops" 2>/dev/null
+                  rm -rf "$dir_loop" || echo "$deletion_error."
+            fi
+      else
+            for i in 0 1 2 3 4 5 6 7; do
+                  loop=/dev/block/loop$i
+                  "$dir_bb"/busybox mknod $loop b 7 $i 2>/dev/null
+                  "$dir_bb"/busybox losetup $loop "$pack_d".new.img 2>/dev/null
+
+                  test "$("$dir_bb"/busybox losetup $loop | "$dir_bb"/busybox grep "$pack_d".new.img)" && break
+            done
+            "$dir_bb"/busybox mount -t ext4 -o loop $loop "$dir_loop"
+            if [ "$?" -eq "0" ]; then
+                  echo
+                  echo "....."$cap_name".img $mount_in_folder: $dir_loop $for_write capabilities."
+                  echo
+
+                  cat $local_dir/UnpackerSystem/config/"$cap_name"_cap.txt | "$dir_bb"/busybox sed "s!$cap_name!$pack_d.new!" | while read a b c; do
+                        setcap "$c" "$a"
+                        #echo "$c" "$a"
+                  done
+
+                  "$dir_bb"/busybox umount "$dir_loop"
+                  if [ "$?" -eq 0 ]; then
+                        losetup -d "$loop" 2>/dev/null
+                        rm -rf "$dir_loop"
+                        echo
+                        echo ".....$successfully_unmounted: "$dir_loop""
+                        echo
+                  else
+                        echo ".....$unmount_error!"
+                        echo
+                  fi
+            else
+                  echo
+                  echo "\033[31;47;1m ...$write_mount_failed caps!    \033[0m"
+                  echo "\033[31;47;1m ...Capabilities $not_writed!                  \033[0m"
+                  echo
+            fi
+      fi
+fi

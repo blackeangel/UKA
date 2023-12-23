@@ -1,0 +1,717 @@
+#!/system/bin/sh
+
+dir=$binary_dir
+export PATH="$dir":$PATH
+
+cd
+
+n() {
+   #clear
+   echo
+   echo "     $entering_image_save_folder    "
+   echo "     -----------------------------    "
+   echo
+   echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSystem/uka_backup"
+   echo ".....$enter 0, $or_your_path_to_image_save_folder..."
+   echo
+   read h && if [ "$h" = "0" ]; then
+      dir_b=$local_dir/UnpackerSystem/uka_backup
+      mkdir "$dir_b" 2>/dev/null
+
+      set -- $dir_b
+
+      clear
+      echo
+      echo "     $output_image_save_folder_set:"
+      echo "     $dir_b"
+   elif [ -d "$h" ]; then
+      dir_b="$(echo "$h" | busybox sed 's!/!!; s!^!/!')"
+      set -- $dir_b
+
+      clear
+      echo
+      echo "     $output_image_save_folder_set:"
+      echo "     $dir_b"
+   else
+      clear
+      echo
+      echo ".....$save_folder_does_not_exist"
+      n
+      return
+   fi
+   return
+}
+
+inf_space_mmm() {
+   free_space="$(busybox df -h "$dir_b" | busybox tail -1 | busybox awk '{ print $(NF-2) }')"
+   echo "    $free_in_folder: "$free_space""
+   return
+}
+
+qsn_mmm() {
+   if [ -f $binary_dir/path_list.txt ]; then
+      v=$(for a in $(busybox cat $binary_dir/path_list.txt); do
+
+         echo "$a"
+      done)
+
+      set -- $v
+
+      if [ ! -z "$v" ]; then
+         clear
+         echo
+         echo ".....Выберите выходную папку из списка в файле $binary_dir/path_list.txt: "
+         echo
+         select menu in $v "$local_dir/UnpackerSystem/uka_backup"; do
+            case $REPLY in
+            [1-9]*)
+               i="$#"
+               #j="$#"
+               let i=i+1
+               #let j=j+2
+               file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+               if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                  if [ -d "$file" ]; then
+                     clear
+                     dir_b="$file"
+                     set -- $dir_b
+
+                  else
+                     clear
+                     dir_b="$local_dir/UnpackerSystem/uka_backup"
+                     set -- $dir_b
+                     echo
+                     echo ".....$folders1 $file $does_not_exist!"
+                  fi
+                  return
+                  break
+               elif [ "$REPLY" == "$i" ]; then
+                  clear
+                  dir_b="$local_dir/UnpackerSystem/uka_backup"
+                  set -- $dir_b
+                  return
+                  break
+               else
+                  clear
+                  dir_b="$local_dir/UnpackerSystem/uka_backup"
+                  set -- $dir_b
+                  return
+                  break
+               fi
+               break
+               ;;
+            *)
+               clear
+               dir_b="$local_dir/UnpackerSystem/uka_backup"
+               set -- $dir_b
+               return
+               break
+               ;;
+            esac
+         done
+      else
+         clear
+         echo
+         echo ....."$in_faile path_list.txt $no_paths_recorded."
+         echo
+         dir_b="$local_dir/UnpackerSystem/uka_backup"
+         set -- $dir_b
+         return
+      fi
+   else
+      clear
+      echo
+      echo ....."$no_file $binary_dir/path_list.txt!"
+      echo
+      dir_b="$local_dir/UnpackerSystem/uka_backup"
+      set -- $dir_b
+      return
+   fi
+   return
+}
+
+nnn() {
+
+   echo
+   echo "     $selecting_image_save_folder    "
+   echo "     -----------------------------    "
+   echo
+   #echo ".....$when_you_enter 0, $save_folder: $local_dir/UnpackerSystem/uka_backup"
+   echo ".....$enter \"Enter\", $or_your_path_to_image_save_folder..."
+   echo ".....$enter 0, $select_folder_from_list_in_file $binary_dir/path_list.txt..."
+   echo
+   echo ".....$press \"Enter\", $enter 0 $or_your_path_to_image_saving_folder..."
+   echo
+   read h && if [ "$h" = "0" ]; then
+
+      qsn_mmm #функция выбора папки из списка.
+
+      echo
+      echo "    $output_image_save_folder_set:"
+      echo "    $dir_b"
+      inf_space_mmm
+   elif [ -d "$h" -o -d /"$h" -a ! -z "$h" ]; then
+      dir_b=/"$(echo "$h" | busybox sed 's!^/!!')"
+      set -- $dir_b
+      make_ext4fs -l 10485760 "$dir_b"/testuka >/dev/null
+      if busybox test -s "$dir_b"/testuka; then
+
+         clear
+         echo
+         echo "    $output_image_save_folder_set:"
+         set -- $dir_b
+         echo "    $dir_b"
+         inf_space_mmm
+         busybox rm -f "$dir_b"/testuka 2>/dev/null
+      else
+         clear
+         echo
+         echo "    \"$dir_b\" $unavailable_image_saving!"
+         echo
+         echo "    $output_image_save_folder_set:"
+         dir_b=$local_dir/UnpackerSystem/uka_backup
+         set -- $dir_b
+         mkdir "$dir_b" 2>/dev/null
+         echo "    $dir_b"
+         inf_space_mmm
+         busybox rm -f "$dir_b"/testuka 2>/dev/null
+      fi
+   else
+
+      clear
+      echo
+      echo "....$save_folder_does_not_exist!"
+      echo
+      echo "    $output_image_save_folder_set:"
+      dir_b=$local_dir/UnpackerSystem/uka_backup
+      set -- $dir_b
+      mkdir "$dir_b" 2>/dev/null
+      echo "    $dir_b"
+      inf_space_mmm
+      return
+   fi
+   return
+}
+
+inf() {
+   dir=$binary_dir
+   export PATH="$dir":$PATH
+
+   cd
+
+   name=$(busybox cat $binary_dir/ddd.txt | busybox awk '{ print $1 }')
+   set -- $name
+   if [ ! -z "$name" ]; then
+      clear
+      echo
+      echo ".....$select_section:"
+      echo
+      select menu in $name "$exit_main_menu"; do
+         case $REPLY in
+         [0-9]*)
+            i="$#"
+            let i=i+1
+            file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+            if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+
+               ext=$(busybox cat "$dir"/ddd.txt | busybox grep "^$file ")
+               clear
+               echo
+               echo "     $ext"
+               echo
+               selekt
+               return
+               break
+            elif [ "$REPLY" == "$i" ]; then
+               clear
+               main_menu
+               return
+               break
+            else
+               clear
+               echo
+               echo "      $anykey."
+               inf
+               return
+               break
+            fi
+            break
+            ;;
+         *)
+            clear
+            echo
+            echo "      $anykey."
+            inf
+            return
+            break
+            ;;
+         esac
+      done
+   else
+      echo
+      echo ....."$no_matching_files_in_folder"
+      echo
+      main_menu
+      return
+   fi
+   return
+}
+
+pre_work() {
+
+   bs_size="$(busybox printf "%d\n" "$(busybox hexdump -C -n 20000 "$file" | busybox awk '/4d 4d 4d 01 38/ { print "0x"$1}' | busybox head -1)")"
+   if [ "$bs_size" -gt "0" ]; then
+      busybox rm -rf output && busybox mkdir -p output
+      busybox dd if="$file" of=pre.img bs="$bs_size" skip=1 &>output/pre.log
+   else
+      busybox rm -rf output && busybox mkdir -p output
+      busybox dd if="$file" of=pre.img &>output/pre.log
+   fi
+   mtk="$(busybox strings pre.img | busybox grep -o "MTK_BLOADER_INFO")"
+   if [ ! -z "$mtk" ]; then
+      name_pre="$(busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1)"
+      size_pre=$(busybox printf "%d\n" "$(busybox hexdump -n 35 pre.img | busybox awk '/0000020/ { print "0x"$3$2 }')")
+      if [ ! -z "$name_pre" -a ! -z "$size_pre" ]; then
+         busybox dd if=pre.img of=preloader.tmp bs="$size_pre" count=1 &>>output/pre.log && busybox rm -rf pre.img
+         if [ "$?" -eq "0" ]; then
+            #busybox mkdir -p output
+            busybox mv -f preloader.tmp output/"${name_pre}"
+            echo
+            echo ".....$successfully_retrieved $name_pre!"
+            echo ".....$saved_in $local_dir/UnpackerPreloader/output"
+            echo
+         else
+            echo
+            echo ".....$extract_error preloder!"
+            echo
+         fi
+      fi
+   else
+      echo
+      echo ".....$error_not_found header MTK!"
+      echo
+   fi
+   cd - &>/dev/null
+   return
+}
+
+pre_extract_file() {
+   echo
+   echo "   $put_file_in_folder: $local_dir/UnpackerPreloader"
+   echo
+   select img in "$cut preloader $from_file" "$exit_main_menu" "$close_program"; do
+      case $REPLY in
+      1)
+         clear
+         cd $local_dir/UnpackerPreloader
+         b=$(for a in $(busybox find -maxdepth 1 -type f); do
+            if [ ! -z "$(busybox hexdump -C -n 20000 "$a" | busybox grep -E "4d 4d 4d 01 38|45 4d 4d 43 5f 42 4f 4f 54")" ]; then
+               echo "$a" | busybox sed 's!./!!'
+            fi
+         done)
+
+         set -- $b
+
+         if [ ! -z "$b" ]; then
+            echo
+            echo ".....$select_file:"
+            echo
+            select menu in $b "$exit_main_menu"; do
+               case $REPLY in
+               [0-9]*)
+                  i="$#"
+                  let i=i+1
+                  file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+                  if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+                     clear
+                     pre_work
+                     main_menu
+                     return
+                     break
+                  elif [ "$REPLY" == "$i" ]; then
+                     clear
+                     main_menu
+                     return
+                     break
+                  else
+                     clear
+                     echo
+                     echo "      $anykey"
+                     pre_extract_file
+                     return
+                     break
+                  fi
+                  break
+                  ;;
+               *)
+                  clear
+                  echo
+                  echo "      $anykey"
+                  pre_extract_file
+                  return
+                  break
+                  ;;
+               esac
+            done
+         else
+            echo
+            echo ....."$folder_no_files_to_extract"
+            echo
+            main_menu
+            return
+         fi
+         break
+         ;;
+      2)
+         clear
+         main_menu
+         break
+         ;;
+      3)
+         clear
+         break
+         ;;
+      *)
+         clear
+         echo
+         echo "      $anykey"
+         pre_extract_file
+         break
+         ;;
+      esac
+   done
+   return
+}
+
+pre_extract() {
+
+   dir_pre="$dir_b/preload"
+   if [ -d "$dir_pre" ]; then
+      busybox rm -rf "$dir_pre"
+      busybox mkdir -p "$dir_pre" 2>/dev/null
+      cd "$dir_pre"
+   else
+      busybox mkdir -p "$dir_pre" 2>/dev/null
+      cd "$dir_pre"
+   fi
+
+   if [ -e /dev/block/mmcblk0boot0 ]; then
+      bs_size_real="$(busybox printf "%d\n" "$(busybox hexdump -C -n 20000 /dev/block/mmcblk0boot0 | busybox awk '/4d 4d 4d 01 38/ { print "0x"$1}' | busybox head -1)")"
+      busybox dd if=/dev/block/mmcblk0boot0 of=pre.tmp &>pre.log
+      busybox dd if=pre.tmp of=pre.img bs="$bs_size_real" skip=1 &>>pre.log
+      mtk="$(busybox strings pre.img | busybox grep -o "MTK_BLOADER_INFO")"
+      if [ ! -z "$mtk" ]; then
+         name_pre="$(busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1)"
+         #busybox strings pre.img | busybox grep "preloader_.*.bin" | busybox head -1 > name.txt
+         #name_pre="$(busybox cat name.txt)"
+         size_pre=$(busybox printf "%d\n" "$(busybox hexdump -n 35 pre.img | busybox awk '/0000020/ { print "0x"$3$2 }')")
+         if [ ! -z "$name_pre" -a ! -z "$size_pre" ]; then
+            busybox dd if=pre.img of=preloader.img bs="$size_pre" count=1 &>>pre.log && busybox rm -f pre.img
+            if [ "$?" -eq "0" ]; then
+               busybox mv pre.tmp preloader_partition_backup.img
+               busybox mv preloader.img "${name_pre}"
+               cd - &>/dev/null
+               echo
+               echo ".....$successfully_retrieved $name_pre!"
+               echo ".....$saved_in_folder: $dir_pre"
+               echo
+               return
+            else
+               echo
+               echo ".....$extract_error preloder!"
+               echo
+               return
+            fi
+            return
+         fi
+      else
+         echo
+         echo ".....$error_not_found header MTK!"
+         echo
+         return
+      fi
+   else
+      echo
+      echo ".....$error_not_found /dev/block/mmcblk0boot0!"
+      echo
+      return
+   fi
+   return
+}
+
+selekt() {
+   echo
+   select img in "$select_partition_to_save" "$size_info_and_section_block_number" "$search_partitions" "$extract_images_from_super_partition_current_firmware" "$extract_preloader_from_current_firmware_mtk" "$extract_preloader_from_file_mtk" "$exit_main_menu" "$close_program"; do
+      case $REPLY in
+      1)
+         clear
+         bek
+         return
+         break
+         ;;
+      2)
+         clear
+         inf
+         return
+         break
+         ;;
+      3)
+         clear
+         busybox rm -f $binary_dir/ddd.txt
+         becap
+         selekt
+         return
+         break
+         ;;
+      4)
+         clear
+         p=$(busybox find /dev/block -iname "super" -type l | busybox head -1)
+         if [ ! -z "$p" ]; then
+            file="$p"
+
+            if busybox test "$(bootctl get-current-slot 2>/dev/null)" == "1"; then
+               real_slot="1"
+               set -- $real_slot
+            fi
+            . $binary_dir/unpack_img
+         else
+            echo
+            echo ".....$partition_not_found_in_current_firmware super!"
+            echo
+         fi
+         selekt
+         return
+         break
+         ;;
+      5)
+         clear
+         pre_extract
+         selekt
+         return
+         break
+         ;;
+      6)
+         clear
+         pre_extract_file
+         #selekt
+         return
+         break
+         ;;
+      7)
+         clear
+         main_menu
+         return
+         break
+         ;;
+      8)
+         clear
+         return
+         break
+         ;;
+      *)
+         clear
+         echo
+         echo "      $anykey"
+         selekt
+         return
+         break
+         ;;
+      esac
+   done
+   return
+}
+
+becap() {
+   #clear
+   echo
+   echo ".....$search_partitions..."
+
+   busybox find /dev/block ! -iname 'userdata' -type l | busybox grep 'by-name' | while read p; do
+      busybox blockdev --getsize64 $(readlink $p) &>/dev/null
+      if [ "$?" -eq "0" ]; then
+         echo ${p##*/} = $(readlink $p) = $(busybox blockdev --getsize64 $(readlink $p))
+      fi
+   done | busybox sort -u >"$dir"/ddd.txt
+
+   super_part=$(busybox find /dev/block -iname "super" -type l | busybox head -1)
+   mapper_dir="$(busybox find /dev/block -name 'mapper' -type d 2>/dev/null | busybox head -1)"
+   if [ ! -z "$super_part" ]; then
+      /data/local/binary/lpdump "$super_part" | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }' | while read f; do
+         if [ ! -z "$(busybox find "$mapper_dir" -type l | grep "$f")" ]; then
+
+            echo "${f}(super)" = "$mapper_dir"/"$f" = $(busybox blockdev --getsize64 "$mapper_dir"/"$f")
+         fi
+      done | busybox sort -u >>"$dir"/ddd.txt
+   fi
+   return
+}
+
+bek() {
+   #clear
+   name="$(busybox cat "$dir"/ddd.txt | busybox awk '{ print $1 }')"
+   set -- $name
+   if [ ! -z "$name" ]; then
+      echo
+      echo ".....$select_partition_to_save:"
+      echo
+      select menu in $name "$exit_main_menu"; do
+         case $REPLY in
+         [1-9]*)
+            i="$#"
+            let i=i+1
+            file=$(echo "$@" | busybox cut -d' ' -f"$REPLY")
+            if [ ! -z "$file" -a "$REPLY" -lt "$i" ]; then
+               clear
+
+               ext=$(busybox cat "$dir"/ddd.txt | grep "^$file " | busybox awk '{ print $3 }')
+               opla=$(busybox hexdump -C -n 20000 "$ext" | busybox grep -o "30 50 4c 41")
+               #sparse_super=$(busybox hexdump -C -n 2000 "$ext" | grep -o "3a ff 26 ed")
+               ext_file="$(busybox hexdump -C -n 2000 "$ext" | busybox awk '/00000430/ { print $10$11 }' | grep "53ef")"
+               erofs_file="$(busybox hexdump -C -n 2000 "$ext" | busybox grep -o 'e2 e1 f5 e0')"
+               f2fs_file="$(busybox hexdump -C -n 2000 "$ext" | busybox grep -o '10 20 f5 f2')"
+
+               [ -z "$opla" -a -z "$ext_file" ] && fs=false || fs=true
+
+               [ ! -z "$erofs_file" ] && fs="true"
+               [ ! -z "$f2fs_file" ] && fs="true"
+
+               if [ "$fs" == "false" ]; then
+                  echo
+                  echo ".....$creating_backup $file.img..."
+                  echo
+                  busybox cat "$dir"/ddd.txt | busybox grep "^$file "
+                  echo
+                  $(busybox cat "$dir"/ddd.txt | busybox grep "^$file " | busybox awk -v a="$dir_b" '{ print "busybox dd if="$3" ""of="a"/"$1".img bs=64M" }') 2>"$dir"/ll.txt
+                  if [ "$?" -eq "0" ]; then
+                     busybox cat "$dir"/ll.txt | busybox grep -v "records"
+                     echo
+                     echo ".....$successfully_created $file.img!"
+                     echo ".....$saved_in_folder: $dir_b."
+                     echo
+                     selekt
+                     return
+                  else
+                     echo
+                     echo ".....$error_creating_backup!"
+                     echo
+                  fi
+
+               elif [ "$fs" == "true" ]; then
+                  file_save_raw="$(echo "$file" | busybox awk -F"(" '{ print $1 }')"
+                  file_save_spars="$(echo "$file" | busybox awk -F"(" '{ print $1 }')"
+                  echo
+                  select img in "$save ${file_save_raw}.img(raw)" "$save ${file_save_spars}.img(sparse)" "$back_section_selection" "$exit_main_menu"; do
+                     case $REPLY in
+                     1)
+                        clear
+
+                        echo
+                        echo ".....$creating_backup ${file_save_raw}.img..."
+                        echo
+                        busybox cat "$dir"/ddd.txt | busybox grep "^$file "
+                        echo
+
+                        $(busybox cat "$dir"/ddd.txt | busybox grep "^$file " | busybox awk -v a="$dir_b" -v b="$file_save_raw" '{ print "busybox dd if="$3" ""of="a"/"b".img bs=64M" }') 2>"$dir"/ll.txt
+                        if [ "$?" -eq "0" ]; then
+                           busybox cat "$dir"/ll.txt | busybox grep -v "records"
+                           echo
+                           echo ".....$successfully_created ${file_save_raw}.img!"
+                           echo ".....$saved_in_folder: $dir_b."
+                           echo
+                           selekt
+                           return
+                        else
+                           echo
+                           echo ".....$error_creating_backup!"
+                           echo
+                        fi
+                        break
+                        ;;
+                     2)
+                        clear
+
+                        echo
+                        echo ".....$creating_backup ${file_save_spars}.sparse.img..."
+                        echo
+                        busybox cat "$dir"/ddd.txt | busybox grep "^$file "
+                        echo
+                        $(busybox cat "$dir"/ddd.txt | busybox grep "^$file " | busybox awk -v a="$dir_b" -v b="$file_save_spars" '{ print "img2simg"" "$3" "a"/"b".sparse.img" }')
+                        if [ "$?" -eq "0" ]; then
+                           echo
+                           echo ".....$successfully_created $file.sparse.img!"
+                           echo ".....$saved_in_folder: $dir_b."
+                           echo
+                           selekt
+                           return
+                        else
+                           echo
+                           echo ".....$error_creating_backup!"
+                           echo
+                        fi
+                        break
+                        ;;
+                     3)
+                        clear
+                        bek
+                        break
+                        ;;
+                     4)
+                        clear
+                        main_menu
+                        return
+                        break
+                        ;;
+                     *)
+                        clear
+                        echo
+                        echo "      $anykey."
+                        bek
+                        break
+                        ;;
+                     esac
+                  done
+               fi
+               return
+               break
+            elif [ "$REPLY" == "$i" ]; then
+               clear
+               main_menu
+               return
+               break
+            else
+               clear
+               echo
+               echo "      $anykey."
+               bek
+               return
+               break
+            fi
+            break
+            ;;
+         *)
+            clear
+            echo
+            echo "      $anykey."
+            bek
+            return
+            break
+            ;;
+         esac
+      done
+   else
+      echo
+      echo ....."$partitions_not_found_for_backup"
+      echo
+      return
+   fi
+   return
+}
+clear
+nnn
+if [ ! -s "$dir"/ddd.txt ]; then
+   becap
+   clear
+   selekt
+else
+   selekt
+fi

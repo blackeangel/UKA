@@ -1,0 +1,54 @@
+#!/system/bin/sh
+
+dir_ver=$binary_dir
+file="$1"
+
+kernel_ver="$(busybox strings "$file" | busybox awk '/Linux version/  { print $3 }' | busybox head -1 | busybox awk -F"-" '{ print $1 }')" 2>/dev/null
+kernel_bit="$(busybox strings "$file" | busybox grep -Eo "arch/arm.." | busybox head -1 | busybox sed 's!/.!!2')" 2>/dev/null
+kernel_prop="$(busybox find ramdisk -maxdepth 1 -name "prop.default" -type f | busybox sed 's!^./!!')"
+if busybox test -s "$kernel_prop"; then
+  kernel_bit3="$(busybox awk -F"=" '/ro.product.cpu.abilist64=arm64*/ { print $2 }' "$kernel_prop")"
+fi
+
+python31 "$dir_ver"/bin_system/find_gz.py "$file" "1f8b08"
+if [ -f "kernel.gz" ]; then
+  busybox gunzip -f kernel.gz 2>/dev/null || busybox rm -f kernel.gz
+fi
+
+if [ ! -z "$kernel_ver" ]; then
+  echo
+  echo "...$kernel_version: $kernel_ver"
+else
+  #python39 "$dir_ver"/bin_system/find_gz.py "$file" "1f8b08"
+  #if [ -f "kernel.gz" ]; then
+  #busybox gunzip -f kernel.gz
+
+  if [ -f "kernel" ]; then
+    kernel_ver1="$(busybox strings kernel | busybox awk '/Linux version/  { print $3 }' | busybox head -1 | busybox awk -F"-" '{ print $1 }')"
+    echo
+    echo "...$kernel_version: $kernel_ver1"
+  fi
+fi
+#fi
+
+if [ ! -z "$kernel_bit" ]; then
+  if [ "$kernel_bit" == "arch/arm64" ]; then
+    echo "...$kernel_bitness: 64 bit"
+  elif [ "$kernel_bit" == "arch/arm" ]; then
+    echo "...$kernel_bitness: 32 bit"
+  fi
+elif [ ! -z "$kernel_bit3" ]; then
+  echo "...$kernel_bitness: 64 bit"
+else
+
+  if [ -f "kernel" ]; then
+    kernel_bit1="$(busybox strings kernel | busybox grep -Eo "arch/arm.." | busybox head -1 | busybox sed 's!/.!!2')"
+    kernel_bit2="$(busybox strings kernel | busybox grep -Eo "Linux/arm.." | busybox head -1 | busybox sed 's!/.!!2')"
+    if [ "$kernel_bit1" == "arch/arm64" -o "$kernel_bit2" == "Linux/arm64" ]; then
+      echo "...$kernel_bitness: 64 bit"
+    elif [ "$kernel_bit1" == "arch/arm" -o "$kernel_bit2" == "Linux/arm" ]; then
+      echo "...$kernel_bitness: 32 bit"
+    fi
+  fi
+fi
+busybox rm -f kernel

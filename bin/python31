@@ -1,0 +1,26 @@
+#!/system/bin/sh
+
+ export HOME=/data/local/python31
+ 
+ export LD_LIBRARY_PATH=/data/local/python31/usr/lib
+
+ #export SSL_CERT_FILE=/data/local/python31/usr/etc/ssl/cert.pem
+ 
+ export TERMINFO=/data/local/python31/usr/share/terminfo
+ 
+ export SHELL=/data/local/python31/usr/bin/sh
+
+ export CONFIG_SHELL=/data/local/python31/usr/bin/sh
+
+ export TMPDIR="$HOME"
+
+ export PATH=/data/local/python31/usr/bin
+
+ LDSHARED="gcc -shared" CC=gcc /data/local/python31/usr/bin/python3.11 "$@"
+
+
+ #/data/local/python31/usr/bin/python3.11 "$@"
+
+
+
+ 

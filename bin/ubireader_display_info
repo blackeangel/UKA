@@ -1,0 +1,3 @@
+#!/system/bin/sh
+
+python31 /data/local/python31/usr/bin/ubireader_display_info "$@"

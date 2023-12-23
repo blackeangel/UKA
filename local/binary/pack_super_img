@@ -1,0 +1,302 @@
+#!/system/bin/sh
+
+cd $local_dir/UnpackerSuper
+
+ttt() {
+  nom="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }')"
+  nom_a="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }' | busybox grep "_a$")"
+  nom_b="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }' | busybox grep "_b$")"
+  if [ -z "$nom_a" -a ! -z "$nom_b" ]; then
+    echo "$nom_b" | busybox sed 's!_b$!_a!'
+    echo "$nom_b"
+
+  elif [ -z "$nom_b" -a ! -z "$nom_a" ]; then
+    echo "$nom_a" | busybox sed 's!_a$!_b!'
+    echo "$nom_a"
+
+  elif [ ! -z "$nom_b" -a ! -z "$nom_a" ]; then
+    echo "$nom_a"
+    echo "$nom_b"
+  else
+    echo "$nom"
+  fi
+  return
+}
+
+ttt_sort() {
+  if [ "$meta_slot" == "1" -o "$meta_slot" == "2" ]; then
+    ttt
+  else
+    ttt | busybox sort
+  fi
+  return
+}
+
+if busybox test -s config/super_config.txt; then
+
+  meta_size="$(busybox cat config/super_config.txt | busybox awk '/Metadata max size:/ { print $4 }')"
+
+  #meta_slot="$(busybox cat config/super_config.txt | busybox awk '/Metadata slot count:/ { print $4 }')"
+
+  meta_slot_check="$(busybox cat config/super_config.txt | busybox grep -A10 "Group table:" | busybox grep "Name:" | busybox awk '{ print $1 }' | busybox wc -l)"
+
+  gr_ch="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }')"
+  gr_suf_a="$(echo "$gr_ch" | busybox grep ".*_a$")"
+  gr_suf_b="$(echo "$gr_ch" | busybox grep ".*_b$")"
+  gr_suf_cow="$(echo "$gr_ch" | busybox grep ".*cow$")"
+  gr_def="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Group:") print $2 }' | busybox grep "default")"
+
+  if [ ! -z "$gr_def" -a "$meta_slot_check" == "1" ]; then
+    meta_slot=1
+  elif [ ! -z "$gr_suf_a" -o ! -z "$gr_suf_b" ]; then
+    meta_slot=3
+  elif [ ! -z "$gr_suf_cow" ]; then
+    meta_slot=3
+  else
+    meta_slot=2
+  fi
+
+  virtual="$(busybox cat config/super_config.txt | busybox awk '/Header flags:/ { print $3 }' | busybox grep "virtual_ab_device")"
+
+  size_super="$(busybox cat config/super_config.txt | busybox awk '/Size:/ { print $2 }')"
+
+  first_sector_size="$(busybox cat config/super_config.txt | busybox awk '/First sector:/ { print ($3 * 1024)}')"
+
+  #max_size_super="$(busybox cat config/super_config.txt | busybox grep -A8 "Group table:" | busybox grep "Maximum size:" | busybox head -1 | busybox awk '{ print $3 }')"
+
+  #max_size_super2="$(busybox cat config/super_config.txt | busybox grep -A11 "Group table:" | busybox grep "Maximum size:" | busybox awk '{ print $3 }' | busybox sed -n "2p")"
+
+  #max_size_super2="$(busybox expr "$size_super" - "$first_sector_size")"
+
+  #max_size_super3="$(busybox cat config/super_config.txt | busybox grep -A11 "Group table:" | busybox grep "Maximum size:" | busybox awk '{ print $3 }' | busybox sed -n "3p")"
+
+  first_sector="$(busybox cat config/super_config.txt | busybox awk '/First sector:/ { print ($3 * 512)}')"
+
+  group_table="$(busybox cat config/super_config.txt | busybox grep -A7 "Group table:" | grep "Name:" | busybox tail -n 1 | busybox awk '{ print $2 }')"
+
+  group_table2="$(busybox cat config/super_config.txt | busybox grep -A10 "Group table:" | busybox grep "Name:" | busybox awk '{ print $2 }' | busybox sed -n "2p")"
+
+  group_table3="$(busybox cat config/super_config.txt | busybox grep -A10 "Group table:" | busybox grep "Name:" | busybox awk '{ print $2 }' | busybox sed -n "3p")"
+
+  name_super="$(busybox cat config/super_config.txt | busybox awk '/Partition name:/ { print $3 }')"
+
+  if [ ! -z "$meta_size" -a ! -z "$meta_slot" -a ! -z "$size_super" -a ! -z "$name_super" ]; then
+
+    >config/pack_size.txt
+    >config/pack_size_a.txt
+
+    if [ "$meta_slot" == "1" ]; then
+
+      group_part="default"
+
+      echo "lpmake --metadata-size="$meta_size" --super-name="$name_super" --metadata-slots="$meta_slot" --device=super:"$size_super":"$first_sector"" >config/pack_super.tmp
+    elif [ "$meta_slot" == "2" ]; then
+
+      gr_ch_real2="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Group:") print $2 }' | busybox head -1)"
+      group_part="$gr_ch_real2"
+      max_size_super2="$(busybox expr "$size_super" - "$first_sector_size")"
+
+      echo "lpmake --metadata-size="$meta_size" --super-name="$name_super" --metadata-slots="$meta_slot" --device=super:"$size_super":"$first_sector" --group="$group_table2":"$max_size_super2"" >config/pack_super.tmp
+    elif [ "$meta_slot" == "3" ]; then
+
+      gr_ch_real3="$(busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Group:") print $2 }')"
+      gr_gr="$(echo "$gr_ch_real3" | busybox head -1)"
+      gr_gr_a="$(echo "$gr_ch_real3" | busybox grep ".*_a$" | busybox head -1)"
+      gr_gr_b="$(echo "$gr_ch_real3" | busybox grep ".*_b$" | busybox head -1)"
+      gr_gr_cow="$(echo "$gr_ch_real3" | busybox grep ".*cow" | busybox head -1)"
+      gr_gr_rev="$(echo "$gr_ch_real3" | busybox head -1 | busybox sed -e 's!_b$!!; s!_a$!!; s!_cow$!!')"
+
+      if [ "$group_table2" == "$gr_gr_a" -a ! -z "$gr_gr_a" ]; then
+        group_table2="$group_table2"
+        #elif [ "$group_table2" == "$gr_gr_cow" -a ! -z "$gr_gr_cow" ]; then
+        #group_table2="$gr_gr_cow"
+      else
+        group_table2="$gr_gr_rev"_a
+      fi
+      if [ "$group_table3" == "$gr_gr_b" -a ! -z "$gr_gr_b" ]; then
+        group_table3="$group_table3"
+        #elif [ "$group_table3" == "$gr_gr_cow" -a ! -z "$gr_gr_cow" ]; then
+      #group_table3="$gr_gr_cow"
+      else
+        group_table3="$gr_gr_rev"_b
+      fi
+
+      max_size_check2="$(busybox cat config/super_config.txt | busybox grep -A11 "Group table:" | busybox grep "Maximum size:" | busybox awk '{ print $3 }' | busybox sed -n "2p")"
+
+      #max_size_check3="$(busybox cat config/super_config.txt | busybox grep -A11 "Group table:" | busybox grep "Maximum size:" | busybox awk '{ print $3 }' | busybox sed -n "3p")"
+
+      max_size_check3="$max_size_check2"
+
+      max_size_check="$(busybox expr "$max_size_check2" \+ "$max_size_check3")"
+
+      if busybox test "$max_size_check" -gt "$size_super"; then
+        max_size_super2="$(busybox expr "$size_super" - "$first_sector_size")"
+        max_size_super3="$max_size_super2"
+      else
+        max_size_super2="$(busybox expr "$size_super" / 2 - "$first_sector_size" \* 2)"
+        max_size_super3="$max_size_super2"
+      fi
+
+      #if [ ! -z "$gr_suf_cow" ]; then
+      #max_size_super3="0"
+      #fi
+
+      echo "lpmake --metadata-size="$meta_size" --super-name="$name_super" --metadata-slots="$meta_slot" --device=super:"$size_super":"$first_sector" --group="$group_table2":"$max_size_super2" --group="$group_table3":"$max_size_super3"" >config/pack_super.tmp
+    fi
+
+    #переименование образов
+    busybox cat config/super_config.txt | busybox awk '/Partition table:/,/Super partition layout:/ {if ($1=="Name:") print $2 }' | busybox grep -E "_a$|_b$" | while read m; do
+
+      if [ ! -z "$m" ]; then
+
+        ta="$(echo "$m" | busybox sed -e 's!_a$!!; s!_b$!!')"
+
+        busybox find -name "${ta}.new.img" -maxdepth 1 -a ! -name "super*" -type f -exec busybox mv {} "${ta}_a.new.img" \;
+        busybox find -name "${ta}.img" -maxdepth 1 -a ! -name "super*" -type f -exec busybox mv {} "${ta}_a.img" \;
+      fi
+    done
+    #конец переименования
+
+    ttt_sort | while read a; do
+
+      for line in "$(busybox find -name "${a}.*" -maxdepth 1 -a ! -name "super*" -type f)"; do
+
+        if [ -z "$line" ]; then
+          busybox touch ./"$a".img
+          line=./"$a".img
+        fi
+
+        t="$(echo "$line" | busybox wc -l 2>/dev/null)"
+        s="$(echo "$line" | busybox grep "$a.new.img")"
+        if [ "$t" -ge "2" -a ! -z "$s" ]; then
+          line="$s"
+        fi
+
+        opla=$(busybox hexdump -C -n 20000 "$line" | busybox grep -o "30 50 4c 41")
+        if [ -z "$opla" ]; then
+
+          name="$(echo $line | busybox sed 's!.*\/!!' | busybox awk -F"-|_|[+]|[.]|[{]|[(]" '{ print $1 }')"
+
+          #attr="$(busybox cat config/super_config.txt | busybox grep -A2 "Name: $a" | busybox awk '/Attributes:/ { print $2 }')"
+
+          attr=none
+
+          #group_part="$(busybox cat config/super_config.txt | busybox grep -A1 "Name: $a" | busybox awk '/Group:/ { print $2 }' | busybox head -1)"
+
+          if [ ! -z "$(echo "$a" | busybox grep ".*_a$" | busybox grep -v ".*cow")" ]; then
+            group_part="$group_table2"
+            #elif [ ! -z "$(echo "$a" | busybox grep ".*cow$")" ]; then
+          #group_part="cow"
+          elif [ ! -z "$(echo "$a" | busybox grep ".*_b$")" ]; then
+            group_part="$group_table3"
+          fi
+
+          if [ -z "$(busybox hexdump -C -n 4 $line | busybox grep '3a ff 26 ed')" ]; then
+            size_a="$(busybox stat -c %s "$(echo $line | busybox grep "_a")" 2>/dev/null)"
+            size=$(busybox stat -c %s $line)
+            echo "$size_a" >>config/pack_size_a.txt
+            echo "$size" >>config/pack_size.txt
+
+          else
+            size_a="$(busybox hexdump -C -n 50 "$(echo $line | busybox grep "_a")" 2>/dev/null | busybox awk '{if($1==00000000) {b="0x"$17$16$15$14}} {if($1==00000010) {a="0x"$5$4$3$2}}
+END {print a*b}')"
+            size="$(busybox hexdump -C -n 50 $line | busybox awk '{if($1==00000000) {b="0x"$17$16$15$14}} {if($1==00000010) {a="0x"$5$4$3$2}}
+END {print a*b}')"
+            echo "$size_a" >>config/pack_size_a.txt
+            echo "$size" >>config/pack_size.txt
+          fi
+
+          echo -ne " --partition="$a":"$attr":"$size":"$group_part" --image="$a"="$line"" >>config/pack_super.tmp
+        fi
+      done
+    done
+
+    [ ! -z "$virtual" ] && virt=" --virtual-ab " || virt=" "
+
+    if [ "$spars" == "1" ]; then
+
+      out="super.new.img(sparse)"
+
+      echo ""$virt"--sparse --output=./output/super.new.img 2> config/lpmake_log.txt" >>config/pack_super.tmp
+      busybox cat config/pack_super.tmp | busybox tr -d '\n' >config/pack_super.sh
+
+    elif [ "$spars" == "0" ]; then
+
+      out="super.new.img(raw)"
+
+      echo ""$virt"--output=./output/super.new.img 2> config/lpmake_log.txt" >>config/pack_super.tmp
+      busybox cat config/pack_super.tmp | busybox tr -d '\n' >config/pack_super.sh
+    else
+      echo
+      echo "....$no_variable_value \"spars\"!"
+      echo
+    fi
+
+    rm -f config/pack_super.tmp
+    if [ -f config/pack_super.sh -a ! -z "$spars" ]; then
+      echo
+      echo "....$building $out..."
+      echo
+
+      mkdir ./output 2>/dev/null
+
+      size_minus() {
+        rr="$(busybox expr "$max_size_super2" - "$F")"
+        ss=$(busybox expr "$rr" / 1024 / 1024)
+        echo "....$sum_sizes_collected_images_less_than_maximum $rr $byte (~$ss mb)"
+        echo " real = $F $byte  <  max = $max_size_super2 $byte"
+        echo
+        #echo "....Успешно создан $out!"
+        #echo "....Образ сохранён в папку: /data/local/UnpackerSuper/output"
+        #echo
+        return
+      }
+
+      size_plus() {
+        rr="$(busybox expr "$F" - "$max_size_super2")"
+        ss=$(busybox expr "$rr" / 1024 / 1024)
+        echo "....$sum_sizes_collected_images_more_than $rr $byte(~$ss mb)!"
+        echo " real = $F $byte  >  max = $max_size_super2 $byte"
+        echo
+        return
+      }
+
+      F_a="$(cat config/pack_size_a.txt | busybox awk '{ sum += $1 } END { print sum }')"
+      F="$(cat config/pack_size.txt | busybox awk '{ sum += $1 } END { print sum }')"
+
+      busybox test "$F_a" -gt "0" -a "$F_a" -le "$F" -a "$F" -le "$max_size_super2" && F="$F_a" || F="$F"
+
+      if [ ! -z "$max_size_super2" ]; then
+        busybox test "$max_size_super2" -ge "$F" && sim=0 || sim=1
+      else
+        max_size_super2="$(busybox expr "$size_super" - "$first_sector")"
+        busybox test "$max_size_super2" -ge "$F" && sim=0 || sim=1
+      fi
+
+      chmod 755 ./config/pack_super.sh && ./config/pack_super.sh
+      if [ $(echo $?) -eq 0 ]; then
+        echo "....$successfully_created $out!"
+        echo "....$image_saved_in_folder: $local_dir/UnpackerSuper/output"
+        echo
+      else
+        echo "....$error_creating $out!"
+        echo
+      fi
+
+      if [ "$sim" == 0 ]; then
+        size_minus
+      elif [ "$sim" == 1 ]; then
+        size_plus
+      fi
+    fi
+
+  else
+    echo
+    echo "....$error_creating_configuration_file!"
+    echo
+  fi
+else
+  echo
+  echo "....$error_no_config_file!"
+  echo
+fi
