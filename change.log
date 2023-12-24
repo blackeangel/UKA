@@ -1,3 +1,22 @@
+✓Версия 5.27
+•Поправил бекап образов из текущей прошивки с файловой системой erofs.
+•Поправил сборку в RO с shared_blocks.
+
+✓Версия 5.26
+•Багфиксы в коде
+
+✓Версия 5.25
+• Добавлена сборка ext4 в ro с "shared_blocks".
+• При выборе выходной папки, добавлена возможность чтения путей из файла /data/local/binary/path_list.txt при вводе 0. Т.е в этот файл можно записать свои пути и UKA при вводе 0 будет брать их оттуда.
+/data/local/UnpackerSystem и /data/local/UnpackerSystem/uka_backup будут отображаться в списке автоматически.
+
+✓Тестовая версия 5.24
+• Добавлена сборка erofs в erofs.
+
+✓Тестовая версия 5.23
+• В "Прочие инструменты" добавлен пункт: Разделение super.img на части", будет работать только на 64-битных прошивках.
+Касается тех super.img, для которых не используется файл .xml для склейки.
+
 ✓Версия 5.22:
 Обновлён Python
 Исправлены ошибки при распаковке *.ofs и *.ops
@@ -233,6 +252,25 @@ AIK-mobile можно полностью удалить с телефона пр
 Добавлено меню.
 
 ===============================================================================================
+✓Version 5.27
+• Corrected backup images from the current firmware with the erofs file system.
+• Corrected the assembly in RO with shared_blocks.
+
+✓Version 5.26
+•Bugfixes in the code
+
+✓Version 5.25
+• Added ext4 build to ro with "shared_blocks".
+• When selecting an output folder, the ability to read paths from the file /data/local/binary/path_list.txt when entering 0 has been added. That is, you can write your paths to this file and UKA will take them from there when you enter 0.
+/data/local/UnpackerSystem and /data/local/UnpackerSystem/uka_backup will appear in the list automatically.
+
+✓Test version 5.24
+• Added erofs assembly to erofs.
+
+✓Test version 5.23
+• In "Other tools" an item has been added: Splitting super.img into parts" will only work on 64-bit firmware.
+Applies to those super.img for which an .xml file is not used for gluing.
+
 ✓Version 5.22:
 Updated Python
 Fixed bugs when unpacking *.ofs and *.ops
