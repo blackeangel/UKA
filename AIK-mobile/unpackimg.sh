@@ -287,8 +287,13 @@ echo "$name_rd"-new.cpio"$compout" > REPLACE_"$name_rd".txt
  mkdir "$r_dir"/"$name_rd"
  cd "$r_dir"/"$name_rd"
 
- bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
- 
+ #bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
+ if [ "$compout" == ".zstd" ]; then
+    "$bin"/zstd -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
+    bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || abort
+ else
+    bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
+ fi
  #$bb find | $bb xargs $bb stat -c '%n %u %g %a' | $bb sed 's!^./!!' >> "$ram_dir"/perm"$r_num".txt
  
  cd "$r_dir"
