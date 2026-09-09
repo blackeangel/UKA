@@ -20,8 +20,6 @@ abort() { cd $aik; echo "...Error!";} # . ker_ver; }
 cd $aik;
 bb=$bin/busybox;
 chmod -R 755 $bin *.sh;
-#chmod 644 $bin/magic $bin/androidbootimg.magic $bin/boot_signer-dexed.jar $bin/module.prop $bin/ramdisk.img $bin/avb/* $bin/chromeos/*;
-
 chmod 644 $bin/magic $bin/androidbootimg.magic $bin/boot_signer-dexed.jar $bin/module.prop $bin/avb/* $bin/chromeos/*;
 
 [ ! -f $bb ] && bb=busybox;
@@ -60,13 +58,6 @@ fi;
 echo "...Setting up work folders...\n";
 mkdir split_img ramdisk;
 chmod 755 split_img ramdisk;
-#echo "run remount.sh to remount the current image's unpacked ramdisk" > ramdisk/README;
-#chmod 666 ramdisk/README;
-#$bb cp -fp $bin/remount.sh ramdisk/remount.sh;
-#$bb cp -f $bin/ramdisk.img split_img/.aik-ramdisk.img;
-
-#$bin/remount.sh --mount-only || return 1;
-
 cd split_img;
 filesize=$($bb wc -c < "$img");
 echo "$filesize" > "$file-origsize";
@@ -193,21 +184,14 @@ case $imgtype in
   AOSP|AOSP_VNDR) #$bin/unpackbootimg -i "$img" &> /dev/null
   
   unboot --boot_img "$img" --out config --format mkbootimg > conf.txt
-  #unboot --boot_img "$img" --out config --format mkbootimg > conf1.txt
- 
+  
 $bb cp -f conf.txt config/conf.txt
-#$bb cp -f conf1.txt config/conf1.txt
 if [ -f config/bootconfig ]; then
 $bb cp -f config/bootconfig ./
 fi
-
-  #if [ ! -z "$($bb awk '/vendor boot image header version:/ { print $6 }' /data/local/AIK-mobile/split_img/config/conf.txt)" == "4" ]; then
-  
  aik_new_dir=/data/local/AIK-mobile/split_img
  r_dir=/data/local/AIK-mobile
  ram_dir=/data/local/AIK-mobile/split_img/config
- #echo "1" > "$ram_dir"/SETPERM.txt
- #/data/local/python31/usr/bin/extract-dtb "$ram_dir"/dtb -o "$ram_dir" &> /dev/null
  if [ ! -z "$($bb cat "$ram_dir"/conf.txt | $bb grep "boot magic: VNDRBOOT")" ]; then
   v_b="1"
   fi
@@ -253,14 +237,7 @@ fi
  
  cd "$ram_dir"
  
- #$bb ls *_dtb* | while read a; do
- #rem_name="$(echo "$a" | $bb awk -F"_" '{ print "dtb_"$1 }')"
-#$bb mv -f "$a" "$rem_name"
-#done
-#$bb rm -f 00_kernel
- 
  if [ ! -z "$($bb find -type f | $bb grep "ramdisk01")" ]; then
- #echo "true" > fragment.txt
  frag_real="true"
  > perm00.txt
  > perm01.txt
@@ -280,22 +257,46 @@ case "$compout" in
     lz4-l) compout=lz4;;
     *) abort; exit 1;;
   esac;
-  compout=".$compout"
+  
 echo "$name_rd"-new.cpio"$compout" > REPLACE_"$name_rd".txt
 
  rm -rf "$r_dir"/"$name_rd"
  mkdir "$r_dir"/"$name_rd"
  cd "$r_dir"/"$name_rd"
 
- #$bin/bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && $bin/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || $bin/bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
- if [ "$compout" == ".zstd" ]; then
-    "$bin"/zstd -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
-    $bin/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || abort
- else
-    $bin/bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && $bin/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || $bin/bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
- fi
- #$bb find | $bb xargs $bb stat -c '%n %u %g %a' | $bb sed 's!^./!!' >> "$ram_dir"/perm"$r_num".txt
- 
+ case "$compout" in
+    zstd)
+        echo "...Decompressing ZSTD: $rd"
+        "$bin"/zstd -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
+        ;;
+
+    lz4)
+        echo "...Decompressing LZ4: $rd"
+        "$bin"/lz4 -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
+        ;;
+
+    gz)
+        echo "...Decompressing gzip: $rd"
+        "$bin"/gzip -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
+        ;;
+
+    xz|lzma)
+        echo "...Decompressing XZ: $rd"
+        "$bin"/xz -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
+        ;;
+
+    cpio)
+        cp "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio
+        ;;
+
+    *)
+        echo "Unsupported compression: $compout"
+        abort
+        ;;
+esac
+
+"$bin"/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || abort
+
  cd "$r_dir"
  $bb find "$name_rd" -type d -o -type f | $bb xargs $bb stat -c '%n %u %g %a' | $bb sed 's!^./!!' >> "$ram_dir"/perm"$r_num".txt
  cd "$ram_dir"
@@ -303,13 +304,10 @@ done
  cd "$aik_new_dir"
  echo " Удалить *ramdisk01 или ramdisk01_dec.log" > config/DELETE_ramdisk01.txt
  echo "0" > config/UNITE_ramdisk.txt
- 
  else
- #echo "false" > fragment.txt
  frag_real="false"
  cd "$aik_new_dir"
  fi;;
- #fi
 
   AOSP-PXA) $bin/pxa-unpackbootimg -i "$img";;
   ELF)
@@ -434,14 +432,10 @@ else
     abort;
     return 1;
   fi;
-  #cd ramdisk;
-  #$bb rm -rf lost+found
-  #$unpackcmd "../split_img/$file-${vendor}ramdisk.cpio$compext" | EXTRACT_UNSAFE_SYMLINKS=1 cpio -i -d 2>&1;
-  
+
   cd ramdisk;
   $bb rm -rf lost+found
-  #$bin/bootpatch decompress ../split_img/$file-${vendor}ramdisk.cpio$compext ../split_img/$file-${vendor}ramdisk_m.cpio &>/dev/null && $bin/bootpatch cpio ../split_img/$file-${vendor}ramdisk_m.cpio extract &>/dev/null || $bin/bootpatch cpio ../split_img/$file-${vendor}ramdisk.cpio$compext extract #&>/dev/null
-  
+
   if [ "$ramdiskcomp" == "zstd" ]; then
     "$bin"/zstd -dc "../split_img/$file-${vendor}ramdisk.cpio.zst" > "../split_img/$file-${vendor}ramdisk_m.cpio" || abort
     "$bin"/bootpatch cpio "../split_img/$file-${vendor}ramdisk_m.cpio" extract #&>/dev/null || abort
@@ -458,7 +452,6 @@ else
   fi;
   cd ..;
   $bb find ramdisk -type d -o -type f | $bb xargs $bb stat -c '%n %u %g %a' | $bb sed 's!^./!!' >> "$aik"/split_img/config/perm.txt
-  #echo "ramdisk-new.cpio$compext" > split_img/config/OUTNEW_ramdisk.txt
   if [ "$header_version" == "4" -a "$frag_real" == "false" -a -s "$ram_dir"/*ramdisk00  ]; then
   echo " ramdisk01-new.cpio$compext" > split_img/config/ADDNEW_ramdisk01.txt
   echo " ramdisk-new.cpio$compext" > split_img/config/REPLACE_ramdisk.txt
@@ -472,4 +465,3 @@ else
 
 echo "\n...Done!";
 return 0;
-
