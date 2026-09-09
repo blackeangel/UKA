@@ -287,12 +287,12 @@ echo "$name_rd"-new.cpio"$compout" > REPLACE_"$name_rd".txt
  mkdir "$r_dir"/"$name_rd"
  cd "$r_dir"/"$name_rd"
 
- #bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
+ #$bin/bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && $bin/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || $bin/bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
  if [ "$compout" == ".zstd" ]; then
     "$bin"/zstd -dc "$ram_dir"/"$rd" > "$ram_dir"/"$rd".cpio || abort
-    bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || abort
+    $bin/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || abort
  else
-    bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
+    $bin/bootpatch decompress "$ram_dir"/"$rd" "$ram_dir"/"$rd".cpio &>/dev/null && $bin/bootpatch cpio "$ram_dir"/"$rd".cpio extract &>/dev/null || $bin/bootpatch cpio "$ram_dir"/"$rd" extract &>/dev/null
  fi
  #$bb find | $bb xargs $bb stat -c '%n %u %g %a' | $bb sed 's!^./!!' >> "$ram_dir"/perm"$r_num".txt
  
@@ -440,8 +440,16 @@ else
   
   cd ramdisk;
   $bb rm -rf lost+found
-  bootpatch decompress ../split_img/$file-${vendor}ramdisk.cpio$compext ../split_img/$file-${vendor}ramdisk_m.cpio &>/dev/null && bootpatch cpio ../split_img/$file-${vendor}ramdisk_m.cpio extract &>/dev/null || bootpatch cpio ../split_img/$file-${vendor}ramdisk.cpio$compext extract &>/dev/null
+  #$bin/bootpatch decompress ../split_img/$file-${vendor}ramdisk.cpio$compext ../split_img/$file-${vendor}ramdisk_m.cpio &>/dev/null && $bin/bootpatch cpio ../split_img/$file-${vendor}ramdisk_m.cpio extract &>/dev/null || $bin/bootpatch cpio ../split_img/$file-${vendor}ramdisk.cpio$compext extract #&>/dev/null
   
+  if [ "$ramdiskcomp" == "zstd" ]; then
+    "$bin"/zstd -dc "../split_img/$file-${vendor}ramdisk.cpio.zst" > "../split_img/$file-${vendor}ramdisk_m.cpio" || abort
+    "$bin"/bootpatch cpio "../split_img/$file-${vendor}ramdisk_m.cpio" extract #&>/dev/null || abort
+  else
+    "$bin"/bootpatch decompress "../split_img/$file-${vendor}ramdisk.cpio$compext" "../split_img/$file-${vendor}ramdisk_m.cpio" &>/dev/null && \
+    "$bin"/bootpatch cpio "../split_img/$file-${vendor}ramdisk_m.cpio" extract #&>/dev/null || \
+    "$bin"/bootpatch cpio "../split_img/$file-${vendor}ramdisk.cpio$compext" extract #&>/dev/null
+  fi
   
   if [ $? != 0 ]; then
     cd ..;
@@ -464,3 +472,4 @@ else
 
 echo "\n...Done!";
 return 0;
+
